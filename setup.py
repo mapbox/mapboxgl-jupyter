@@ -10,7 +10,7 @@ with open('mapboxgl/__init__.py') as f:
             continue
 
 setup(
-    name='mapbpoxgl',
+    name='mapboxgl',
     version=version,
     description=u"MapboxGL plugin for Jupyter Notebooks",
     long_description="Use Mapbox GL natively in your Jupyter Notebook workflows",
