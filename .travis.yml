@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.7"
+  - "3.6"
+install:
+  - "pip install -e .[test]"
+  - "pip install coveralls"
+script: "py.test -v --cov mapboxgl --cov-report term-missing"
+after_success:
+  - coveralls || echo "intermittent coveralls failure"
