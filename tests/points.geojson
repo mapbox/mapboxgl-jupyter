@@ -1,0 +1,35 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Avg Medicare Payments": 7678.214347826088,
+        "Avg Covered Charges": 35247.02815217392,
+        "Avg Total Payments": 8749.025108695649
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -85.36285599999992,
+          31.216214999999963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Avg Medicare Payments": 5793.63142857143,
+        "Avg Covered Charges": 16451.092040816326,
+        "Avg Total Payments": 6812.1312244897945
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.14279690000002,
+          32.452976300000024
+        ]
+      }
+    }
+  ]
+}
