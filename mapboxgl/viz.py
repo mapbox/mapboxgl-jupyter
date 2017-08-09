@@ -3,7 +3,7 @@ import os
 
 from IPython.core.display import HTML, display
 
-from mapboxgl.templates import HTML_HEAD, HTML_CIRCLE_VIZ, HTML_TAIL
+from mapboxgl.templates import HTML_HEAD, HTML_CIRCLE_VIZ, HTML_TAIL, CALC_CIRCLE_COLOR_LEGEND
 from mapboxgl.errors import TokenError
 
 
@@ -56,7 +56,7 @@ class CircleViz(object):
 
         srcdoc = html_data.replace('"', "'")
         return ('<iframe id="{div_id}", srcdoc="{srcdoc}" style="width: {width}; '
-                'height: {height}; border: none"></iframe>'.format(
+                'height: {height};"></iframe>'.format(
                     div_id=self.div_id,
                     srcdoc=srcdoc,
                     width=self.width,
@@ -75,6 +75,7 @@ class CircleViz(object):
         html_data = (
             HTML_HEAD +
             HTML_CIRCLE_VIZ.format(
+                calcCircleColorLegend=CALC_CIRCLE_COLOR_LEGEND,
                 accessToken=self.access_token,
                 div_id=self.div_id,
                 styleUrl=self.style_url,
