@@ -30,6 +30,21 @@
           32.452976300000024
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Avg Medicare Payments": 1200,
+        "Avg Covered Charges": 1800,
+        "Avg Total Payments": 2200
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.14279690000002,
+          31.452976300000024
+        ]
+      }
     }
   ]
 }

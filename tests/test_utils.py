@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from mapboxgl.utils import df_to_geojson
+from mapboxgl.utils import df_to_geojson, scale_between, create_radius_stops
 
 
 class MockDataframe(object):
@@ -35,9 +35,16 @@ def df():
 
 def test_df_geojson(df):
     features = df_to_geojson(df)['features']
-    assert len(features) == 2
-
+    assert len(features) == 3
 
 def test_df_properties(df):
     features = df_to_geojson(df, properties=['Avg Medicare Payments'])['features']
     assert tuple(features[0]['properties'].keys()) == ('Avg Medicare Payments',)
+
+def test_scale_between(df):
+    domain = df['Avg Medicare Payments'].tolist()
+    scale = scale_between(0,1,domain)
+    assert list(5793.63142857143)
+
+def test_create_radius_stops(breaks, min_radius, max_radius):
+    pass
