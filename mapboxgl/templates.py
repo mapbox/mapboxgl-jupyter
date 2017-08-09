@@ -164,3 +164,78 @@ HTML_CIRCLE_VIZ = """
         }});
     }});
 """
+
+HTML_GRADUATED_CIRCLE_VIZ = """
+    {calcCircleColorLegend}
+
+    mapboxgl.accessToken = '{accessToken}';
+
+    // Load the map
+    var map = new mapboxgl.Map({{
+        container: 'map',
+        style: '{styleUrl}', 
+        center: {center},
+        zoom: {zoom}
+    }});
+
+    calcCircleColorLegend({colorStops}, "{colorProperty} vs. {radiusProperty}")
+
+    // Add our data for viz when the map loads
+    map.on('load', function() {{
+        
+        map.addSource("data", {{
+            "type": "geojson",
+            "data": {geojson_data}, //data from dataframe output to geojson
+            "buffer": 1,
+            "maxzoom": 14
+        }});
+
+        map.addLayer({{
+            "id": "circle",
+            "source": "data",
+            "type": "circle",
+            "paint": {{
+                "circle-color": {{
+                    "property": "{colorProperty}", //Data property to style color by from python variable
+                    "stops": {colorStops}  // Color stops array to use based on data values from python variable
+                }},
+                "circle-radius" : {{
+                    "property": "{radiusProperty}", //Data property to style radius by from python variable
+                    "stops": {radiusStops}  // Radius stops array to adjust radius on data values from python variable
+                }},
+                "circle-stroke-color": "white",
+                "circle-stroke-width": {{
+                    "stops": [[0,0.01], [18,1]]
+                }}
+            }}
+        }}, "waterway-label");
+        
+        // Create a popup
+        var popup = new mapboxgl.Popup({{
+            closeButton: false,
+            closeOnClick: false
+        }});
+        
+        // Show the popup on mouseover
+        map.on('mousemove', 'circle', function(e) {{
+            map.getCanvas().style.cursor = 'pointer';
+            popup.setLngLat(e.features[0].geometry.coordinates)
+                .setHTML('<ul><li> {colorProperty}: ' + e.features[0].properties["{colorProperty}"] + '</li>' +
+                '<li> {radiusProperty}: ' + e.features[0].properties["{radiusProperty}"] + '</li></ul>')
+                .addTo(map);
+        }});
+
+        map.on('mouseleave', 'circle', function() {{
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        }});
+        
+        // Fly to on click
+        map.on('click', 'circle', function(e) {{
+            map.flyTo({{
+                center: e.features[0].geometry.coordinates,
+                zoom: 10
+            }});
+        }});
+    }});
+"""
