@@ -3,7 +3,7 @@ from mock import patch
 
 import pytest
 
-from mapboxgl import CircleViz
+from mapboxgl.viz import CircleViz, GraduatedCircleViz
 from mapboxgl.errors import TokenError
 
 
@@ -36,6 +36,14 @@ def test_html_color(data):
     viz = CircleViz(data,
                     color_property="Avg Medicare Payments",
                     access_token=TOKEN)
+    assert "<html>" in viz.create_html()
+
+
+def test_html_graduatedCricleViz(data):
+    viz = GraduatedCircleViz(data,
+                             color_property="Avg Medicare Payments",
+                             radius_property="Avg Covered Charges",
+                             access_token=TOKEN)
     assert "<html>" in viz.create_html()
 
 
