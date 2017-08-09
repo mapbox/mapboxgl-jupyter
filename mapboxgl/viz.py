@@ -172,5 +172,5 @@ class GraduatedCircleViz(object):
                 colorProperty=self.color_property,
                 colorStops=self.color_stops,
                 radiusProperty=self.radius_property,
-                radiusStops=list(self.radius_stops)) + HTML_TAIL)
+                radiusStops=self.radius_stops) + HTML_TAIL)
         return html_data

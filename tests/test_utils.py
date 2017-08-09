@@ -47,11 +47,11 @@ def test_df_properties(df):
 
 def test_scale_between():
     scale = scale_between(0, 1, 4)
-    assert scale == list(0.0, 0.33, 0.67)
+    assert scale == [0.0, 0.25, 0.5, 0.75]
 
 
 def test_create_radius_stops(df):
-    domain = df['Avg Medicare Payments'].tolist()
+    domain = [7678.214347826088, 5793.63142857143, 1200]
     radius_stops = create_radius_stops(domain, 1, 10)
     assert radius_stops == [[7678.214347826088, 1.0], [5793.63142857143, 4.0], [1200, 7.0]]
 
