@@ -28,15 +28,16 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
     return geojson
 
 def scale_between(minval, maxval, numStops):
-    """ Scale an min and max value to an equal interval domain """
+    """ Scale a min and max value to equal interval domain with 
+        numStops discrete values
+    """
 
     scale = []
 
     if numStops < 2:
         return [minval, maxval]
     elif maxval < minval:
-        raise ValueError('max value {} is less than min value {}').format(maxval, minval)
-        return
+        raise ValueError()
     else:
         domain = maxval - minval
         interval = domain/numStops

@@ -50,6 +50,18 @@ def test_scale_between():
     assert scale == [0.0, 0.25, 0.5, 0.75]
 
 
+def test_scale_between_valueError():
+    """Create radius stops raises ValueError"""
+    with pytest.raises(ValueError):
+        scale_between(1, 0, 10)
+
+
+def test_scale_between_maxMin():
+    """Create radius stops raises ValueError"""
+    scale = scale_between(0,1,1)
+    assert scale == [0,1]
+
+
 def test_create_radius_stops(df):
     domain = [7678.214347826088, 5793.63142857143, 1200]
     radius_stops = create_radius_stops(domain, 1, 10)
