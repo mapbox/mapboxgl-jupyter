@@ -116,6 +116,19 @@ HTML_CIRCLE_VIZ = """
             "buffer": 1,
             "maxzoom": 14
         }});
+
+        if ("{labelProperty}".length > 0) {{
+
+                map.addLayer({{
+                    "id": "label",
+                    "source": "data",
+                    "type": "symbol",
+                    "layout": {{
+                        "text-field": "{{{labelProperty}}}",
+                        "text-size" : {{ "stops": [[0,8],[22,16]] }}
+                }}
+            }})
+        }}
         
         map.addLayer({{
             "id": "circle",
@@ -189,6 +202,19 @@ HTML_GRADUATED_CIRCLE_VIZ = """
             "buffer": 1,
             "maxzoom": 14
         }});
+
+        if ("{labelProperty}".length > 0) {{
+
+                map.addLayer({{
+                    "id": "label",
+                    "source": "data",
+                    "type": "symbol",
+                    "layout": {{
+                        "text-field": "{{{labelProperty}}}",
+                        "text-size" : {{ "stops": [[0,8],[22,16]] }}
+                }}
+            }})
+        }}
 
         map.addLayer({{
             "id": "circle",

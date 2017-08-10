@@ -16,6 +16,7 @@ class CircleViz(object):
                  center=(0, 0),
                  color_property=None,
                  color_stops=None,
+                 label_property = None,
                  div_id='map',
                  height='500px',
                  style_url="mapbox://styles/mapbox/light-v9",
@@ -50,6 +51,7 @@ class CircleViz(object):
 
         self.color_property = color_property
         self.color_stops = color_stops
+        self.label_property = label_property
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -83,7 +85,8 @@ class CircleViz(object):
                 zoom=self.zoom,
                 geojson_data=json.dumps(self.data, ensure_ascii=False),
                 colorProperty=self.color_property,
-                colorStops=self.color_stops) +
+                colorStops=self.color_stops,
+                labelProperty=self.label_property) +
             HTML_TAIL)
         return html_data
 
@@ -95,6 +98,7 @@ class GraduatedCircleViz(object):
                  data,
                  access_token=None,
                  center=(0, 0),
+                 label_property=None,
                  color_property=None,
                  color_stops=None,
                  radius_property=None,
@@ -137,6 +141,7 @@ class GraduatedCircleViz(object):
         self.color_stops = color_stops
         self.radius_property = radius_property
         self.radius_stops = radius_stops
+        self.label_property = label_property
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -172,5 +177,6 @@ class GraduatedCircleViz(object):
                 colorProperty=self.color_property,
                 colorStops=self.color_stops,
                 radiusProperty=self.radius_property,
-                radiusStops=self.radius_stops) + HTML_TAIL)
+                radiusStops=self.radius_stops,
+                labelProperty=self.label_property) + HTML_TAIL)
         return html_data
