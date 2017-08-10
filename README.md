@@ -13,6 +13,16 @@ Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizati
 
 `pip install mapboxgl`
 
+## Development
+
+Install the python locally with pip:
+
+`pip install -e .`
+
+To run tests use pytest:
+
+`pytest`
+
 ## Usage
 
 `mapboxgl` visualizations take GeoJSON data as input.

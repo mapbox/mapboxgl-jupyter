@@ -26,3 +26,33 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
         geojson['features'].append(feature)
 
     return geojson
+
+def scale_between(minval, maxval, numStops):
+    """ Scale a min and max value to equal interval domain with 
+        numStops discrete values
+    """
+
+    scale = []
+
+    if numStops < 2:
+        return [minval, maxval]
+    elif maxval < minval:
+        raise ValueError()
+    else:
+        domain = maxval - minval
+        interval = domain/numStops
+        for i in range(numStops):
+            scale.append(round(minval + interval*i, 2))
+        return scale
+
+
+def create_radius_stops(breaks, min_radius, max_radius):
+    """Convert a data breaks into a radius ramp
+    """
+    num_breaks = len(breaks)
+    radius_breaks = scale_between(min_radius, max_radius, num_breaks)
+    stops = []
+
+    for i, b in enumerate(breaks):
+        stops.append([b, radius_breaks[i]])
+    return stops
