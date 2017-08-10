@@ -117,18 +117,20 @@ HTML_CIRCLE_VIZ = """
             "maxzoom": 14
         }});
 
-        if ("{labelProperty}".length > 0) {{
-
-                map.addLayer({{
-                    "id": "label",
-                    "source": "data",
-                    "type": "symbol",
-                    "layout": {{
-                        "text-field": "{{{labelProperty}}}",
-                        "text-size" : {{ "stops": [[0,8],[22,16]] }}
-                }}
-            }})
-        }}
+        map.addLayer({{
+            "id": "label",
+            "source": "data",
+            "type": "symbol",
+            "layout": {{
+                "text-field": "{{{labelProperty}}}",
+                "text-size" : {{ "stops": [[0,8],[22,16]] }},
+                "text-offset": [0,-1],
+            }},
+            "paint": {{
+                "text-halo-color": "white",
+                "text-halo-width": 1
+            }}
+        }}, 'waterway-label')
         
         map.addLayer({{
             "id": "circle",
@@ -147,7 +149,7 @@ HTML_CIRCLE_VIZ = """
                     "stops": [[0,0.01], [18,1]]
                 }}
             }}
-        }}, "waterway-label");
+        }}, "label");
         
         // Create a popup
         var popup = new mapboxgl.Popup({{
@@ -203,18 +205,20 @@ HTML_GRADUATED_CIRCLE_VIZ = """
             "maxzoom": 14
         }});
 
-        if ("{labelProperty}".length > 0) {{
-
-                map.addLayer({{
-                    "id": "label",
-                    "source": "data",
-                    "type": "symbol",
-                    "layout": {{
-                        "text-field": "{{{labelProperty}}}",
-                        "text-size" : {{ "stops": [[0,8],[22,16]] }}
-                }}
-            }})
-        }}
+        map.addLayer({{
+            "id": "label",
+            "source": "data",
+            "type": "symbol",
+            "layout": {{
+                "text-field": "{{{labelProperty}}}",
+                "text-size" : {{ "stops": [[0,8],[22,16]] }},
+                "text-offset": [0,-1],
+            }},
+            "paint": {{
+                "text-halo-color": "white",
+                "text-halo-width": 1
+            }}
+        }}, 'waterway-label')
 
         map.addLayer({{
             "id": "circle",
@@ -234,7 +238,7 @@ HTML_GRADUATED_CIRCLE_VIZ = """
                     "stops": [[0,0.01], [18,1]]
                 }}
             }}
-        }}, "waterway-label");
+        }}, "label");
         
         // Create a popup
         var popup = new mapboxgl.Popup({{
