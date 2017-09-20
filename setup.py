@@ -29,6 +29,6 @@ setup(
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['jupyter'],
+    install_requires=['jupyter', 'jinja2'],
     extras_require={
         'test': ['pytest', 'pytest-cov', 'codecov', 'mock']})

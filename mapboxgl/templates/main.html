@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>mapboxgl-jupyter viz</title>
+<meta charset='UTF-8' />
+<meta name='viewport'
+      content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script type='text/javascript'
+        src='https://api.tiles.mapbox.com/mapbox-gl-js/{{ gl_js_version }}/mapbox-gl.js'></script>
+<link type='text/css'
+      href='https://api.tiles.mapbox.com/mapbox-gl-js/{{ gl_js_version }}/mapbox-gl.css' rel='stylesheet' />
+<style type='text/css'>
+    body { margin:0; padding:0; }
+    .map { position:absolute; top:0; bottom:0; width:100%; }
+    .legend {
+        background-color: white;
+        color: black;
+        border-radius: 3px;
+        bottom: 50px;
+        width: 100px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        padding: 12px;
+        position: absolute;
+        right: 10px;
+        z-index: 1;
+    }
+    .legend h4 { margin: 0 0 10px; }
+    .legend-title {
+        margin: 6px;
+        padding: 6px:
+        font-weight: bold;
+        font-size: 14px;
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+    .legend div span {
+        border-radius: 50%;
+        display: inline-block;
+        height: 10px;
+        margin-right: 5px;
+        width: 10px;
+    }
+</style>
+</head>
+<body>
+
+<div id='map' class='map'></div>
+<div id='legend' class='legend'></div>
+
+<script type='text/javascript'>
+function calcCircleColorLegend(myColorStops, title) {
+    //Calculate a legend element on a Mapbox GL Style Spec property function stops array
+    var mytitle = document.createElement('div');
+    mytitle.textContent = title;
+    mytitle.className = 'legend-title'
+    var legend = document.getElementById('legend');
+    legend.appendChild(mytitle);
+
+    for (p = 0; p < myColorStops.length; p++) {
+        if (!!document.getElementById('legend-points-value-' + p)) {
+            //update the legend if it already exists
+            document.getElementById('legend-points-value-' + p).textContent = myColorStops[p][0];
+            document.getElementById('legend-points-id-' + p).style.backgroundColor = myColorStops[p][1];
+        } else {
+            //create the legend if it doesn't yet exist
+            var item = document.createElement('div');
+            var key = document.createElement('span');
+            key.className = 'legend-key';
+            var value = document.createElement('span');
+
+            key.id = 'legend-points-id-' + p;
+            key.style.backgroundColor = myColorStops[p][1];
+            value.id = 'legend-points-value-' + p;
+
+            item.appendChild(key);
+            item.appendChild(value);
+            legend.appendChild(item);
+            
+            data = document.getElementById('legend-points-value-' + p)
+            data.textContent = myColorStops[p][0];
+        }
+    }
+}
+</script>
+
+<!-- main map creation code, extended by mapboxgl/templates/{{ viz }}.html -->
+<script type="text/javascript">
+{% block javascript %}{% endblock %}
+</script>
+
+</body>
+</html>
