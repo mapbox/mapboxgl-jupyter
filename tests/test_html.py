@@ -58,7 +58,9 @@ def test_token_env_GraduatedCircleViz(monkeypatch, data):
     """Viz can get token from environment if not specified
     """
     monkeypatch.setenv('MAPBOX_ACCESS_TOKEN', TOKEN)
-    viz = GraduatedCircleViz(data, color_property="Avg Medicare Payments",radius_property="Avg Covered Charges")
+    viz = GraduatedCircleViz(data,
+                             color_property="Avg Medicare Payments",
+                             radius_property="Avg Covered Charges")
     assert TOKEN in viz.create_html()
 
 
@@ -68,6 +70,7 @@ def test_display_CircleViz(display, data):
     """
     viz = CircleViz(data,
                     color_property="Avg Medicare Payments",
+                    label_property="Avg Medicare Payments",
                     access_token=TOKEN)
     viz.show()
     display.assert_called_once()
@@ -78,8 +81,9 @@ def test_display_GraduatedCircleViz(display, data):
     """Assert that show calls the mocked display function
     """
     viz = GraduatedCircleViz(data,
-                    color_property="Avg Medicare Payments",
-                    radius_property="Avg Covered Charges",
-                    access_token=TOKEN)
+                             color_property="Avg Medicare Payments",
+                             label_property="Avg Medicare Payments",
+                             radius_property="Avg Covered Charges",
+                             access_token=TOKEN)
     viz.show()
     display.assert_called_once()
