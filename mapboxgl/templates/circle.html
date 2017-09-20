@@ -69,7 +69,7 @@ map.on('load', function() {
     map.on('mousemove', 'circle', function(e) {
         map.getCanvas().style.cursor = 'pointer';
         popup.setLngLat(e.features[0].geometry.coordinates)
-            .setHTML('<li> {{ colorProperty }}: ' + e.features[0].properties["{{ colorProperty }}"] + '</li>')
+            .setHTML('<pre>' + JSON.stringify(e.features[0].properties, null, 2) + '</pre>')
             .addTo(map);
     });
 

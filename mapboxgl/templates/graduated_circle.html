@@ -73,8 +73,7 @@ map.on('load', function() {
     map.on('mousemove', 'circle', function(e) {
         map.getCanvas().style.cursor = 'pointer';
         popup.setLngLat(e.features[0].geometry.coordinates)
-            .setHTML('<ul><li> {{ colorProperty }}: ' + e.features[0].properties["{{ colorProperty }}"] + '</li>' +
-            '<li> {{ radiusProperty }}: ' + e.features[0].properties["{{ radiusProperty }}"] + '</li></ul>')
+            .setHTML('<pre>' + JSON.stringify(e.features[0].properties, null, 2) + '</pre>')
             .addTo(map);
     });
 

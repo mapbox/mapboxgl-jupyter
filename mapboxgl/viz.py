@@ -54,8 +54,6 @@ class CircleViz(object):
         self.color_property = color_property
         self.color_stops = color_stops
         self.label_property = label_property
-        if label_property is not None:
-            self.label_property = '{' + label_property + '}'
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -87,8 +85,12 @@ class CircleViz(object):
             zoom=self.zoom,
             geojson_data=json.dumps(self.data, ensure_ascii=False),
             colorProperty=self.color_property,
-            colorStops=self.color_stops,
-            labelProperty=self.label_property)
+            colorStops=self.color_stops)
+
+        if self.label_property is None:
+            options.update(labelProperty=None)
+        else:
+            options.update(labelProperty='{' + self.label_property + '}')
 
         return templates.format('circle', **options)
 
@@ -144,8 +146,6 @@ class GraduatedCircleViz(object):
         self.radius_property = radius_property
         self.radius_stops = radius_stops
         self.label_property = label_property
-        if label_property is not None:
-            self.label_property = '{' + label_property + '}'
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -179,7 +179,11 @@ class GraduatedCircleViz(object):
             colorProperty=self.color_property,
             colorStops=self.color_stops,
             radiusProperty=self.radius_property,
-            radiusStops=self.radius_stops,
-            labelProperty=self.label_property)
+            radiusStops=self.radius_stops)
+
+        if self.label_property is None:
+            options.update(labelProperty=None)
+        else:
+            options.update(labelProperty='{' + self.label_property + '}')
 
         return templates.format('graduated_circle', **options)

@@ -27,6 +27,8 @@ setup(
     url='https://github.com/mapbox/mapboxgl-jupyter',
     license='MIT',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+    package_data={
+        'mapboxgl': ['templates/*']},
     include_package_data=True,
     zip_safe=False,
     install_requires=['jupyter', 'jinja2'],
