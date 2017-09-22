@@ -21,7 +21,7 @@ class CircleViz(object):
                  label_property=None,
                  div_id='map',
                  height='500px',
-                 style_url="mapbox://styles/mapbox/light-v9",
+                 style_url="mapbox://styles/mapbox/light-v9?optimize=true",
                  width='100%',
                  zoom=0):
         """Construct a Mapviz object
@@ -109,7 +109,7 @@ class GraduatedCircleViz(object):
                  radius_stops=None,
                  div_id='map',
                  height='500px',
-                 style_url="mapbox://styles/mapbox/light-v9",
+                 style_url="mapbox://styles/mapbox/light-v9?optimize=true",
                  width='100%',
                  zoom=0):
         """Construct a Mapviz object
