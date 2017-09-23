@@ -3,8 +3,10 @@ import os
 
 from IPython.core.display import HTML, display
 
-from mapboxgl.templates import HTML_HEAD, HTML_CIRCLE_VIZ, HTML_TAIL, CALC_CIRCLE_COLOR_LEGEND, HTML_GRADUATED_CIRCLE_VIZ
 from mapboxgl.errors import TokenError
+from mapboxgl import templates
+
+GL_JS_VERSION = 'v0.40.1'
 
 
 class CircleViz(object):
@@ -16,10 +18,10 @@ class CircleViz(object):
                  center=(0, 0),
                  color_property=None,
                  color_stops=None,
-                 label_property = None,
+                 label_property=None,
                  div_id='map',
                  height='500px',
-                 style_url="mapbox://styles/mapbox/light-v9",
+                 style_url="mapbox://styles/mapbox/light-v9?optimize=true",
                  width='100%',
                  zoom=0):
         """Construct a Mapviz object
@@ -74,21 +76,23 @@ class CircleViz(object):
 
     def create_html(self):
         """Create a circle visual from a geojson data source"""
-        html_data = (
-            HTML_HEAD +
-            HTML_CIRCLE_VIZ.format(
-                calcCircleColorLegend=CALC_CIRCLE_COLOR_LEGEND,
-                accessToken=self.access_token,
-                div_id=self.div_id,
-                styleUrl=self.style_url,
-                center=list(self.center),
-                zoom=self.zoom,
-                geojson_data=json.dumps(self.data, ensure_ascii=False),
-                colorProperty=self.color_property,
-                colorStops=self.color_stops,
-                labelProperty=self.label_property) +
-            HTML_TAIL)
-        return html_data
+        options = dict(
+            gl_js_version=GL_JS_VERSION,
+            accessToken=self.access_token,
+            div_id=self.div_id,
+            styleUrl=self.style_url,
+            center=list(self.center),
+            zoom=self.zoom,
+            geojson_data=json.dumps(self.data, ensure_ascii=False),
+            colorProperty=self.color_property,
+            colorStops=self.color_stops)
+
+        if self.label_property is None:
+            options.update(labelProperty=None)
+        else:
+            options.update(labelProperty='{' + self.label_property + '}')
+
+        return templates.format('circle', **options)
 
 
 class GraduatedCircleViz(object):
@@ -105,7 +109,7 @@ class GraduatedCircleViz(object):
                  radius_stops=None,
                  div_id='map',
                  height='500px',
-                 style_url="mapbox://styles/mapbox/light-v9",
+                 style_url="mapbox://styles/mapbox/light-v9?optimize=true",
                  width='100%',
                  zoom=0):
         """Construct a Mapviz object
@@ -164,19 +168,22 @@ class GraduatedCircleViz(object):
 
     def create_html(self):
         """Create a circle visual from a geojson data source"""
-        html_data = (
-            HTML_HEAD +
-            HTML_GRADUATED_CIRCLE_VIZ.format(
-                calcCircleColorLegend=CALC_CIRCLE_COLOR_LEGEND,
-                accessToken=self.access_token,
-                div_id=self.div_id,
-                styleUrl=self.style_url,
-                center=list(self.center),
-                zoom=self.zoom,
-                geojson_data=json.dumps(self.data, ensure_ascii=False),
-                colorProperty=self.color_property,
-                colorStops=self.color_stops,
-                radiusProperty=self.radius_property,
-                radiusStops=self.radius_stops,
-                labelProperty=self.label_property) + HTML_TAIL)
-        return html_data
+        options = dict(
+            gl_js_version=GL_JS_VERSION,
+            accessToken=self.access_token,
+            div_id=self.div_id,
+            styleUrl=self.style_url,
+            center=list(self.center),
+            zoom=self.zoom,
+            geojson_data=json.dumps(self.data, ensure_ascii=False),
+            colorProperty=self.color_property,
+            colorStops=self.color_stops,
+            radiusProperty=self.radius_property,
+            radiusStops=self.radius_stops)
+
+        if self.label_property is None:
+            options.update(labelProperty=None)
+        else:
+            options.update(labelProperty='{' + self.label_property + '}')
+
+        return templates.format('graduated_circle', **options)

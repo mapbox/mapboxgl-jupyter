@@ -1,0 +1,99 @@
+{% extends "main.html" %}
+
+{% block javascript %}
+mapboxgl.accessToken = '{{ accessToken }}';
+
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: '{{ styleUrl }}', 
+    center: {{ center }},
+    zoom: {{ zoom }}
+});
+
+calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+
+map.on('load', function() {
+    
+    map.addSource("data", {
+        "type": "geojson",
+        "data": {{ geojson_data }},
+        "buffer": 1,
+        "maxzoom": 14
+    });
+
+    map.addLayer({
+        "id": "label",
+        "source": "data",
+        "type": "symbol",
+        "layout": {
+            {% if labelProperty %}
+            "text-field": "{{ labelProperty }}",
+            {% endif %}
+            "text-size" : { "stops": [[0,8],[22,16]] },
+            "text-offset": [0,-1]
+        },
+        "paint": {
+            "text-halo-color": "white",
+            "text-halo-width": 1
+        }
+    }, 'waterway-label')
+    
+    map.addLayer({
+        "id": "circle",
+        "source": "data",
+        "type": "circle",
+        "paint": {
+            "circle-color": {
+                // Data property to style color by from python variable
+                "property": "{{ colorProperty }}",
+                // Color stops array to use based on data values from python variable
+                "stops": {{ colorStops }}
+            },
+            "circle-radius" : {
+                "stops": [[0,1], [18,10]]
+            },
+            "circle-stroke-color": "white",
+            "circle-stroke-width": {
+                "stops": [[0,0.01], [18,1]]
+            }
+        }
+    }, "label");
+    
+    // Create a popup
+    var popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+    
+    // Show the popup on mouseover
+    map.on('mousemove', 'circle', function(e) {
+        map.getCanvas().style.cursor = 'pointer';
+        
+        let f = e.features[0];
+        let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+            ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
+
+        for (key in f.properties) {
+            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+        }
+
+        popup_html += '</div>'
+        popup.setLngLat(e.features[0].geometry.coordinates)
+            .setHTML(popup_html)
+            .addTo(map);
+    });
+
+    map.on('mouseleave', 'circle', function() {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
+    
+    // Fly to on click
+    map.on('click', 'circle', function(e) {
+        map.flyTo({
+            center: e.features[0].geometry.coordinates,
+            zoom: 10
+        });
+    });
+});
+{% endblock %}
