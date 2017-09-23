@@ -68,8 +68,18 @@ map.on('load', function() {
     // Show the popup on mouseover
     map.on('mousemove', 'circle', function(e) {
         map.getCanvas().style.cursor = 'pointer';
+        
+        let f = e.features[0];
+        let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+            ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
+
+        for (key in f.properties) {
+            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+        }
+
+        popup_html += '</div>'
         popup.setLngLat(e.features[0].geometry.coordinates)
-            .setHTML('<pre>' + JSON.stringify(e.features[0].properties, null, 2) + '</pre>')
+            .setHTML(popup_html)
             .addTo(map);
     });
 
