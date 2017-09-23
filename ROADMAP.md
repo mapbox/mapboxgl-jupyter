@@ -7,7 +7,6 @@ please start an Issue on github with more details.
 ## Working on Next
 
 - [ ] Support categorical measure data.
-- [ ] html templates for property display on mouseover
 - [ ] Add choropleth / fill visualization type
 - [ ] Add heatmap visualization type
 - [ ] PNG image export of map and data to file
@@ -18,6 +17,7 @@ please start an Issue on github with more details.
 - [ ] Control map interactivity with python vars
 - [ ] Add shapely points, lines, and polygons to map (with projection wrapper around non-4326 shapes)
 - [ ] `dashboard-like` tabular views with filtering
+- [ ] Add user-defined html templates for popups
 
 
 ## Recently completed
@@ -28,3 +28,5 @@ please start an Issue on github with more details.
     * Implemented in 0.2.0
 - [x] legend
     * Implemented in 0.2.0
+- [x] html templates for property display on mouseover
+    * Implemented in 0.3.0
