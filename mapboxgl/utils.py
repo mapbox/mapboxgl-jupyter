@@ -10,6 +10,8 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
 
     if not properties:
         properties = list(df.columns)
+        properties.remove(lat)
+        properties.remove(lon)
 
     for _, row in df.iterrows():
         feature = {
@@ -28,7 +30,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
     return geojson
 
 def scale_between(minval, maxval, numStops):
-    """ Scale a min and max value to equal interval domain with 
+    """ Scale a min and max value to equal interval domain with
         numStops discrete values
     """
 
