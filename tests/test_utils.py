@@ -16,7 +16,9 @@ class MockDataframe(object):
 
     @property
     def columns(self):
-        return list(self.features[0]['properties'].keys())
+        properties = list(self.features[0]['properties'].keys())
+        properties.extend([self.lat, self.lon])
+        return properties
 
     def iterrows(self):
         for i, row in enumerate(self.features):
@@ -31,6 +33,17 @@ class MockDataframe(object):
 def df():
     with open('tests/points.geojson') as fh:
         data = json.loads(fh.read())
+
+    return MockDataframe(data['features'])
+
+@pytest.fixture()
+def df_no_properties():
+    with open('tests/points.geojson') as fh:
+        data = json.loads(fh.read())
+
+    for feature in data['features']:
+        feature['properties'] = {}
+
     return MockDataframe(data['features'])
 
 
@@ -43,6 +56,12 @@ def test_df_properties(df):
     features = df_to_geojson(df, properties=['Avg Medicare Payments'])[
         'features']
     assert tuple(features[0]['properties'].keys()) == ('Avg Medicare Payments',)
+
+
+def test_df_no_properties(df_no_properties):
+    features = df_to_geojson(df_no_properties)[
+        'features']
+    assert tuple(features[0]['properties'].keys()) == ()
 
 
 def test_scale_between():
@@ -66,4 +85,3 @@ def test_create_radius_stops(df):
     domain = [7678.214347826088, 5793.63142857143, 1200]
     radius_stops = create_radius_stops(domain, 1, 10)
     assert radius_stops == [[7678.214347826088, 1.0], [5793.63142857143, 4.0], [1200, 7.0]]
-
