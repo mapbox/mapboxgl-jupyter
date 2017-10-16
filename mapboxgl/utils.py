@@ -9,9 +9,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
         df[lon] = df[lon].round(precision)
 
     if not properties:
-        properties = list(df.columns)
-        properties.remove(lat)
-        properties.remove(lon)
+        properties = [c for c in df.columns if c not in [lat, lon]]
 
     for _, row in df.iterrows():
         feature = {
