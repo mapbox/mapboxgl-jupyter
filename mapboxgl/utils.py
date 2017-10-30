@@ -56,3 +56,14 @@ def create_radius_stops(breaks, min_radius, max_radius):
     for i, b in enumerate(breaks):
         stops.append([b, radius_breaks[i]])
     return stops
+
+def create_weight_stops(breaks):
+    """Convert data breaks into a heatmap-weight ramp
+    """
+    num_breaks = len(breaks)
+    weight_breaks = scale_between(0, 1, num_breaks)
+    stops = []
+
+    for i, b in enumerate(breaks):
+        stops.append([b, weight_breaks[i]])
+    return stops

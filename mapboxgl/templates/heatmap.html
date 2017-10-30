@@ -1,0 +1,43 @@
+{% extends "main.html" %}
+
+{% block javascript %}
+mapboxgl.accessToken = '{{ accessToken }}';
+
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: '{{ styleUrl }}', 
+    center: {{ center }},
+    zoom: {{ zoom }}
+});
+
+map.on('load', function() {
+
+    map.addSource("data", {
+        "type": "geojson",
+        "data": {{ geojson_data }}, //data from dataframe output to geojson
+        "buffer": 1,
+        "maxzoom": 14
+    });
+
+    map.addLayer({
+        "id": "circle",
+        "source": "data",
+        "type": "heatmap",
+        "paint": {
+            "heatmap-weight": {
+                // Data property to style color by from python variable
+                "property": "{{ weightProperty }}",
+                "stops": {{ weightStops }}
+            },
+            "heatmap-radius" : {
+                "stops": {{ radiusStops }}
+            },
+            "heatmap-color" : {
+                "stops": {{ colorStops }}
+            }
+        }
+    }, "waterway-label");
+
+});
+
+{% endblock %}
