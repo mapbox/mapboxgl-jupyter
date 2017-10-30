@@ -4,10 +4,18 @@
 [![Coverage Status](https://coveralls.io/repos/github/mapbox/mapboxgl-jupyter/badge.svg?branch=master)](https://coveralls.io/github/mapbox/mapboxgl-jupyter?branch=master)
 [![PyPI version](https://badge.fury.io/py/mapboxgl.svg)](https://badge.fury.io/py/mapboxgl)
 
-Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizations natively in your Jupyter Notebook workflows with Python, GeoJSON and Pandas dataframes.
+Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizations natively in your Jupyter Notebook workflows with Python, GeoJSON and Pandas dataframes.  Mapboxgl aims to be a data visualization focused mapping library built on top of the [Mapbox GL JS SDK](https://www.mapbox.com/mapbox-gl-js/api/), similar to [Folium](https://github.com/python-visualization/folium) built on top of [Leaflet](http://leafletjs.com/).
+
+Currently supported map visualization types:
+
+1. Circles
+2. Graduated Circles
+3. Heatmaps
 
 
 ![image](https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/screenshot.png)
+
+
 
 ## Installation
 
@@ -15,13 +23,19 @@ Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizati
 
 ## Development
 
-Install the python locally with pip:
+Install the python library locally with pip:
 
 `pip install -e .`
 
 To run tests use pytest:
 
 `pytest`
+
+To run the jupiter examples, 
+
+1. `cd examples`
+2. `pip install jupyter`
+2. `jupyter notebook`
 
 ## Usage
 
@@ -62,18 +76,4 @@ curious about the direction of the project, check out `ROADMAP.md`.
 4. Open the `test-python.ipynb` workbook
 5. Put your [Mapbox GL Access Token](https://www.mapbox.com/help/how-access-tokens-work/) (it's free for developers!) into the notebook, cell 4.
 6. Run all cells in the notebook and enjoy the interactive maps.
-
-#### Notes on Mapbox Atlas
-
-If you have access to Mapbox Atlas Server on your enterprise network, simply pass in your map stylesheet from your local Atlas URL as opposed to a `mapbox://` URL in cell 214.
-
-```
-# Put your Your Mapbox Access token here
-# https://www.mapbox.com/help/how-access-tokens-work/
-# If you use Mapbox Atlas, this isn't required.  Leave as an empty string.
-mapbox_accesstoken = ''
-
-# Map Style.  Point this to a local style, or a custom style on your Mapbox account or Atlas instance
-mapStyle = "myAtlasUrl:myAtlasPort:/myStylesheetLocaiton"
-```
 
