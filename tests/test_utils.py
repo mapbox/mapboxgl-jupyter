@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from mapboxgl.utils import df_to_geojson, scale_between, create_radius_stops
+from mapboxgl.utils import df_to_geojson, scale_between, create_radius_stops, create_weight_stops
 
 
 class MockDataframe(object):
@@ -85,3 +85,8 @@ def test_create_radius_stops(df):
     domain = [7678.214347826088, 5793.63142857143, 1200]
     radius_stops = create_radius_stops(domain, 1, 10)
     assert radius_stops == [[7678.214347826088, 1.0], [5793.63142857143, 4.0], [1200, 7.0]]
+
+
+def test_create_weight_stops(df):
+    res = create_weight_stops([1, 2, 3, 4])
+    assert res == [[1, 0.0], [2, 0.25], [3, 0.5], [4, 0.75]]

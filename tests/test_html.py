@@ -3,7 +3,7 @@ from mock import patch
 
 import pytest
 
-from mapboxgl.viz import CircleViz, GraduatedCircleViz
+from mapboxgl.viz import CircleViz, GraduatedCircleViz, HeatmapViz
 from mapboxgl.errors import TokenError
 
 
@@ -22,6 +22,7 @@ def test_secret_key_CircleViz(data):
     secret = 'sk.abc123'
     with pytest.raises(TokenError):
         CircleViz(data, access_token=secret)
+
 
 def test_secret_key_GraduatedCircleViz(data):
     """Secret key raises a token error
@@ -85,5 +86,19 @@ def test_display_GraduatedCircleViz(display, data):
                              label_property="Avg Medicare Payments",
                              radius_property="Avg Covered Charges",
                              access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_HeatmapViz(display, data):
+    """Assert that show calls the mocked display function
+    """
+    viz = HeatmapViz(data,
+                     weight_property="Avg Medicare Payments",
+                     weight_stops=[[10, 0], [100, 1]],
+                     color_stops=[[0, "red"], [0.5, "blue"], [1, "green"]],
+                     radius_stops=[[0, 1], [12, 30]],
+                     access_token=TOKEN)
     viz.show()
     display.assert_called_once()
