@@ -27,6 +27,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
 
     return geojson
 
+
 def scale_between(minval, maxval, numStops):
     """ Scale a min and max value to equal interval domain with
         numStops discrete values
@@ -56,6 +57,7 @@ def create_radius_stops(breaks, min_radius, max_radius):
     for i, b in enumerate(breaks):
         stops.append([b, radius_breaks[i]])
     return stops
+
 
 def create_weight_stops(breaks):
     """Convert data breaks into a heatmap-weight ramp

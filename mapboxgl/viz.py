@@ -188,6 +188,7 @@ class GraduatedCircleViz(object):
 
         return templates.format('graduated_circle', **options)
 
+
 class HeatmapViz(object):
     """Create a heatmap viz"""
 
@@ -210,8 +211,8 @@ class HeatmapViz(object):
 
         :param weight_property: property to determine heatmap weight. EX. "population"
         :param weight_stops: stops to determine heatmap weight.  EX. [[10, 0], [100, 1]]
-        :param color_stops: stops to determine heatmap color.  EX. [[0, "red"], [0.5, "blue"], [1, "green"]]]
-        :param radius_stops: stops to determine heatmap radius based on zoom.  EX: [[0, 1], [12, 30]]]
+        :param color_stops: stops to determine heatmap color.  EX. [[0, "red"], [0.5, "blue"], [1, "green"]]
+        :param radius_stops: stops to determine heatmap radius based on zoom.  EX: [[0, 1], [12, 30]]
 
         :param style_url: url to mapbox style
         :param access_token: Mapbox GL JS access token.
