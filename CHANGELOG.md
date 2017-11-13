@@ -1,3 +1,8 @@
+0.1.0
+-----
+- HeatmapViz
+- jinja templates
+
 0.0.2
 -----
 - added GraduatedCircleViz with graduated sizes/color ramps for point data.
