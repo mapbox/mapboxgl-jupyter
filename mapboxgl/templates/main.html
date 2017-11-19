@@ -81,6 +81,24 @@ function calcCircleColorLegend(myColorStops, title) {
         }
     }
 }
+
+function generateInterpolateExpression(propertyValue, stops) {
+    var expression;
+    if (propertyValue == 'zoom') {
+        expression = ['interpolate', ['linear'], ['zoom']]
+    }
+    else if (propertyValue == 'heatmap-density') {
+        expression = ['interpolate', ['linear'], ['heatmap-density']]
+    }
+    else {
+        expression = ['interpolate', ['linear'], ['get', propertyValue]]
+    }
+    
+    for (var i=0; i<stops.length; i++) {
+        expression.push(stops[i][0], stops[i][1])
+    }
+    return expression
+}
 </script>
 
 <!-- main map creation code, extended by mapboxgl/templates/{{ viz }}.html -->

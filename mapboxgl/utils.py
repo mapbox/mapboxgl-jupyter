@@ -17,7 +17,8 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
             'properties': {},
             'geometry': {
                 'type': 'Point',
-                'coordinates': [row[lon], row[lat]]}}
+                'coordinates': [row[lon], row[lat]]}
+                }
 
         # TODO performance
         for prop in properties:
@@ -41,7 +42,7 @@ def scale_between(minval, maxval, numStops):
         raise ValueError()
     else:
         domain = maxval - minval
-        interval = domain/numStops
+        interval = float(domain)/float(numStops)
         for i in range(numStops):
             scale.append(round(minval + interval*i, 2))
         return scale

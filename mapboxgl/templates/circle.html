@@ -12,7 +12,7 @@ var map = new mapboxgl.Map({
 
 calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
 
-map.on('load', function() {
+map.on('style.load', function() {
     
     map.addSource("data", {
         "type": "geojson",
@@ -29,7 +29,7 @@ map.on('load', function() {
             {% if labelProperty %}
             "text-field": "{{ labelProperty }}",
             {% endif %}
-            "text-size" : { "stops": [[0,8],[22,16]] },
+            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
             "text-offset": [0,-1]
         },
         "paint": {
@@ -43,19 +43,10 @@ map.on('load', function() {
         "source": "data",
         "type": "circle",
         "paint": {
-            "circle-color": {
-                // Data property to style color by from python variable
-                "property": "{{ colorProperty }}",
-                // Color stops array to use based on data values from python variable
-                "stops": {{ colorStops }}
-            },
-            "circle-radius" : {
-                "stops": [[0,1], [18,10]]
-            },
+            "circle-color": generateInterpolateExpression( "{{ colorProperty }}", {{ colorStops }} ),
+            "circle-radius" : generateInterpolateExpression('zoom', [[0,1], [18,10]]),
             "circle-stroke-color": "white",
-            "circle-stroke-width": {
-                "stops": [[0,0.01], [18,1]]
-            }
+            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]])
         }
     }, "label");
     
