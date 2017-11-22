@@ -6,7 +6,7 @@ from IPython.core.display import HTML, display
 from mapboxgl.errors import TokenError
 from mapboxgl import templates
 
-GL_JS_VERSION = 'v0.42.1'
+GL_JS_VERSION = 'v0.42.2'
 
 
 class CircleViz(object):
