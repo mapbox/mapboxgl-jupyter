@@ -6,7 +6,7 @@ from IPython.core.display import HTML, display
 from mapboxgl.errors import TokenError
 from mapboxgl import templates
 
-GL_JS_VERSION = 'v0.43.0'
+GL_JS_VERSION = 'v0.42.2'
 
 
 class CircleViz(object):
@@ -19,6 +19,8 @@ class CircleViz(object):
                  color_property=None,
                  color_stops=None,
                  label_property=None,
+                 opacity=None,
+                 below_layer=None,
                  div_id='map',
                  height='500px',
                  style_url="mapbox://styles/mapbox/light-v9?optimize=true",
@@ -54,6 +56,8 @@ class CircleViz(object):
         self.color_property = color_property
         self.color_stops = color_stops
         self.label_property = label_property
+        self.opacity = opacity
+        self.below_layer = below_layer
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -85,7 +89,9 @@ class CircleViz(object):
             zoom=self.zoom,
             geojson_data=json.dumps(self.data, ensure_ascii=False),
             colorProperty=self.color_property,
-            colorStops=self.color_stops)
+            colorStops=self.color_stops,
+            opacity=self.opacity,
+            belowLayer=self.below_layer)
 
         if self.label_property is None:
             options.update(labelProperty=None)
@@ -107,6 +113,8 @@ class GraduatedCircleViz(object):
                  color_stops=None,
                  radius_property=None,
                  radius_stops=None,
+                 opacity=None,
+                 below_layer=None,
                  div_id='map',
                  height='500px',
                  style_url="mapbox://styles/mapbox/light-v9?optimize=true",
@@ -146,6 +154,8 @@ class GraduatedCircleViz(object):
         self.radius_property = radius_property
         self.radius_stops = radius_stops
         self.label_property = label_property
+        self.opacity = opacity
+        self.below_layer = below_layer
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -179,7 +189,9 @@ class GraduatedCircleViz(object):
             colorProperty=self.color_property,
             colorStops=self.color_stops,
             radiusProperty=self.radius_property,
-            radiusStops=self.radius_stops)
+            radiusStops=self.radius_stops,
+            opacity=self.opacity,
+            belowLayer=self.below_layer)
 
         if self.label_property is None:
             options.update(labelProperty=None)
@@ -200,6 +212,8 @@ class HeatmapViz(object):
                  weight_stops=None,
                  color_stops=None,
                  radius_stops=None,
+                 opacity=None,
+                 below_layer=None,
                  div_id='map',
                  height='500px',
                  style_url="mapbox://styles/mapbox/light-v9?optimize=true",
@@ -238,6 +252,8 @@ class HeatmapViz(object):
         self.weight_stops = weight_stops
         self.color_stops = color_stops
         self.radius_stops = radius_stops
+        self.opacity = opacity
+        self.below_layer = below_layer
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -271,6 +287,8 @@ class HeatmapViz(object):
             colorStops=self.color_stops,
             radiusStops=self.radius_stops,
             weightProperty=self.weight_property,
-            weightStops=self.weight_stops)
+            weightStops=self.weight_stops,
+            opacity=self.opacity,
+            belowLayer=self.below_layer)
 
         return templates.format('heatmap', **options)
