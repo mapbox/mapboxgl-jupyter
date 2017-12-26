@@ -10,6 +10,8 @@ var map = new mapboxgl.Map({
     zoom: {{ zoom }}
 });
 
+map.addControl(new mapboxgl.NavigationControl());
+
 map.on('style.load', function() {
 
     map.addSource("data", {
@@ -26,9 +28,10 @@ map.on('style.load', function() {
         "paint": {
             "heatmap-weight": generateInterpolateExpression( "{{ weightProperty }}", {{ weightStops }} ),
             "heatmap-radius" : generateInterpolateExpression('zoom', {{ radiusStops }} ),
-            "heatmap-color" : generateInterpolateExpression('heatmap-density', {{ colorStops }} )
+            "heatmap-color" : generateInterpolateExpression('heatmap-density', {{ colorStops }} ),
+            "heatmap-opacity" : {{ opacity }}
         }
-    }, "waterway-label");
+    }, "{{belowLayer}}" );
 
 });
 
