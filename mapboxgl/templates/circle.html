@@ -10,6 +10,8 @@ var map = new mapboxgl.Map({
     zoom: {{ zoom }}
 });
 
+map.addControl(new mapboxgl.NavigationControl());
+
 calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
 
 map.on('style.load', function() {
@@ -36,7 +38,7 @@ map.on('style.load', function() {
             "text-halo-color": "white",
             "text-halo-width": 1
         }
-    }, 'waterway-label')
+    }, "{{belowLayer}}" )
     
     map.addLayer({
         "id": "circle",
@@ -46,7 +48,8 @@ map.on('style.load', function() {
             "circle-color": generateInterpolateExpression( "{{ colorProperty }}", {{ colorStops }} ),
             "circle-radius" : generateInterpolateExpression('zoom', [[0,1], [18,10]]),
             "circle-stroke-color": "white",
-            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]])
+            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]]),
+            "circle-opacity" : {{ opacity }}
         }
     }, "label");
     
