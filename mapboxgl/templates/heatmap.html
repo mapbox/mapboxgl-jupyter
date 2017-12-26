@@ -12,6 +12,8 @@ var map = new mapboxgl.Map({
 
 map.addControl(new mapboxgl.NavigationControl());
 
+document.getElementById('legend').style.visibility = 'hidden';
+
 map.on('style.load', function() {
 
     map.addSource("data", {
