@@ -33,3 +33,5 @@ please start an Issue on github with more details.
     * Implemented in 0.1.0
 - [x] Added clustered circle viz type
     * Implemented in 0.1.1
+- [x] Use PySAL for data domain natural breaks classification in example
+    * Implemented in 0.1.1
