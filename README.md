@@ -11,10 +11,10 @@ Currently supported map visualization types:
 1. Circles
 2. Graduated Circles
 3. Heatmaps
+4. Clustered Circles
 
 
 ![image](https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/screenshot.png)
-
 
 
 ## Installation
@@ -29,6 +29,7 @@ Install the python library locally with pip:
 
 To run tests use pytest:
 
+`pip install pytest`
 `pytest`
 
 To run the jupiter examples, 

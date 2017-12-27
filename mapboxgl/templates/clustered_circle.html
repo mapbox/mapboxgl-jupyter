@@ -1,0 +1,109 @@
+{% extends "main.html" %}
+
+{% block javascript %}
+mapboxgl.accessToken = '{{ accessToken }}';
+
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: '{{ styleUrl }}', 
+    center: {{ center }},
+    zoom: {{ zoom }}
+});
+
+map.addControl(new mapboxgl.NavigationControl());
+    
+calcCircleColorLegend({{ colorStops }}, "Point Density");
+
+map.on('style.load', function() {
+    
+    map.addSource("data", {
+        "type": "geojson",
+        "data": {{ geojson_data }}, //data from dataframe output to geojson
+        "buffer": 0,
+        "maxzoom": {{ clusterMaxZoom }} + 1,
+        "cluster": true,
+        "clusterMaxZoom": {{ clusterMaxZoom }},
+        "clusterRadius": {{ clusterRadius }}
+    });
+
+    map.addLayer({
+        "id": "label",
+        "source": "data",
+        "type": "symbol",
+        "layout": {
+            "text-field": "{point_count_abbreviated}",
+            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] )
+        },
+        "paint": {
+            "text-halo-color": "white",
+            "text-halo-width": 1
+        }
+    }, "{{belowLayer}}" )
+
+    map.addLayer({
+        "id": "circle-cluster",
+        "source": "data",
+        "type": "circle",
+        "filter": ["has", "point_count"],
+        "paint": {
+            "circle-color": generateInterpolateExpression( "point_count", {{ colorStops }} ),
+            "circle-radius" : generateInterpolateExpression( "point_count", {{ radiusStops }} ),
+            "circle-stroke-color": "grey",
+            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]]),
+            "circle-opacity" : {{ opacity }}
+        }
+    }, "label");
+
+    map.addLayer({
+        "id": "circle-unclustered",
+        "source": "data",
+        "type": "circle",
+        "filter": ["!has", "point_count"],
+        "paint": {
+            "circle-color": "{{ baseColor }}",
+            "circle-radius" : generateInterpolateExpression( 'zoom', [[0,1], [22,10]]),
+            "circle-stroke-color": "grey",
+            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]]),
+            "circle-opacity" : {{ opacity }}
+        }
+    }, "circle-cluster");
+    
+    // Create a popup
+    var popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+    
+    // Show the popup on mouseover
+    map.on('mousemove', 'circle-unclustered', function(e) {
+        map.getCanvas().style.cursor = 'pointer';
+        let f = e.features[0];
+        let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+            ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
+
+        for (key in f.properties) {
+            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+        }
+
+        popup_html += '</div>'
+
+        popup.setLngLat(e.features[0].geometry.coordinates)
+            .setHTML(popup_html)
+            .addTo(map);
+    });
+
+    map.on('mouseleave', 'circle-unclustered', function() {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
+    
+    // Fly to on click
+    map.on('click', 'circle-unclustered', function(e) {
+        map.flyTo({
+            center: e.features[0].geometry.coordinates,
+            zoom: 10
+        });
+    });
+});
+
+{% endblock %}
