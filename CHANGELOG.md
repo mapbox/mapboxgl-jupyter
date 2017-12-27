@@ -4,6 +4,7 @@
 - Updated to Mapbox GL JS v0.43.0
 - Added support for viz opacity and a custom layer order
 - Updated documentation in Readme
+- Use PySAL for jenks natural breaks domain calculations in example
 
 0.1.0
 -----
