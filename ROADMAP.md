@@ -8,7 +8,6 @@ please start an Issue on github with more details.
 
 - [ ] Support categorical measure data.
 - [ ] Add choropleth / fill visualization type
-- [ ] Add heatmap visualization type
 - [ ] PNG image export of map and data to file
 - [ ] Add raster data layers (via Rastero, numpy array, or WMS server)
 
@@ -30,3 +29,7 @@ please start an Issue on github with more details.
     * Implemented in 0.2.0
 - [x] html templates for property display on mouseover
     * Implemented in 0.3.0
+- [x] Add heatmap visualization type
+    * Implemented in 0.1.0
+- [x] Added clustered circle viz type
+    * Implemented in 0.1.1
