@@ -1,3 +1,10 @@
+0.1.1 (12/26/2017)
+-----
+- Added ClusteredCircleViz type
+- Updated to Mapbox GL JS v0.43.0
+- Added support for viz opacity and a custom layer order
+- Updated documentation in Readme
+
 0.1.0
 -----
 - HeatmapViz
