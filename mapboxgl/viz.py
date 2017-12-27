@@ -6,7 +6,7 @@ from IPython.core.display import HTML, display
 from mapboxgl.errors import TokenError
 from mapboxgl import templates
 
-GL_JS_VERSION = 'v0.42.2'
+GL_JS_VERSION = 'v0.43.0'
 
 
 class CircleViz(object):
@@ -293,7 +293,7 @@ class HeatmapViz(object):
 
         return templates.format('heatmap', **options)
 
-class ClusterdCircleViz(object):
+class ClusteredCircleViz(object):
     """Create a clustered circle map"""
 
     def __init__(self,

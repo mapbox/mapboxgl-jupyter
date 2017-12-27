@@ -3,7 +3,7 @@ from mock import patch
 
 import pytest
 
-from mapboxgl.viz import CircleViz, GraduatedCircleViz, HeatmapViz
+from mapboxgl.viz import *
 from mapboxgl.errors import TokenError
 
 
@@ -99,6 +99,17 @@ def test_display_HeatmapViz(display, data):
                      weight_stops=[[10, 0], [100, 1]],
                      color_stops=[[0, "red"], [0.5, "blue"], [1, "green"]],
                      radius_stops=[[0, 1], [12, 30]],
+                     access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+@patch('mapboxgl.viz.display')
+def test_display_ClusteredCircleViz(display, data):
+    """Assert that show calls the mocked display function
+    """
+    viz = ClusteredCircleViz(data,
+                     radius_stops=[[10, 0], [100, 1]],
+                     color_stops=[[0, "red"], [10, "blue"], [1, "green"]],
                      access_token=TOKEN)
     viz.show()
     display.assert_called_once()
