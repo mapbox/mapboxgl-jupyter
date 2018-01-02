@@ -9,6 +9,7 @@ Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizati
 
 ![image](https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/screenshot.png)
 
+Try out an example notebook [here](www.mapbox.com/labs/jupyter)!
 
 ## Installation
 
