@@ -1,6 +1,6 @@
 import pytest
 
-from mapboxgl.colors import create_color_stops
+from mapboxgl.utils import create_color_stops
 
 
 def test_colors():
