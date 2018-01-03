@@ -1,3 +1,4 @@
+from .colors import color_ramps
 
 def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
     """Serialize a Pandas dataframe to a geojson format Python dictionary
@@ -70,3 +71,22 @@ def create_weight_stops(breaks):
     for i, b in enumerate(breaks):
         stops.append([b, weight_breaks[i]])
     return stops
+
+def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
+    """Convert a list of breaks into color stops using colors from colorBrewer
+    see www.colorbrewer2.org for a list of color options to pass
+    """
+    num_breaks = len(breaks)
+
+    if colors not in color_ramps.keys():
+        raise ValueError('color does not exist in colorBrewer!')
+    else:
+        stops = []
+        try:
+            ramp = color_ramps[colors][num_breaks]
+        except KeyError:
+            raise ValueError("Color ramp {} does not have a {} breaks".format(
+                colors, num_breaks))
+        for i, b in enumerate(breaks):
+            stops.append([b, ramp[i]])
+        return stops

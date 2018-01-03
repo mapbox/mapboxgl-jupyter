@@ -337,23 +337,3 @@ color_ramps = dict(
         12: ['rgb(141,211,199)', 'rgb(255,255,179)', 'rgb(190,186,218)', 'rgb(251,128,114)', 'rgb(128,177,211)', 'rgb(253,180,98)', 'rgb(179,222,105)', 'rgb(252,205,229)', 'rgb(217,217,217)', 'rgb(188,128,189)', 'rgb(204,235,197)', 'rgb(255,237,111)']
     }
 )
-
-
-def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
-    """Convert a list of breaks into color stops using colors from colorBrewer
-    see www.colorbrewer2.org for a list of color options to pass
-    """
-    num_breaks = len(breaks)
-
-    if colors not in color_ramps.keys():
-        raise ValueError('color does not exist in colorBrewer!')
-    else:
-        stops = []
-        try:
-            ramp = color_ramps[colors][num_breaks]
-        except KeyError:
-            raise ValueError("Color ramp {} does not have a {} breaks".format(
-                colors, num_breaks))
-        for i, b in enumerate(breaks):
-            stops.append([b, ramp[i]])
-        return stops
