@@ -6,7 +6,7 @@
 
 Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizations natively in your Jupyter Notebook workflows with Python, GeoJSON and Pandas dataframes.  Mapboxgl aims to be a data visualization focused mapping library built on top of the [Mapbox GL JS SDK](https://www.mapbox.com/mapbox-gl-js/api/), similar to [Folium](https://github.com/python-visualization/folium) built on top of [Leaflet](http://leafletjs.com/).
 
-Try out an example notebook [here](www.mapbox.com/labs/jupyter)!
+Try out an example notebook [here](https://www.mapbox.com/labs/jupyter)!
 
 ![image](https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/screenshot.png)
 
