@@ -1,6 +1,8 @@
 from .colors import color_ramps
+import json
 
-def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
+
+def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, filename=None):
     """Serialize a Pandas dataframe to a geojson format Python dictionary
     """
     geojson = {'type': 'FeatureCollection', 'features': []}
@@ -19,7 +21,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
             'geometry': {
                 'type': 'Point',
                 'coordinates': [row[lon], row[lat]]}
-                }
+        }
 
         # TODO performance
         for prop in properties:
@@ -27,7 +29,30 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None):
 
         geojson['features'].append(feature)
 
-    return geojson
+    if filename:
+        with open(filename, 'w+') as f:
+            # Overwrite file if it already exists
+            pass
+        with open(filename, 'a+') as f:
+            # Write out dictionary contents to a geojson format file
+            f.write('{"type": "FeatureCollection", "features": [\n')
+            if len(geojson['features']) > 0:
+                for idx, feat in enumerate(geojson['features']):
+                    if idx == 0:
+                        f.write(json.dumps(feat, ensure_ascii=False,
+                                           sort_keys=True) + '\n')
+                    else:
+                        f.write(',' + json.dumps(feat,
+                                                 ensure_ascii=False, sort_keys=True) + '\n')
+            f.write(']}')
+
+        return {
+            "type": "file",
+            "filename": filename,
+            "feature_count": len(geojson['features'])
+        }
+    else:
+        return geojson
 
 
 def scale_between(minval, maxval, numStops):
@@ -43,9 +68,9 @@ def scale_between(minval, maxval, numStops):
         raise ValueError()
     else:
         domain = maxval - minval
-        interval = float(domain)/float(numStops)
+        interval = float(domain) / float(numStops)
         for i in range(numStops):
-            scale.append(round(minval + interval*i, 2))
+            scale.append(round(minval + interval * i, 2))
         return scale
 
 
@@ -71,6 +96,7 @@ def create_weight_stops(breaks):
     for i, b in enumerate(breaks):
         stops.append([b, weight_breaks[i]])
     return stops
+
 
 def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
     """Convert a list of breaks into color stops using colors from colorBrewer
