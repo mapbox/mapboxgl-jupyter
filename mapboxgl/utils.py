@@ -7,6 +7,11 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, fil
     """
     geojson = {'type': 'FeatureCollection', 'features': []}
 
+    if filename:
+        with open(filename, 'w+') as f:
+            # Overwrite file if it already exists
+            pass
+
     if precision:
         df[lat] = df[lat].round(precision)
         df[lon] = df[lon].round(precision)
@@ -14,44 +19,44 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, fil
     if not properties:
         properties = [c for c in df.columns if c not in [lat, lon]]
 
-    for _, row in df.iterrows():
-        feature = {
-            'type': 'Feature',
-            'properties': {},
-            'geometry': {
-                'type': 'Point',
-                'coordinates': [row[lon], row[lat]]}
-        }
-
-        # TODO performance
-        for prop in properties:
-            feature['properties'][prop] = row[prop]
-
-        geojson['features'].append(feature)
-
     if filename:
-        with open(filename, 'w+') as f:
-            # Overwrite file if it already exists
-            pass
         with open(filename, 'a+') as f:
-            # Write out dictionary contents to a geojson format file
             f.write('{"type": "FeatureCollection", "features": [\n')
-            if len(geojson['features']) > 0:
-                for idx, feat in enumerate(geojson['features']):
-                    if idx == 0:
-                        f.write(json.dumps(feat, ensure_ascii=False,
-                                           sort_keys=True) + '\n')
-                    else:
-                        f.write(',' + json.dumps(feat,
-                                                 ensure_ascii=False, sort_keys=True) + '\n')
+            for idx, row in df.iterrows():
+                feature = {
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [row[lon], row[lat]]}
+                }
+                for prop in properties:
+                    feature['properties'][prop] = row[prop]
+                if idx == 0:
+                    f.write(json.dumps(feature, ensure_ascii=False, sort_keys=True) + '\n')
+                else:
+                    f.write(',' + json.dumps(feature,
+                                             ensure_ascii=False, sort_keys=True) + '\n')
             f.write(']}')
-
-        return {
-            "type": "file",
-            "filename": filename,
-            "feature_count": len(geojson['features'])
-        }
+            return {
+                "type": "file",
+                "filename": filename,
+                "feature_count": df.shape[0]
+            }
     else:
+        for idx, row in df.iterrows():
+            feature = {
+                'type': 'Feature',
+                'properties': {},
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [row[lon], row[lat]]}
+            }
+            for prop in properties:
+                feature['properties'][prop] = row[prop]
+
+            geojson['features'].append(feature)
+
         return geojson
 
 
