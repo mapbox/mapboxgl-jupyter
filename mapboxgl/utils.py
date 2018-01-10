@@ -22,6 +22,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, fil
     if filename:
         with open(filename, 'a+') as f:
             f.write('{"type": "FeatureCollection", "features": [\n')
+            rowcount = 0
             for idx, row in df.iterrows():
                 feature = {
                     'type': 'Feature',
@@ -32,16 +33,18 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, fil
                 }
                 for prop in properties:
                     feature['properties'][prop] = row[prop]
-                if idx == 0:
+                if rowcount == 0:
                     f.write(json.dumps(feature, ensure_ascii=False, sort_keys=True) + '\n')
+                    rowcount++
                 else:
                     f.write(',' + json.dumps(feature,
                                              ensure_ascii=False, sort_keys=True) + '\n')
+                    rowcount++
             f.write(']}')
             return {
                 "type": "file",
                 "filename": filename,
-                "feature_count": df.shape[0]
+                "feature_count": rowcount
             }
     else:
         for idx, row in df.iterrows():
