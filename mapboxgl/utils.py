@@ -35,11 +35,11 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, fil
                     feature['properties'][prop] = row[prop]
                 if rowcount == 0:
                     f.write(json.dumps(feature, ensure_ascii=False, sort_keys=True) + '\n')
-                    rowcount++
+                    rowcount+=1
                 else:
                     f.write(',' + json.dumps(feature,
                                              ensure_ascii=False, sort_keys=True) + '\n')
-                    rowcount++
+                    rowcount+=1
             f.write(']}')
             return {
                 "type": "file",
