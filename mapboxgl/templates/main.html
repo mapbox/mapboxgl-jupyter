@@ -93,12 +93,39 @@ function generateInterpolateExpression(propertyValue, stops) {
     else {
         expression = ['interpolate', ['linear'], ['get', propertyValue]]
     }
-    
+
     for (var i=0; i<stops.length; i++) {
         expression.push(stops[i][0], stops[i][1])
     }
     return expression
 }
+
+
+function generateMatchExpression(propertyValue, stops, defaultValue) {
+    var expression;
+    expression = ['match', ['get', propertyValue]]
+    for (var i=0; i<stops.length; i++) {
+        expression.push(stops[i][0], stops[i][1])
+    }
+    expression.push(defaultValue)
+    
+    return expression
+}
+
+
+function generatePropertyExpression(expressionType, propertyValue, stops, defaultValue) {
+    var expression;
+    if (expressionType == 'match') {
+        expression = generateMatchExpression(propertyValue, stops, defaultValue)
+    }
+    else {
+        expression = generateInterpolateExpression(propertyValue, stops)
+    }
+
+    return expression
+}
+
+
 </script>
 
 <!-- main map creation code, extended by mapboxgl/templates/{{ viz }}.html -->

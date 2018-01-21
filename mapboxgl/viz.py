@@ -18,6 +18,8 @@ class CircleViz(object):
                  center=(0, 0),
                  color_property=None,
                  color_stops=None,
+                 color_default='grey',
+                 color_function_type='interpolate',
                  label_property=None,
                  opacity=1,
                  below_layer='',
@@ -32,6 +34,8 @@ class CircleViz(object):
 
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
+        :param color_default: property to determine default circle color if match lookup fails
+        :param color_function_type: property to determine `type` used by Mapbox to assign color
 
         :param style_url: url to mapbox style
         :param access_token: Mapbox GL JS access token.
@@ -55,6 +59,8 @@ class CircleViz(object):
 
         self.color_property = color_property
         self.color_stops = color_stops
+        self.color_function_type = color_function_type     ####
+        self.color_default = color_default     ####
         self.label_property = label_property
         self.opacity = opacity
         self.below_layer = below_layer
@@ -89,7 +95,9 @@ class CircleViz(object):
             zoom=self.zoom,
             geojson_data=json.dumps(self.data, ensure_ascii=False),
             colorProperty=self.color_property,
+            colorType=self.color_function_type, ###
             colorStops=self.color_stops,
+            defaultColor=self.color_default, ###
             opacity=self.opacity,
             belowLayer=self.below_layer)
 
@@ -111,8 +119,12 @@ class GraduatedCircleViz(object):
                  label_property=None,
                  color_property=None,
                  color_stops=None,
+                 color_default='grey',
+                 color_function_type='interpolate',
                  radius_property=None,
                  radius_stops=None,
+                 radius_default=None,
+                 radius_function_type='interpolate',
                  opacity=1,
                  below_layer='',
                  div_id='map',
@@ -126,8 +138,12 @@ class GraduatedCircleViz(object):
 
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
+        :param color_default: property to determine default circle color if match lookup fails
+        :param color_function_type: property to determine `type` used by Mapbox to assign color
         :param radius_property: property to determine circle radius
         :param radius_stops: property to determine circle radius
+        :param radius_default: property to determine default circle radius if match lookup fails
+        :param radius_function_type: property to determine `type` used by Mapbox to assign radius size
 
         :param style_url: url to mapbox style
         :param access_token: Mapbox GL JS access token.
@@ -153,6 +169,12 @@ class GraduatedCircleViz(object):
         self.color_stops = color_stops
         self.radius_property = radius_property
         self.radius_stops = radius_stops
+
+        self.color_function_type = color_function_type
+        self.color_default = color_default
+        self.radius_function_type = radius_function_type
+        self.radius_default = radius_default
+
         self.label_property = label_property
         self.opacity = opacity
         self.below_layer = below_layer
@@ -188,6 +210,10 @@ class GraduatedCircleViz(object):
             geojson_data=json.dumps(self.data, ensure_ascii=False),
             colorProperty=self.color_property,
             colorStops=self.color_stops,
+            colorType=self.color_function_type, 
+            radiusType=self.radius_function_type, 
+            defaultColor=self.color_default, 
+            defaultRadius=self.radius_default, 
             radiusProperty=self.radius_property,
             radiusStops=self.radius_stops,
             opacity=self.opacity,
@@ -292,6 +318,7 @@ class HeatmapViz(object):
             belowLayer=self.below_layer)
 
         return templates.format('heatmap', **options)
+
 
 class ClusteredCircleViz(object):
     """Create a clustered circle map"""
