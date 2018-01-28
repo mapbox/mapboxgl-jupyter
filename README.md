@@ -97,9 +97,34 @@ curious about the direction of the project, check out `ROADMAP.md`.
 ## Running Example
 
 1. Install Python3.4+
-2. `pip install mapboxgl`
-2. cd to /example directory of mapboxgl-jupyter repo
-4. Open the `test-python.ipynb` workbook
-5. Put your [Mapbox GL Access Token](https://www.mapbox.com/help/how-access-tokens-work/) (it's free for developers!) into the notebook, cell 4.
-6. Run all cells in the notebook and enjoy the interactive maps.
+2. `pip install mapboxgl && pip install pysal && pip install pandas`
+2. cd to `/examples` directory of `mapboxgl-jupyter` repo
+4. Open the `point-viz-types-example.ipynb` workbook
+5. Put your [Mapbox GL Access Token](https://www.mapbox.com/help/how-access-tokens-work/) (it's free for developers!) or add it to your environment variables as `MAPBOX_ACCESS_TOKEN`.
+6. Run all cells in the notebook and explore the interactive maps.
 
+# Release process
+
+- After merging all relevant PRs for the upcoming release, pull the master branch
+    git checkout master
+    git pull
+
+
+- Update the version number in `mapboxgl/__init__.py` and push directly to master.
+
+
+- Tag the release
+    git tag <version>
+    git push --tags
+
+
+- Setup for pypi (one time only) - You'll need to `pip install twine` and set up your credentials in a `[~/.pypirc](https://docs.python.org/2/distutils/packageindex.html#pypirc)` [file](https://docs.python.org/2/distutils/packageindex.html#pypirc).
+
+
+- Create the release files
+    rm dist/*  # clean out old releases if they exist
+    python setup.py sdist bdist_wheel
+
+
+- Upload the release files
+    twine upload dist/mapboxgl-*
