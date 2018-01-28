@@ -45,10 +45,10 @@ map.on('style.load', function() {
         "source": "data",
         "type": "circle",
         "paint": {
-            "circle-color": generateInterpolateExpression( "{{ colorProperty }}", {{ colorStops }} ),
-            "circle-radius" : generateInterpolateExpression('zoom', [[0,1], [18,10]]),
+            "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+            "circle-radius" : generatePropertyExpression('interpolate', 'zoom', [[0,1], [18,10]]),
             "circle-stroke-color": "white",
-            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]]),
+            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,0.01], [18,1]]),
             "circle-opacity" : {{ opacity }}
         }
     }, "label");

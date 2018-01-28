@@ -32,7 +32,7 @@ map.on('style.load', function() {
             {% if labelProperty %}
             "text-field": "{{ labelProperty }}",
             {% endif %}
-            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
+            "text-size" : generatePropertyExpression('interpolate','zoom', [[0,8],[22,16]] ),
             "text-offset": [0,-1]
         },
         "paint": {
@@ -46,10 +46,10 @@ map.on('style.load', function() {
         "source": "data",
         "type": "circle",
         "paint": {
-            "circle-color": generateInterpolateExpression( "{{ colorProperty }}", {{ colorStops }} ),
-            "circle-radius" : generateInterpolateExpression( "{{ radiusProperty }}", {{ radiusStops }} ),
+            "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+            "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, "{{ defaultRadius }}" ),
             "circle-stroke-color": "grey",
-            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]]),
+            "circle-stroke-width": generatePropertyExpression('interpolate','zoom', [[0,0.01], [18,1]]),
             "circle-opacity" : {{ opacity }}
         }
     }, "label");
