@@ -7,7 +7,12 @@ var map = new mapboxgl.Map({
     container: 'map',
     style: '{{ styleUrl }}', 
     center: {{ center }},
-    zoom: {{ zoom }}
+    zoom: {{ zoom }},
+    transformRequest: (url, resourceType)=> {
+        return {
+           url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
+         }
+    }
 });
 
 map.addControl(new mapboxgl.NavigationControl());
