@@ -63,6 +63,12 @@ def test_df_no_properties(df_no_properties):
         'features']
     assert tuple(features[0]['properties'].keys()) == ()
 
+def test_df_geojson_file(df):
+    features = df_to_geojson(df, filename='out.geojson')
+    with open('out.geojson', 'r') as f:
+        testdata = json.load(f)
+    assert len(testdata['features']) == 3
+
 
 def test_scale_between():
     scale = scale_between(0, 1, 4)
