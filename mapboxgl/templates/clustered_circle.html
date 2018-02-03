@@ -113,7 +113,14 @@ map.on('style.load', function() {
     map.on('click', 'circle-unclustered', function(e) {
         map.flyTo({
             center: e.features[0].geometry.coordinates,
-            zoom: 10
+            zoom: map.getZoom() + 1
+        });
+    });
+
+    map.on('click', 'circle-cluster', function(e) {
+        map.flyTo({
+            center: map.unproject(e.point),
+            zoom: map.getZoom() + 1
         });
     });
 });

@@ -98,7 +98,7 @@ map.on('style.load', function() {
     map.on('click', 'circle', function(e) {
         map.flyTo({
             center: e.features[0].geometry.coordinates,
-            zoom: 10
+            zoom: map.getZoom() + 1
         });
     });
 });
