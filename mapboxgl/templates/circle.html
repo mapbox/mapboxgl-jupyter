@@ -9,8 +9,15 @@ var map = new mapboxgl.Map({
     center: {{ center }},
     zoom: {{ zoom }},
     transformRequest: (url, resourceType)=> {
-        return {
-           url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
+        if ( url.slice(0,22) == 'https://api.mapbox.com' ) {
+            //Add Python Plugin identifier for Mapbox API traffic
+            return {
+               url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
+             }
+         }
+         else {
+             //Do not transform URL for non Mapbox GET requests
+             return {url: url}
          }
     }
 });
@@ -91,7 +98,7 @@ map.on('style.load', function() {
     map.on('click', 'circle', function(e) {
         map.flyTo({
             center: e.features[0].geometry.coordinates,
-            zoom: 10
+            zoom: map.getZoom() + 1
         });
     });
 });
