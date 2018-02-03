@@ -268,3 +268,39 @@ class ClusteredCircleViz(MapViz):
             clusterRadius=self.clusterRadius,
             clusterMaxZoom=self.clusterMaxZoom
         ))
+
+
+class ChloroplethViz(MapViz):
+    """Create a heatmap viz"""
+
+    def __init__(self,
+                 data,
+                 color_property=None,
+                 color_stops=None,
+                 color_default='grey',
+                 color_function_type='interpolate',
+                 *args,
+                 **kwargs):
+        """Construct a Mapviz object
+
+        :param weight_property: property to determine heatmap weight. EX. "population"
+
+        """
+        super(ChloroplethViz, self).__init__(data, *args, **kwargs)
+
+        self.template = 'chloropleth'
+        self.color_property = color_property
+        self.color_stops = color_stops
+        self.color_default = color_default
+        self.color_function_type = color_function_type
+
+    def add_unique_template_variables(self, options):
+        """Update map template variables specific to heatmap visual"""
+        options.update(dict(
+            geojson_data=json.dumps(self.data, ensure_ascii=False),
+            colorProperty=self.color_property,
+            colorType=self.color_function_type,
+            colorStops=self.color_stops,
+            defaultColor=self.color_default
+        ))
+

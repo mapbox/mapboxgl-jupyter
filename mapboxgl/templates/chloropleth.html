@@ -1,0 +1,83 @@
+{% extends "main.html" %}
+
+{% block javascript %}
+var legend = document.getElementById('legend');
+
+mapboxgl.accessToken = '{{ accessToken }}';
+
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: '{{ styleUrl }}', 
+    center: {{ center }},
+    zoom: {{ zoom }},
+    transformRequest: (url, resourceType)=> {
+        return {
+           url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
+         }
+    }
+});
+
+map.addControl(new mapboxgl.NavigationControl());
+
+calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+
+map.on('style.load', function() {
+    
+    // Add data source
+    map.addSource("data", {
+        "type": "geojson",
+        "data": {{ geojson_data }},
+        "buffer": 1,
+        "maxzoom": 14
+    });
+    
+    // Add data layer
+    map.addLayer({
+        "id": "polygons",
+        "source": "data",
+        "type": "fill",
+        "paint": {
+            "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+            "fill-opacity": {{ opacity }}
+        }
+    }, "{{belowLayer}}" );
+
+    // Create a popup
+    var popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+    
+    // Show the popup on mouseover
+    map.on('mousemove', 'polygons', function(e) {
+        map.getCanvas().style.cursor = 'pointer';
+        
+        let f = e.features[0];
+        let popup_html = '<div>';
+
+        for (key in f.properties) {
+            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+        }
+
+        popup_html += '</div>'
+        popup.setLngLat(e.lngLat)
+            .setHTML(popup_html)
+            .addTo(map);
+    });
+
+    map.on('mouseleave', 'polygons', function() {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
+    
+    // Fly to on click
+    map.on('click', 'polygons', function(e) {
+        map.flyTo({
+            center: e.features[0].geometry.coordinates,
+            zoom: map.getZoom() + 1
+        });
+    });
+
+
+});
+{% endblock %}
