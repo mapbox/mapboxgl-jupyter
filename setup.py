@@ -33,4 +33,4 @@ setup(
     zip_safe=False,
     install_requires=['jinja2'],
     extras_require={
-        'test': ['pytest', 'pytest-cov', 'codecov', 'mock', 'jupyter']})
+        'test': ['pytest', 'pytest-cov', 'codecov', 'mock', 'jupyter', 'Sphinx']})
