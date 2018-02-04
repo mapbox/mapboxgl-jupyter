@@ -10,6 +10,9 @@ Welcome to MapboxGL Jupyter's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   mapboxgl
+   modules
+
 
 
 Indices and tables
