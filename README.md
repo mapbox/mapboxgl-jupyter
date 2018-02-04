@@ -31,6 +31,16 @@ To run the jupiter examples,
 2. `pip install jupyter`
 2. `jupyter notebook`
 
+## Documentation
+
+Documentation is created using Sphix.  View the docs [here]().
+
+To update docs prior to a release:
+
+`cd docs`
+`sphinx-apidoc -f -o source/ ../mapboxgl/`
+`make html`
+
 ## Usage
 
 Import the mapboxgl library and helper functions to start:
