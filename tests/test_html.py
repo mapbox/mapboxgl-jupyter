@@ -9,7 +9,7 @@ from mapboxgl.errors import TokenError
 
 @pytest.fixture()
 def data():
-    with open('points.geojson') as fh:
+    with open('tests/points.geojson') as fh:
         return json.loads(fh.read())
 
 
