@@ -15,6 +15,8 @@ Welcome to MapboxGL Jupyter's documentation!
 Indices and tables
 ==================
 
+* :ref:`mapboxgl`
+* :ref:`modules`
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
