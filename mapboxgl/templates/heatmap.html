@@ -39,6 +39,8 @@ map.on('style.load', function() {
         "id": "circle",
         "source": "data",
         "type": "heatmap",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
         "paint": {
             "heatmap-weight": generateInterpolateExpression( "{{ weightProperty }}", {{ weightStops }} ),
             "heatmap-radius" : generateInterpolateExpression('zoom', {{ radiusStops }} ),
