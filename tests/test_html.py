@@ -9,7 +9,7 @@ from mapboxgl.errors import TokenError
 
 @pytest.fixture()
 def data():
-    with open('tests/points.geojson') as fh:
+    with open('points.geojson') as fh:
         return json.loads(fh.read())
 
 
@@ -111,5 +111,28 @@ def test_display_ClusteredCircleViz(display, data):
                      radius_stops=[[10, 0], [100, 1]],
                      color_stops=[[0, "red"], [10, "blue"], [1, "green"]],
                      access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+@patch('mapboxgl.viz.display')
+def test_min_zoom(display, data):
+    viz = GraduatedCircleViz(data,
+                             color_property="Avg Medicare Payments",
+                             label_property="Avg Medicare Payments",
+                             radius_property="Avg Covered Charges",
+                             access_token=TOKEN,
+                             min_zoom=10)
+    viz.show()
+    display.assert_called_once()
+
+@patch('mapboxgl.viz.display')
+def test_max_zoom(display, data):
+    viz = HeatmapViz(data,
+                     weight_property="Avg Medicare Payments",
+                     weight_stops=[[10, 0], [100, 1]],
+                     color_stops=[[0, "red"], [0.5, "blue"], [1, "green"]],
+                     radius_stops=[[0, 1], [12, 30]],
+                     access_token=TOKEN,
+                     max_zoom=5)
     viz.show()
     display.assert_called_once()

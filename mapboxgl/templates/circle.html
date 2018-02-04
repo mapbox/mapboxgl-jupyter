@@ -39,6 +39,8 @@ map.on('style.load', function() {
         "id": "label",
         "source": "data",
         "type": "symbol",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
         "layout": {
             {% if labelProperty %}
             "text-field": "{{ labelProperty }}",
@@ -56,6 +58,8 @@ map.on('style.load', function() {
         "id": "circle",
         "source": "data",
         "type": "circle",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
         "paint": {
             "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
             "circle-radius" : generatePropertyExpression('interpolate', 'zoom', [[0,1], [18,10]]),

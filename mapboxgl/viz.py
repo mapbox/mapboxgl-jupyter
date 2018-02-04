@@ -21,7 +21,9 @@ class MapViz(object):
                  height='500px',
                  style_url='mapbox://styles/mapbox/light-v9?optimize=true',
                  width='100%',
-                 zoom=0):
+                 zoom=0,
+                 min_zoom=0,
+                 max_zoom=24):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -52,6 +54,8 @@ class MapViz(object):
         self.below_layer = below_layer
         self.opacity = opacity
         self.label_property = None
+        self.min_zoom = min_zoom
+        self.max_zoom = max_zoom
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -86,7 +90,9 @@ class MapViz(object):
             zoom=self.zoom,
             geojson_data=json.dumps(self.data, ensure_ascii=False),
             belowLayer=self.below_layer,
-            opacity=self.opacity)
+            opacity=self.opacity,
+            minzoom=self.min_zoom,
+            maxzoom=self.max_zoom)
 
         if self.label_property is None:
             options.update(labelProperty=None)
