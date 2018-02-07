@@ -101,7 +101,7 @@ map.on('style.load', function() {
     
     // Fly to on click
     map.on('click', 'circle', function(e) {
-        map.flyTo({
+        map.easeTo({
             center: e.features[0].geometry.coordinates,
             zoom: map.getZoom() + 1
         });
