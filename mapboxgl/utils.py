@@ -1,66 +1,66 @@
 from .colors import color_ramps
+import geojson
 import json
+
+
+def row_to_geojson(row, lon, lat):
+    """Convert a pandas dataframe row to a geojson format object.  Converts all datetimes to epoch seconds.
+    """
+
+    # Let pandas handle json serialization
+    row_json = json.loads(row.to_json(date_format='epoch', date_unit='s'))
+    return geojson.Feature(geometry=geojson.Point((row_json[lon], row_json[lat])),
+                           properties={key: row_json[key] for key in row_json.keys() if key not in [lon, lat]})
 
 
 def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, filename=None):
     """Serialize a Pandas dataframe to a geojson format Python dictionary
     """
-    geojson = {'type': 'FeatureCollection', 'features': []}
+    if precision:
+        df[lon] = df[lon].round(precision)
+        df[lat] = df[lat].round(precision)
+
+    if not properties:
+        # if no properties are selected, use all properties in dataframe
+        properties = [c for c in df.columns if c not in [lon, lat]]
+
+    for prop in properties:
+        # Check if list of properties exists in dataframe columns
+        if prop not in list(df.columns):
+            raise ValueError(
+                'properties must be a valid list of column names from dataframe')
+        if prop in [lon, lat]:
+            raise ValueError(
+                'properties cannot be the geometry longitude or latitude column')
 
     if filename:
         with open(filename, 'w+') as f:
             # Overwrite file if it already exists
             pass
 
-    if precision:
-        df[lat] = df[lat].round(precision)
-        df[lon] = df[lon].round(precision)
-
-    if not properties:
-        properties = [c for c in df.columns if c not in [lat, lon]]
-
-    if filename:
         with open(filename, 'a+') as f:
+            features = []
+            df[[lon, lat] + properties].apply(lambda x: features.append(
+                row_to_geojson(x, lon, lat)), axis=1)
+
             f.write('{"type": "FeatureCollection", "features": [\n')
-            rowcount = 0
-            for idx, row in df.iterrows():
-                feature = {
-                    'type': 'Feature',
-                    'properties': {},
-                    'geometry': {
-                        'type': 'Point',
-                        'coordinates': [row[lon], row[lat]]}
-                }
-                for prop in properties:
-                    feature['properties'][prop] = row[prop]
-                if rowcount == 0:
-                    f.write(json.dumps(feature, ensure_ascii=False, sort_keys=True) + '\n')
-                    rowcount+=1
+            for idx, feat in enumerate(features):
+                if idx == 0:
+                    f.write(geojson.dumps(feat) + '\n')
                 else:
-                    f.write(',' + json.dumps(feature,
-                                             ensure_ascii=False, sort_keys=True) + '\n')
-                    rowcount+=1
+                    f.write(',' + geojson.dumps(feat) + '\n')
             f.write(']}')
+
             return {
                 "type": "file",
                 "filename": filename,
-                "feature_count": rowcount
+                "feature_count": len(features)
             }
     else:
-        for idx, row in df.iterrows():
-            feature = {
-                'type': 'Feature',
-                'properties': {},
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': [row[lon], row[lat]]}
-            }
-            for prop in properties:
-                feature['properties'][prop] = row[prop]
-
-            geojson['features'].append(feature)
-
-        return geojson
+        features = []
+        df[[lon, lat] + properties].apply(lambda x: features.append(
+            row_to_geojson(x, lon, lat)), axis=1)
+        return geojson.FeatureCollection(features)
 
 
 def scale_between(minval, maxval, numStops):
