@@ -26,7 +26,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, fil
 
     for prop in properties:
         # Check if list of properties exists in dataframe columns
-        if prop not in list(df.columns.values):
+        if prop not in list(df.columns):
             raise ValueError(
                 'properties must be a valid list of column names from dataframe')
         if prop in [lon, lat]:
