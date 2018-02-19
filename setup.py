@@ -33,4 +33,4 @@ setup(
     zip_safe=False,
     install_requires=['jinja2', 'geojson'],
     extras_require={
-        'test': ['pytest', 'pytest-cov', 'codecov', 'mock', 'jupyter', 'Sphinx']})
+        'test': ['pytest', 'pytest-cov', 'codecov', 'mock', 'jupyter', 'Sphinx', 'pandas']})
