@@ -1,5 +1,11 @@
 {% extends "main.html" %}
 
+<style type='text/css'>
+    .legend div span {
+        border-radius: 20%;
+    }
+</style>
+
 {% block javascript %}
 var legend = document.getElementById('legend');
 
@@ -11,9 +17,16 @@ var map = new mapboxgl.Map({
     center: {{ center }},
     zoom: {{ zoom }},
     transformRequest: (url, resourceType)=> {
-        return {
-           url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
-         }
+        if ( url.slice(0,22) == 'https://api.mapbox.com' ) {
+            //Add Python Plugin identifier for Mapbox API traffic
+            return {
+                url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
+            }
+        }
+        else {
+            //Do not transform URL for non Mapbox GET requests
+            return {url: url}
+        }
     }
 });
 
@@ -23,7 +36,7 @@ calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
 
 map.on('style.load', function() {
     
-    // Add data source
+    // Add geojson data source
     map.addSource("data", {
         "type": "geojson",
         "data": {{ geojson_data }},
@@ -40,7 +53,26 @@ map.on('style.load', function() {
             "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
             "fill-opacity": {{ opacity }}
         }
-    }, "{{belowLayer}}" );
+    }, "{{ belowLayer }}" );
+
+    // Add data layer
+    map.addLayer({
+        "id": "chloropleth-line",
+        "source": "data",
+        "type": "line",
+        "layout": {
+            "line-join": "round",
+            "line-cap": "round"
+        },
+        "paint": {
+            {% if lineDashArray %}
+            "line-dasharray": {{ lineDashArray }},
+            {% endif %}
+            "line-color": "{{ lineColor }}",
+            "line-width": {{ lineWidth }},
+            "line-opacity": {{ opacity }}
+        }
+    }, "{{ belowLayer }}" );
 
     // Create a popup
     var popup = new mapboxgl.Popup({
@@ -72,13 +104,11 @@ map.on('style.load', function() {
     
     // Fly to on click
     map.on('click', 'chloropleth-fill', function(e) {
-
         map.flyTo({
             center: e.lngLat,
             zoom: map.getZoom() + 1
         });
     });
-
 
 });
 {% endblock %}

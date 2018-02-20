@@ -279,6 +279,9 @@ class ChloroplethViz(MapViz):
                  color_stops=None,
                  color_default='grey',
                  color_function_type='interpolate',
+                 line_color='white',
+                 line_stroke='solid',
+                 line_width=1,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -293,14 +296,35 @@ class ChloroplethViz(MapViz):
         self.color_stops = color_stops
         self.color_default = color_default
         self.color_function_type = color_function_type
+        self.line_color = line_color
+        self.line_stroke = line_stroke
+        self.line_width = line_width
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
+
+        # set line stroke dash interval based on line_stroke property
+        if self.line_stroke == "dashed":
+            self.line_dash_array = [6, 4]
+        elif self.line_stroke == "dotted":
+            self.line_dash_array = [0.5, 4]
+        elif self.line_stroke == "dash dot":
+            self.line_dash_array = [6, 4, 0.5, 4]
+        elif self.line_stroke == "solid":
+            self.line_dash_array = [1, 0]
+        else:
+            # default to solid line
+            self.line_dash_array = [1, 0]
+
         options.update(dict(
             geojson_data=json.dumps(self.data, ensure_ascii=False),
             colorProperty=self.color_property,
             colorType=self.color_function_type,
             colorStops=self.color_stops,
-            defaultColor=self.color_default
+            defaultColor=self.color_default,
+            lineColor=self.line_color,
+            lineDashArray=self.line_dash_array,
+            lineStroke=self.line_stroke,
+            lineWidth=self.line_width,
         ))
 
