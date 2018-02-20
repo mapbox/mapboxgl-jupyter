@@ -275,6 +275,7 @@ class ChloroplethViz(MapViz):
 
     def __init__(self,
                  data,
+                 label_property=None,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -292,6 +293,7 @@ class ChloroplethViz(MapViz):
         super(ChloroplethViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'chloropleth'
+        self.label_property = label_property
         self.color_property = color_property
         self.color_stops = color_stops
         self.color_default = color_default

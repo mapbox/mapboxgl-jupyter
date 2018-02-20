@@ -1,10 +1,11 @@
 {% extends "main.html" %}
 
+<!-- update legend item key style -->
+{% block extra_css %}
 <style type='text/css'>
-    .legend div span {
-        border-radius: 20%;
-    }
+    .legend div span { border-radius: 20%; }
 </style>
+{% endblock extra_css %}
 
 {% block javascript %}
 var legend = document.getElementById('legend');
@@ -73,6 +74,24 @@ map.on('style.load', function() {
             "line-opacity": {{ opacity }}
         }
     }, "{{ belowLayer }}" );
+
+    // Add label layer
+    map.addLayer({
+        "id": "chloropleth-label",
+        "source": "data",
+        "type": "symbol",
+        "layout": {
+            {% if labelProperty %}
+            "text-field": "{{ labelProperty }}",
+            {% endif %}
+            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
+            "text-offset": [0,-1]
+        },
+        "paint": {
+            "text-halo-color": "white",
+            "text-halo-width": 1
+        }
+    }, "{{belowLayer}}" );
 
     // Create a popup
     var popup = new mapboxgl.Popup({
