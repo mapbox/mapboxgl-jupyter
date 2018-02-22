@@ -70,9 +70,9 @@ Convert a data breaks into a radius ramp
 
 Parameter | Description
 --|--
-breaks |
-min_radius |
-max_radius |
+breaks | List of float values
+min_radius | Minimum radius value
+max_radius | Maximum radius value
 
 ## create_weight_stops
 Convert data breaks into a heatmap-weight ramp
@@ -82,16 +82,24 @@ Convert data breaks into a heatmap-weight ramp
 
 Parameter | Description
 --|--
-breaks |
+breaks | List of float values
 
 ## create_color_stops
-Convert a list of breaks into color stops using colors from colorBrewer see www.colorbrewer2.org for a list of color options to pass
+Convert a list of breaks into color stops using colors from colorBrewer.
 
 ### Params
-**create_color_stops**(_breaks, colors='RdYlGn', color_ramps=color_ramps_)
+**create_color_stops**(_breaks, colors='RdYlGn'_)
 
 Parameter | Description
 --|--
-breaks |
-colors |
-color_ramps |
+breaks | List of float values
+colors | String value for color ramp. See www.colorbrewer2.org for a list of color options to pass.
+
+### Usage
+```python
+import pysal.esda.mapclassify as mapclassify
+
+# Generate a new data domain breaks and a new color palette from colorBrewer2
+color_breaks = mapclassify.Natural_Breaks(df['Avg Covered Charges'], k=8, initial=0).bins
+color_stops = create_color_stops(color_breaks, colors='YlOrRd')
+```
