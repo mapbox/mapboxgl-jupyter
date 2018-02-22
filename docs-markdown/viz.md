@@ -1,10 +1,21 @@
 ## Quick start
 1. Signup for a [Mapbox Account](https://www.mapbox.com/signup/). If you already have an account, grab your access token from the [account dashboard](https://www.mapbox.com/account/).
-2. Install dependencies:
-`pip install mapboxgl pandas jupyter`
-3. Open a jupyter notebook using `jupyter notebook`. If your browser does not open automatically, go to http://localhost:8888/ in your browser window.
-4. Create a visualization using one the options below, using your [Mapbox token](https://www.mapbox.com/account/).
 
+<img width="1175" alt="e3b76b4e9effe60170379326885d7144 _image 2018-02-22 at 3 11 09 pm" src="https://user-images.githubusercontent.com/11286381/36569461-be9b0454-17e2-11e8-89c9-43e5a50bb7d0.png">
+
+
+2. Install dependencies:  
+`pip install mapboxgl pandas jupyter`
+If you are using a hosted environment, include the following in one of your cells:
+`!pip install mapboxgl pandas jupyter`
+
+3. Open a jupyter notebook by calling `jupyter notebook` from your command prompt of terminal. If your browser does not open automatically, go to http://localhost:8888/ in your browser window.
+4. Import `mapboxgl-jupyter` with:
+`from mapboxgl.utils import *`
+`from mapboxgl.viz import *`
+5. Create a visualization using the examples and documentation below. You'll need your [Mapbox token](https://www.mapbox.com/account/) from the first step.
+
+[Here](https://www.mapbox.com/labs/jupyter/) is an example workbook
 ## class MapViz
 
 The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visualizations. You can use this class to set default values for all visualizations rather than calling them directly from the other visualization objects.
@@ -54,7 +65,6 @@ color_function_type | property to determine `type` used by Mapbox to assign colo
 
 ### Usage
 ```python
-import pysal.esda.mapclassify as mapclassify
 import pandas as pd
 import os
 from mapboxgl.utils import *
@@ -73,7 +83,7 @@ df_to_geojson(df, filename='points.geojson',
                      lat='lat', lon='lon', precision=3)
 
 # Generate data breaks and color stops from colorBrewer
-color_breaks = mapclassify.Natural_Breaks(df['Avg Medicare Payments'], k=8, initial=0).bins
+color_breaks = [0,10,100,1000,10000]
 color_stops = create_color_stops(color_breaks, colors='YlGnBu')
 
 # Create the viz from the dataframe
@@ -111,7 +121,6 @@ radius_stops | property to determine circle radius
 
 ### Usage
 ```python
-import pysal.esda.mapclassify as mapclassify
 import pandas as pd
 import os
 from mapboxgl.utils import *
@@ -172,7 +181,6 @@ radius_function_type | property to determine `type` used by Mapbox to assign rad
 
 ### Usage
 ```python
-import pysal.esda.mapclassify as mapclassify
 import pandas as pd
 import os
 from mapboxgl.utils import *
@@ -191,7 +199,7 @@ df_to_geojson(df, filename='points.geojson',
                      lat='lat', lon='lon', precision=3)
 
 # Generate radius breaks from data domain and circle-radius range
-radius_breaks = mapclassify.Natural_Breaks(df["Avg Medicare Payments"], k=8, initial=0).bins
+radius_breaks = [0,10,100,1000,10000]
 radius_stops = create_radius_stops(radius_breaks, 1, 10)
 
 # Create the viz
@@ -230,7 +238,6 @@ radius_stops | stops to determine heatmap radius based on zoom. | [[0, 1], [12, 
 
 ### Usage
 ```python
-import pysal.esda.mapclassify as mapclassify
 import pandas as pd
 import os
 from mapboxgl.utils import *
@@ -252,7 +259,7 @@ df_to_geojson(df, filename='points.geojson',
 heatmap_color_stops = create_color_stops([0.01,0.25,0.5,0.75,1], colors='RdPu')
 heatmap_radius_stops = [[0,1], [15, 40]] #increase radius with zoom
 
-color_breaks = mapclassify.Natural_Breaks(df['Avg Medicare Payments'], k=8, initial=0).bins
+color_breaks = [0,10,100,1000,10000]
 color_stops = create_color_stops(color_breaks, colors='Spectral')
 
 heatmap_weight_stops = create_weight_stops(color_breaks)

@@ -116,8 +116,6 @@ YlOrRd |  |  |
 
 ### Usage
 ```python
-#pysal is a suggested python library to calculate natural, quantile, or other methods to find breakpoints in your data. It's not a required library to use with mapboxgl, but highly recommended.
-import pysal.esda.mapclassify as mapclassify
 from mapboxgl.utils import *
 import pandas as pd
 
@@ -126,6 +124,6 @@ data_url = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/exa
 df = pd.read_csv(data_url)
 
 # Generate a new data domain breaks and a new color palette from colorBrewer2
-color_breaks = mapclassify.Natural_Breaks(df['Avg Covered Charges'], k=8, initial=0).bins
+color_breaks = [0,10,100,1000,10000]
 color_stops = create_color_stops(color_breaks, colors='YlOrRd')
 ```
