@@ -1,3 +1,10 @@
+## Quick start
+1. Signup for a [Mapbox Account](https://www.mapbox.com/signup/). If you already have an account, grab your access token from the [account dashboard](https://www.mapbox.com/account/).
+2. Install dependencies:
+`pip install mapboxgl pandas jupyter`
+3. Open a jupyter notebook using `jupyter notebook`. If your browser does not open automatically, go to http://localhost:8888/ in your browser window.
+4. Create a visualization using one the options below, using your [Mapbox token](https://www.mapbox.com/account/).
+
 ## class MapViz
 
 The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visualizations. You can use this class to set default values for all visualizations rather than calling them directly from the other visualization objects.
