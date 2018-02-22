@@ -31,14 +31,15 @@ filename | Name of file for writing geojson data. Data is stored as an object if
 import pandas as pd
 from mapboxgl.utils import *
 
-# Load sample gage data (https://cdec.water.ca.gov/cgi-progs/staSearch)
-df = pd.read_csv('cdec.csv')
+# Load gage data from sample csv
+data_url = "https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/cdec.csv"
+df = pd.read_csv(data_url)
 
 # Convert Elevation series to float
 df['Elevation (feet)'] = df['Elevation (feet)'].astype(float)
 
 # Clean up by dropping null rows
-df = df.dropna(axis=1, how='all')
+df.dropna(axis=1, how='all', inplace=True)
 
 # Create geojson data object
 df_to_geojson(
@@ -93,11 +94,36 @@ Convert a list of breaks into color stops using colors from colorBrewer.
 Parameter | Description
 --|--
 breaks | List of float values
-colors | String value for color ramp. See www.colorbrewer2.org for a list of color options to pass.
+colors | String value for color ramp.
+
+### Color Options
+
+**Multi-Hue** | **Single Hue** | **Diverging** | **Qualitative**
+--|--|--|--
+YlGn | Blues | BrBG | Accent
+YlGnB | Greens | PiYG | Dark2
+BuGn | Greys | PRGn | Paired
+BuPu | Oranges | PuOr | Pastel1
+GnBu | Purples | RdBu | Pastel2
+OrRd | Reds | RdGy | Set1
+PuBu |  | RdYlBu | Set2
+PuBuGn |  | RdYlGn | Set3
+PuRd |  | Spectral |
+RdPu |  |  |
+YlGn |  |  |
+YlOrBr |  |  |
+YlOrRd |  |  |
 
 ### Usage
 ```python
+#pysal is a suggested python library to calculate natural, quantile, or other methods to find breakpoints in your data. It's not a required library to use with mapboxgl, but highly recommended.
 import pysal.esda.mapclassify as mapclassify
+from mapboxgl.utils import *
+import pandas as pd
+
+# Load data from sample csv
+data_url = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/points.csv'
+df = pd.read_csv(data_url)
 
 # Generate a new data domain breaks and a new color palette from colorBrewer2
 color_breaks = mapclassify.Natural_Breaks(df['Avg Covered Charges'], k=8, initial=0).bins

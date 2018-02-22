@@ -1,3 +1,32 @@
+## class MapViz
+
+The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visualizations. You can use this class to set default values for all visualizations rather than calling them directly from the other visualization objects.
+
+### Params
+**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style_url='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24_)
+
+Parameter | Description
+--|--
+data | GeoJSON Feature Collection
+access_token | Mapbox GL JS access token.
+center | map center point
+style_url | url to mapbox style
+div_id | The HTML div id of the map container in the viz
+width | The CSS width of the HTML div id in % or pixels.
+height | The CSS height of the HTML map div in % or pixels.
+zoom | starting zoom level for map
+opacity | opacity of map data layer
+
+### Methods
+**as_iframe**(_self, html_data_)  
+Return the MapViz HTML representation in an iframe container using the srcdoc iframe attribute.
+
+**show**(_self, **kwargs_)    
+Display the visual in an iframe result cell of a Jupyter Notebook.
+
+**create_html**(_self_)  
+Build the HTML text representation of the visual. The output of this is a valid HTML document containing the visual object.
+
 ## class CircleViz
 
 The `CircleViz` class handles the creation of a circle map and is built on top of the `MapViz` class.
@@ -11,12 +40,8 @@ data | name of GeoJson file or object
 label_property | property to use for marker label
 color_property | property to determine circle color
 color_stops | property to determine circle color
-color_default | property to determine default circle color if match lookup fails
-color_function_type | property to determine `type` used by Mapbox to assign color
-
-### Methods
-**CircleViz.add_unique_template_variables**(_self, options_)
-Update map template variables specific to circle visual
+color_default | color of circle to use if no lookup value matches the property value. Only used for the **match** color_function_type.
+color_function_type | property to determine `type` used by Mapbox to assign color. One of "interpolate" or "match". Default is interpolate
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
 
@@ -28,8 +53,9 @@ import os
 from mapboxgl.utils import *
 from mapboxgl.viz import *
 
-# create pandas df from csv file
-df = pd.read_csv('points.csv')
+# Load data from sample csv
+data_url = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/points.csv'
+df = pd.read_csv(data_url)
 
 # Must be a public token, starting with `pk`
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
@@ -74,10 +100,6 @@ color_stops | property to determine circle color
 radius_property | property to determine circle radius
 radius_stops | property to determine circle radius
 
-### Methods
-**ClusteredCircleViz.add_unique_template_variables**(_self, options_)
-Update map template variables specific to a clustered circle visual
-
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
 
 ### Usage
@@ -88,8 +110,9 @@ import os
 from mapboxgl.utils import *
 from mapboxgl.viz import *
 
-# create pandas df from csv file
-df = pd.read_csv('points.csv')
+# Load data from sample csv
+data_url = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/points.csv'
+df = pd.read_csv(data_url)
 
 # Must be a public token, starting with `pk`
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
@@ -128,19 +151,15 @@ The `GraduatedCircleViz` object handles the creation of a graduated map and is b
 Parameter | Description
 --|--
 data | name of GeoJson file or object
-label_property | property to use for marker label
-color_property | property to determine circle color
-color_stops | property to determine circle color
-color_default | property to determine default circle color if match lookup fails
-color_function_type | property to determine `type` used by Mapbox to assign color
-radius_property | property to determine circle radius
-radius_stops | property to determine circle radius
-radius_default | property to determine default circle radius if match lookup fails
-radius_function_type | property to determine `type` used by Mapbox to assign radius size
-
-### Methods
-**GraduatedCircleViz.add_unique_template_variables**(_self, options_)
-Update map template variables specific to graduated circle visual
+label_property | property to use for marker label.
+color_property | property to determine circle color.
+color_stops | property to determine circle color.
+color_default | color of the circle to use if no lookup value matches the property value. Only used for the **match** color_function_type.
+color_function_type | property to determine `type` used by Mapbox to assign color. One of "interpolate" or "match". Default is interpolate.
+radius_property | property to determine circle radius.
+radius_stops | property to determine circle radius.
+radius_default | radius of the circle to use if no lookup value matches the property value. Only used for the **match** radius_function_type.
+radius_function_type | property to determine `type` used by Mapbox to assign radius size. One of "interpolate" or "match". Default is interpolate.
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
 
@@ -152,8 +171,9 @@ import os
 from mapboxgl.utils import *
 from mapboxgl.viz import *
 
-# create pandas df from csv file
-df = pd.read_csv('points.csv')
+# Load data from sample csv
+data_url = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/points.csv'
+df = pd.read_csv(data_url)
 
 # Must be a public token, starting with `pk`
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
@@ -199,11 +219,6 @@ weight_stops | stops to determine heatmap weight. | [[10, 0], [100, 1]]
 color_stops | stops to determine heatmap color. | [[0, "red"], [0.5, "blue"], [1, "green"]]
 radius_stops | stops to determine heatmap radius based on zoom. | [[0, 1], [12, 30]]
 
-
-### Methods
-**HeatmapViz.add_unique_template_variables**(_self, options_)
-Update map template variables specific to heatmap visual
-
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
 
 ### Usage
@@ -214,8 +229,9 @@ import os
 from mapboxgl.utils import *
 from mapboxgl.viz import *
 
-# create pandas df from csv file
-df = pd.read_csv('points.csv')
+# Load data from sample csv
+data_url = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/points.csv'
+df = pd.read_csv(data_url)
 
 # Must be a public token, starting with `pk`
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
@@ -250,35 +266,3 @@ viz = HeatmapViz('points.geojson',
 viz.show()
 ```
 ![screen shot 2018-02-21 at 3 34 55 pm](https://user-images.githubusercontent.com/11286381/36511775-cfc4d794-171c-11e8-86b9-5f1a6060a387.png)
-
-
-## class MapViz
-
-The `MapViz` class is the base class of the various `mapboxgl-jupyter` visualizations. You can use this class to set default values for all visualizations rather than calling them directly from the other visualization objects.
-
-### Params
-**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style_url='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24_)
-
-Parameter | Description
---|--
-data | GeoJSON Feature Collection
-access_token | Mapbox GL JS access token.
-center | map center point
-style_url | url to mapbox style
-div_id | The HTML div id of the map container in the viz
-width | The CSS width of the HTML div id in % or pixels.
-height | The CSS height of the HTML map div in % or pixels.
-zoom | starting zoom level for map
-opacity | opacity of map data layer
-
-### Methods
-**as_iframe**(_self, html_data_)
-Build the HTML representation for the mapviz
-
-**show**(_self, **kwargs_)
-Load the HTML iframe
-
-**add_unique_template_variables**(_self, options_)
-
-**create_html**(_self_)
-Create a circle visual from a geojson data source
