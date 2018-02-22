@@ -18,8 +18,7 @@ color_function_type | property to determine `type` used by Mapbox to assign colo
 **CircleViz.add_unique_template_variables**(_self, options_)
 Update map template variables specific to circle visual
 
-Options:
-[Link to mapviz options]()
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
 
 ### Usage
 ```python
@@ -79,8 +78,7 @@ radius_stops | property to determine circle radius
 **ClusteredCircleViz.add_unique_template_variables**(_self, options_)
 Update map template variables specific to a clustered circle visual
 
-Options:
-[Link to mapviz options]()
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
 
 ### Usage
 ```python
@@ -144,8 +142,7 @@ radius_function_type | property to determine `type` used by Mapbox to assign rad
 **GraduatedCircleViz.add_unique_template_variables**(_self, options_)
 Update map template variables specific to graduated circle visual
 
-Options:
-[Link to mapviz options]()
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
 
 ### Usage
 ```python
@@ -207,9 +204,7 @@ radius_stops | stops to determine heatmap radius based on zoom. | [[0, 1], [12, 
 **HeatmapViz.add_unique_template_variables**(_self, options_)
 Update map template variables specific to heatmap visual
 
-
-Options:
-[Link to mapviz options]()
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
 
 ### Usage
 ```python
