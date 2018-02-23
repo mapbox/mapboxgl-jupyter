@@ -10,7 +10,13 @@
 
 Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizations natively in Jupyter Notebooks with Python and Pandas.  `mapboxgl` is a high-performance, interactive, WebGL-based data visualization tool that drops directly into Jupyter.  `mapboxgl` is similar to [Folium](https://github.com/python-visualization/folium) built on top of the raster [Leaflet](http://leafletjs.com/) map library, but with much higher performance for large data sets using WebGL and Mapbox Vector Tiles.
 
-Try out an example notebook [here](https://www.mapbox.com/labs/jupyter).
+![](https://cl.ly/3a0K2m1o2j1A/download/Image%202018-02-22%20at%207.16.58%20PM.png)
+
+Try out an example notebooks from the /examples directory in this repository:
+
+1. [Categorical points](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/point-viz-categorical-example.ipynb)
+2. [All visualization types](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/point-viz-types-example.ipynb)
+3. [USGS Earthquakes](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/usgs-earthquakes.ipynb)
 
 ## Installation
 
