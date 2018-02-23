@@ -41,7 +41,7 @@ df['Elevation (feet)'] = df['Elevation (feet)'].astype(float)
 # Clean up by dropping null rows
 df.dropna(axis=1, how='all', inplace=True)
 
-# Create geojson data object
+# Create geojson file output
 df_to_geojson(
       df.fillna(''),
       filename="cdec.geojson",
@@ -49,6 +49,13 @@ df_to_geojson(
       precision=4
 )
 >>> {'feature_count': 2353, 'filename': 'cdec.geojson', 'type': 'file'}
+
+# Create geojson python dict
+data = df_to_geojson(
+      df.fillna(''),
+      properties=['CDEC ID', 'CNRFC ID', 'Gage Type', 'Elevation (feet)'],
+      precision=4
+)
 ```
 
 ## scale_between
