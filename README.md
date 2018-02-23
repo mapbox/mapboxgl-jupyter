@@ -24,7 +24,7 @@ Checkout the documentation for [mapboxgl visuals](https://github.com/mapbox/mapb
 
 The `examples/` directory contains sample Jupyter notebooks demonstrating usage.  
 
-```
+```python
 import pandas as pd
 import os
 from mapboxgl.utils import *
