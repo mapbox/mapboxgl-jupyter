@@ -9,8 +9,8 @@
 `pip install mapboxgl pandas jupyter`
 * If you are using a hosted jupyter notebook environment, install libraries from Jupyter using the `!` command in a cell:
     - `!pip install mapboxgl pandas jupyter`
-3. Open a jupyter notebook by calling `jupyter notebook` from your command prompt of terminal. If your browser does not open automatically, go to http://localhost:8888/ in your browser window.
-4. Import `mapboxgl-jupyter` with:
+3. Open a jupyter notebook by calling `jupyter notebook` from your command prompt or terminal. If your browser does not open automatically, navigate to http://localhost:8888/ in your browser window.
+4. Import `mapboxgl-jupyter` into your notebook:
 * `from mapboxgl.utils import *`
 * `from mapboxgl.viz import *`
 5. Create a visualization using the examples and documentation below. You'll need your [Mapbox token](https://www.mapbox.com/account/) from the first step.
