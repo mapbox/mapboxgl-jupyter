@@ -11,7 +11,7 @@ lon | Name of dataframe column containing latitude values.
 lat | Name of dataframe column containing longitude values.
 
 ## df_to_geojson
-Serialize a Pandas dataframe to a geojson format Python dictionary
+Convert a Pandas dataframe to a geojson Python dictionary as a file
 
 ### Params
 **df_to_geojson**(_df, properties=None, lat='lat', lon='lon', precision=None, filename=None_)
