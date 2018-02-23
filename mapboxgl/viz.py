@@ -40,9 +40,11 @@ class MapViz(object):
         if access_token is None:
             access_token = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
         if not access_token.startswith('pk'):
-            raise TokenError('Mapbox access token must be public (pk)')
+            raise TokenError('Mapbox access token must be public (pk). ' \
+                             'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
+                             'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
         self.access_token = access_token
-        
+
         self.template = 'base'
         self.data = data
         self.div_id = div_id
@@ -192,10 +194,10 @@ class GraduatedCircleViz(MapViz):
         options.update(dict(
             colorProperty=self.color_property,
             colorStops=self.color_stops,
-            colorType=self.color_function_type, 
-            radiusType=self.radius_function_type, 
-            defaultColor=self.color_default, 
-            defaultRadius=self.radius_default, 
+            colorType=self.color_function_type,
+            radiusType=self.radius_function_type,
+            defaultColor=self.color_default,
+            defaultRadius=self.radius_default,
             radiusProperty=self.radius_property,
             radiusStops=self.radius_stops,
         ))
