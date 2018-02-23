@@ -14,6 +14,49 @@ Try out an example notebook [here](https://www.mapbox.com/labs/jupyter)!
 
 `pip install mapboxgl`
 
+# Documentation
+
+Checkout the documentation for [mapboxgl visuals](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md) and [mapboxgl utilities](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/utils.md).
+
+## Usage
+
+The `examples/` directory contains sample Jupyter notebooks demonstrating usage.  
+
+```
+import pandas as pd
+import os
+from mapboxgl.utils import *
+from mapboxgl.viz import *
+
+# Load data from sample csv
+data_url = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/points.csv'
+df = pd.read_csv(data_url)
+
+# Must be a public token, starting with `pk`
+token = os.getenv('MAPBOX_ACCESS_TOKEN')
+
+# Create a geojson file export from a Pandas dataframe
+df_to_geojson(df, filename='points.geojson',
+              properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
+              lat='lat', lon='lon', precision=3)
+
+# Generate data breaks and color stops from colorBrewer
+color_breaks = [0,10,100,1000,10000]
+color_stops = create_color_stops(color_breaks, colors='YlGnBu')
+
+# Create the viz from the dataframe
+viz = CircleViz('points.geojson',
+                access_token=token,
+                height='400px',
+                color_property = "Avg Medicare Payments",
+                color_stops = color_stops,
+                center = (-95, 40),
+                zoom = 3,
+                below_layer = 'waterway-label'
+              )
+viz.show()
+```
+
 ## Development
 
 Install the python library locally with pip:
@@ -30,88 +73,6 @@ To run the jupiter examples,
 1. `cd examples`
 2. `pip install jupyter`
 2. `jupyter notebook`
-
-## Documentation
-
-Documentation is created using Sphix.  View the docs [here]().
-
-To update docs prior to a release:
-
-`cd docs`
-`sphinx-apidoc -f -o source/ ../mapboxgl/`
-`make html`
-
-## Usage
-
-Import the mapboxgl library and helper functions to start:
-
-```
-from mapboxgl.viz import *
-from mapboxgl.utils import *
-from mapboxgl.colors import *
-```
-
-`mapboxgl` visualizations take GeoJSON data as input.
-You can convert `pandas` dataframes to a GeoJSON feature collection:
-
-```
-data = df_to_geojson(df, ['Avg Total Payments'],
-                     lat='latitude', lon='longitude')
-```
-
-Using the `CircleViz` visualization to view the data with
-a color ramp for the total payment column. Within a Jupyter
-notebook:
-
-```
-viz = CircleViz(data,
-                color_property='Avg Total Payments',
-                color_stops=color_stops,
-                access_token=YOUR_PUBLIC_ACCESS_TOKEN)
-viz.show()
-```
-
-The `examples/` directory contains Jupyter notebooks
-demonstrating more advanced usage.
-
-## API
-
-### Viz Types
-
-* CircleViz (data, access_token, center, color_property, color_stops,
-             label_property, opacity, below_layer, div_id, height, 
-             style_url, width, zoom)
-* GraduatedCircleViz (data, access_token, center, color_property, color_stops,
-             radius_property, radius_stops, opacity, below_layer, div_id, height, 
-             style_url, width, zoom)
-* HeatmapViz (data, access_token, center, weight_property, weight_stops, 
-              color_stops, radius_stops, opacity, below_layer, div_id, height, 
-              style_url, width, zoom)
-* ClusteredCircleViz (data, access_token, center, color_stops, radius_stops,
-              cluster_radius, cluster_maxzoom, opacity, below_layer, div_id, height, 
-              style_url, width, zoom)
-
-### Helper Functions
-
-* df_to_geojson (df, properties, lat, lon, precision)
-* scale_between (minval, maxval, numStops)
-* create_radius_stops (breaks, min_radius, max_radius)
-* create_weight_stops (breaks)
-
-## Status
-
-Under heavy development. As we move towards a 1.0 release, expect
-API changes. If you're interested in contributing and are 
-curious about the direction of the project, check out `ROADMAP.md`.
-
-## Running Example
-
-1. Install Python3.4+
-2. `pip install mapboxgl && pip install pysal && pip install pandas`
-2. cd to `/examples` directory of `mapboxgl-jupyter` repo
-4. Open the `point-viz-types-example.ipynb` workbook
-5. Put your [Mapbox GL Access Token](https://www.mapbox.com/help/how-access-tokens-work/) (it's free for developers!) or add it to your environment variables as `MAPBOX_ACCESS_TOKEN`.
-6. Run all cells in the notebook and explore the interactive maps.
 
 # Release process
 
