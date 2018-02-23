@@ -1,14 +1,16 @@
-# mapboxgl-jupyter
+<a href="https://www.mapbox.com">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Mapbox_Logo.svg/1280px-Mapbox_Logo.svg.png" width="500"/>
+</a>
+
+# Data Visualization for Python and Jupyter Noteobok
 
 [![Build Status](https://travis-ci.org/mapbox/mapboxgl-jupyter.svg?branch=master)](https://travis-ci.org/mapbox/mapboxgl-jupyter)
 [![Coverage Status](https://coveralls.io/repos/github/mapbox/mapboxgl-jupyter/badge.svg?branch=master)](https://coveralls.io/github/mapbox/mapboxgl-jupyter?branch=master)
 [![PyPI version](https://badge.fury.io/py/mapboxgl.svg)](https://badge.fury.io/py/mapboxgl)
 
-Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizations natively in your Jupyter Notebook workflows with Python, GeoJSON and Pandas dataframes.  Mapboxgl aims to be a data visualization focused mapping library built on top of the [Mapbox GL JS SDK](https://www.mapbox.com/mapbox-gl-js/api/), similar to [Folium](https://github.com/python-visualization/folium) built on top of [Leaflet](http://leafletjs.com/).
+Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizations natively in Jupyter Notebook workflows with Python and Pandas.  `mapboxgl` aims to be a high-performance, interactive data visualization tool that drops directly into your data science workflow.  It's similar to [Folium](https://github.com/python-visualization/folium) built on top of [Leaflet](http://leafletjs.com/), but can visualize much larger vector data sets easily.
 
-Try out an example notebook [here](https://www.mapbox.com/labs/jupyter)!
-
-![image](https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/screenshot.png)
+Try out an example notebook [here](https://www.mapbox.com/labs/jupyter).
 
 ## Installation
 
