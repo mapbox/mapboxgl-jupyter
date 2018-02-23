@@ -8,7 +8,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/mapbox/mapboxgl-jupyter/badge.svg?branch=master)](https://coveralls.io/github/mapbox/mapboxgl-jupyter?branch=master)
 [![PyPI version](https://badge.fury.io/py/mapboxgl.svg)](https://badge.fury.io/py/mapboxgl)
 
-Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizations natively in Jupyter Notebook workflows with Python and Pandas.  `mapboxgl` aims to be a high-performance, interactive data visualization tool that drops directly into your data science workflow.  It's similar to [Folium](https://github.com/python-visualization/folium) built on top of [Leaflet](http://leafletjs.com/), but can visualize much larger vector data sets easily.
+Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizations natively in Jupyter Notebooks with Python and Pandas.  `mapboxgl` is a high-performance, interactive, WebGL-based data visualization tool that drops directly into Jupyter.  `mapboxgl` is similar to [Folium](https://github.com/python-visualization/folium) built on top of the raster [Leaflet](http://leafletjs.com/) map library, but with much higher performance for large data sets using WebGL and Mapbox Vector Tiles.
 
 Try out an example notebook [here](https://www.mapbox.com/labs/jupyter).
 
