@@ -12,7 +12,7 @@ Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizati
 
 ![](https://cl.ly/3a0K2m1o2j1A/download/Image%202018-02-22%20at%207.16.58%20PM.png)
 
-Try out an example notebooks from the /examples directory in this repository:
+Try out the interactive map example notebooks from the /examples directory in this repository
 
 1. [Categorical points](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/point-viz-categorical-example.ipynb)
 2. [All visualization types](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/point-viz-types-example.ipynb)
