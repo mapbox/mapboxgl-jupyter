@@ -50,7 +50,7 @@ df_to_geojson(
 )
 >>> {'feature_count': 2353, 'filename': 'cdec.geojson', 'type': 'file'}
 
-# Create geojson python dict
+# Create geojson python dict saved to a variable named data
 data = df_to_geojson(
       df.fillna(''),
       properties=['CDEC ID', 'CNRFC ID', 'Gage Type', 'Elevation (feet)'],
