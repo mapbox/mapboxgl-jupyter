@@ -59,7 +59,7 @@ data = df_to_geojson(
 ```
 
 ## scale_between
-Scale a min and max value to equal interval domain with numStops discrete values
+Scale a minimum and maximum value to an equal interval domain list, with `numStops` values in in the list.
 
 ### Params
 **scale_between**(_minval, maxval, numStops_)
@@ -71,7 +71,7 @@ maxval | maximum value
 numStops | number of intervals
 
 ## create_radius_stops
-Convert a data breaks into a radius ramp
+Convert a Python list of a data domain (such as `[0, 1, 5, 100, 10000]`) into a radius ramp between a minimum and maxium radius value. 
 
 ### Params
 **create_radius_stops**(_breaks, min_radius, max_radius_)
@@ -83,7 +83,7 @@ min_radius | Minimum radius value
 max_radius | Maximum radius value
 
 ## create_weight_stops
-Convert data breaks into a heatmap-weight ramp
+Convert a Python list of a data domain (such as `[0, 1, 5, 100, 10000]`) into a weight-ramp for a heatmap.
 
 ### Params
 **create_weight_stops**(_breaks_)
@@ -93,7 +93,7 @@ Parameter | Description
 breaks | List of float values
 
 ## create_color_stops
-Convert a list of breaks into color stops using colors from colorBrewer.
+Convert a Python list of a data domain (such as `[0, 1, 5, 100, 10000]`) into color ramp stops.  Color ramps can be from colorBrewer, or a custom list of color values.
 
 ### Params
 **create_color_stops**(_breaks, colors='RdYlGn'_)
@@ -101,7 +101,7 @@ Convert a list of breaks into color stops using colors from colorBrewer.
 Parameter | Description
 --|--
 breaks | List of float values
-colors | String value for color ramp.
+colors | String value for color ramp OR a list of colors as hex, RGB, or RGBA strings.
 
 ### Color Options
 
