@@ -1,5 +1,6 @@
 ## Quick start
-1. Signup for a [Mapbox Account](https://www.mapbox.com/signup/). If you already have an account, grab your access token from the [account dashboard](https://www.mapbox.com/account/).
+1. Signup for a [Mapbox Account](https://www.mapbox.com/signup/). 
+    * If you already have an account, grab your access token from the [account dashboard](https://www.mapbox.com/account/).
 
 <img width="1175" alt="e3b76b4e9effe60170379326885d7144 _image 2018-02-22 at 3 11 09 pm" src="https://user-images.githubusercontent.com/11286381/36569461-be9b0454-17e2-11e8-89c9-43e5a50bb7d0.png">
 
