@@ -61,7 +61,7 @@ color_stops | property to determine circle color
 color_default | color of circle to use if no lookup value matches the property value. Only used for the **match** color_function_type.
 color_function_type | property to determine `type` used by Mapbox to assign color. One of "interpolate" or "match". Default is interpolate
 
-[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
 ### Usage
 ```python
@@ -117,7 +117,7 @@ color_stops | property to determine circle color
 radius_property | property to determine circle radius
 radius_stops | property to determine circle radius
 
-[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
 ### Usage
 ```python
@@ -177,7 +177,7 @@ radius_stops | property to determine circle radius.
 radius_default | radius of the circle to use if no lookup value matches the property value. Only used for the **match** radius_function_type.
 radius_function_type | property to determine `type` used by Mapbox to assign radius size. One of "interpolate" or "match". Default is interpolate.
 
-[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
 ### Usage
 ```python
@@ -234,7 +234,7 @@ weight_stops | stops to determine heatmap weight. | [[10, 0], [100, 1]]
 color_stops | stops to determine heatmap color. | [[0, "red"], [0.5, "blue"], [1, "green"]]
 radius_stops | stops to determine heatmap radius based on zoom. | [[0, 1], [12, 30]]
 
-[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/add-markdown-docs/docs-markdown/viz.md#params-4)
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
 ### Usage
 ```python
