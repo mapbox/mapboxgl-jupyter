@@ -76,7 +76,7 @@ To run tests use pytest:
 `pip install pytest`
 `pytest`
 
-To run the jupiter examples, 
+To run the Jupyter examples, 
 
 1. `cd examples`
 2. `pip install jupyter`
