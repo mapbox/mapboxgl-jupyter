@@ -40,6 +40,8 @@ map.on('style.load', function() {
         "id": "label",
         "source": "data",
         "type": "symbol",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
         "layout": {
             {% if labelProperty %}
             "text-field": "{{ labelProperty }}",
@@ -57,6 +59,8 @@ map.on('style.load', function() {
         "id": "circle",
         "source": "data",
         "type": "circle",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
         "paint": {
             "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
             "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, "{{ defaultRadius }}" ),
@@ -97,7 +101,7 @@ map.on('style.load', function() {
     
     // Fly to on click
     map.on('click', 'circle', function(e) {
-        map.flyTo({
+        map.easeTo({
             center: e.features[0].geometry.coordinates,
             zoom: map.getZoom() + 1
         });

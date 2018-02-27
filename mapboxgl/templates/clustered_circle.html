@@ -42,6 +42,8 @@ map.on('style.load', function() {
         "id": "label",
         "source": "data",
         "type": "symbol",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
         "layout": {
             "text-field": "{point_count_abbreviated}",
             "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] )
@@ -56,6 +58,8 @@ map.on('style.load', function() {
         "id": "circle-cluster",
         "source": "data",
         "type": "circle",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
         "filter": ["has", "point_count"],
         "paint": {
             "circle-color": generateInterpolateExpression( "point_count", {{ colorStops }} ),
@@ -70,6 +74,8 @@ map.on('style.load', function() {
         "id": "circle-unclustered",
         "source": "data",
         "type": "circle",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
         "filter": ["!has", "point_count"],
         "paint": {
             "circle-color": "{{ baseColor }}",
@@ -104,22 +110,42 @@ map.on('style.load', function() {
             .addTo(map);
     });
 
+    map.on('mousemove', 'circle-cluster', function(e) {
+        map.getCanvas().style.cursor = 'pointer';
+        let f = e.features[0];
+        let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+            ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
+
+        popup_html += '<li><b>Point Count:</b>: ' + f.properties.point_count + ' </li>'
+
+        popup_html += '</div>'
+
+        popup.setLngLat(e.features[0].geometry.coordinates)
+            .setHTML(popup_html)
+            .addTo(map);
+    });
+
     map.on('mouseleave', 'circle-unclustered', function() {
         map.getCanvas().style.cursor = '';
         popup.remove();
     });
+
+    map.on('mouseleave', 'circle-cluster', function() {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
     
-    // Fly to on click
+
     map.on('click', 'circle-unclustered', function(e) {
-        map.flyTo({
+        map.easeTo({
             center: e.features[0].geometry.coordinates,
             zoom: map.getZoom() + 1
         });
     });
 
     map.on('click', 'circle-cluster', function(e) {
-        map.flyTo({
-            center: map.unproject(e.point),
+        map.easeTo({
+            center: e.features[0].geometry.coordinates,
             zoom: map.getZoom() + 1
         });
     });

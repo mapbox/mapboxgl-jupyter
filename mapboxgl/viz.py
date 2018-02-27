@@ -6,7 +6,7 @@ from IPython.core.display import HTML, display
 from mapboxgl.errors import TokenError
 from mapboxgl import templates
 
-GL_JS_VERSION = 'v0.44.0'
+GL_JS_VERSION = 'v0.44.1'
 
 
 class MapViz(object):
@@ -21,7 +21,9 @@ class MapViz(object):
                  height='500px',
                  style_url='mapbox://styles/mapbox/light-v9?optimize=true',
                  width='100%',
-                 zoom=0):
+                 zoom=0,
+                 min_zoom=0,
+                 max_zoom=24):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -38,9 +40,11 @@ class MapViz(object):
         if access_token is None:
             access_token = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
         if not access_token.startswith('pk'):
-            raise TokenError('Mapbox access token must be public (pk)')
+            raise TokenError('Mapbox access token must be public (pk). ' \
+                             'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
+                             'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
         self.access_token = access_token
-        
+
         self.template = 'base'
         self.data = data
         self.div_id = div_id
@@ -52,6 +56,8 @@ class MapViz(object):
         self.below_layer = below_layer
         self.opacity = opacity
         self.label_property = None
+        self.min_zoom = min_zoom
+        self.max_zoom = max_zoom
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -86,7 +92,9 @@ class MapViz(object):
             zoom=self.zoom,
             geojson_data=json.dumps(self.data, ensure_ascii=False),
             belowLayer=self.below_layer,
-            opacity=self.opacity)
+            opacity=self.opacity,
+            minzoom=self.min_zoom,
+            maxzoom=self.max_zoom)
 
         if self.label_property is None:
             options.update(labelProperty=None)
@@ -186,10 +194,10 @@ class GraduatedCircleViz(MapViz):
         options.update(dict(
             colorProperty=self.color_property,
             colorStops=self.color_stops,
-            colorType=self.color_function_type, 
-            radiusType=self.radius_function_type, 
-            defaultColor=self.color_default, 
-            defaultRadius=self.radius_default, 
+            colorType=self.color_function_type,
+            radiusType=self.radius_function_type,
+            defaultColor=self.color_default,
+            defaultRadius=self.radius_default,
             radiusProperty=self.radius_property,
             radiusStops=self.radius_stops,
         ))
