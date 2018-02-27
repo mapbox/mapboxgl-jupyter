@@ -104,7 +104,7 @@ viz.show()
 
 ## class ClusteredCircleViz
 
-The `ClusteredCircleViz` object handles the creation of a clustered circle map and is built on top of the `MapViz` class.
+The `ClusteredCircleViz` object handles the creation of a clustered circle map and is built on top of the `MapViz` class.  Cluster radius and color are keyed on point density.
 
 ### Params
 **ClusteredCircleViz**(_data, color_stops=None, radius_stops=None, cluster_radius=30, cluster_maxzoom=14, *args, **kwargs_)
@@ -112,10 +112,10 @@ The `ClusteredCircleViz` object handles the creation of a clustered circle map a
 Parameter | Description
 --|--
 data | name of GeoJson file or object
-color_property | property to determine circle color
 color_stops | property to determine circle color
-radius_property | property to determine circle radius
 radius_stops | property to determine circle radius
+cluster_radius | property to determine radius of each cluster when clustering points
+cluster_maxzoom | property to determine the max zoom to use for clustering points
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
