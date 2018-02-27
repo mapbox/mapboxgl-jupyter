@@ -147,6 +147,21 @@ class CircleViz(MapViz):
         ))
 
 
+class PolygonViz(CircleViz):
+    """Create a circle map"""
+
+    def __init__(self,
+                 data,
+                 *args,
+                 **kwargs):
+        """Construct a Mapviz object
+
+        """
+        super(PolygonViz, self).__init__(data, *args, **kwargs)
+
+        self.template = 'polygon'
+
+
 class GraduatedCircleViz(MapViz):
     """Create a graduated circle map"""
 
