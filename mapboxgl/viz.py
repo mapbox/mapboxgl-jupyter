@@ -279,7 +279,7 @@ class ClusteredCircleViz(MapViz):
 
 
 class ChloroplethViz(MapViz):
-    """Create a heatmap viz"""
+    """Create a chloropleth viz"""
 
     def __init__(self,
                  data,
@@ -295,7 +295,14 @@ class ChloroplethViz(MapViz):
                  **kwargs):
         """Construct a Mapviz object
 
-        :param weight_property: property to determine heatmap weight. EX. "population"
+        :param label_property: property to use for marker label
+        :param color_property: property to determine circle color
+        :param color_stops: property to determine circle color
+        :param color_default: property to determine default circle color if match lookup fails
+        :param color_function_type: property to determine `type` used by Mapbox to assign color
+        :param line_color: property to determine chloropleth line color
+        :param line_stroke: property to determine chloropleth line stroke (solid, dashed, dotted, dash dot)
+        :param line_width: property to determine chloropleth line width
 
         """
         super(ChloroplethViz, self).__init__(data, *args, **kwargs)
