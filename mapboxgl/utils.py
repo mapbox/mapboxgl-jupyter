@@ -110,17 +110,19 @@ def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
     """Convert a list of breaks into color stops using colors from colorBrewer
     see www.colorbrewer2.org for a list of color options to pass
     """
-    num_breaks = len(breaks)
 
-    if colors not in color_ramps.keys():
-        raise ValueError('color does not exist in colorBrewer!')
+    if isinstance(colors, list):
+        ramp = colors
     else:
-        stops = []
+        if colors not in color_ramps.keys():
+            raise ValueError('color does not exist in colorBrewer!')
         try:
+            num_breaks = len(breaks)
             ramp = color_ramps[colors][num_breaks]
         except KeyError:
             raise ValueError("Color ramp {} does not have a {} breaks".format(
                 colors, num_breaks))
-        for i, b in enumerate(breaks):
-            stops.append([b, ramp[i]])
-        return stops
+    stops = []
+    for i, b in enumerate(breaks):
+        stops.append([b, ramp[i]])
+    return stops
