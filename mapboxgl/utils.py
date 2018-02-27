@@ -1,6 +1,7 @@
 from .colors import color_ramps
 import geojson
 import json
+from colour import Color
 
 
 def row_to_geojson(row, lon, lat):
@@ -108,19 +109,41 @@ def create_weight_stops(breaks):
 
 def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
     """Convert a list of breaks into color stops using colors from colorBrewer
-    see www.colorbrewer2.org for a list of color options to pass
+    or a custom list of color values in RGB, RGBA, HSL, CSS text, or HEX format.
+    See www.colorbrewer2.org for a list of color options to pass
     """
-    num_breaks = len(breaks)
 
-    if colors not in color_ramps.keys():
-        raise ValueError('color does not exist in colorBrewer!')
-    else:
-        stops = []
-        try:
-            ramp = color_ramps[colors][num_breaks]
-        except KeyError:
-            raise ValueError("Color ramp {} does not have a {} breaks".format(
-                colors, num_breaks))
+    num_breaks = len(breaks)
+    stops = []
+
+    if type(colors) == list:
+
+        # Check if colors contain a list of color values
+        if len(colors) == 0 or len(colors) != num_breaks:
+            raise ValueError('custom color list must be of same length as breaks list')
+
+        for color in colors:
+            # Check if color is valid string
+            try:
+                Color(color.replace(" ", "")) 
+            except ValueError:
+                raise ValueError('The color code {color} was not found'.format(color=color))
+            
         for i, b in enumerate(breaks):
-            stops.append([b, ramp[i]])
-        return stops
+            stops.append([b, colors[i]])
+
+    else:
+        if colors not in color_ramps.keys():
+            raise ValueError('color does not exist in colorBrewer!')
+        else:
+            
+            try:
+                ramp = color_ramps[colors][num_breaks]
+            except KeyError:
+                raise ValueError("Color ramp {} does not have a {} breaks".format(
+                    colors, num_breaks))
+
+            for i, b in enumerate(breaks):
+                stops.append([b, ramp[i]])
+
+    return stops
