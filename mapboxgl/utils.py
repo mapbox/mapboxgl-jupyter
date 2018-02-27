@@ -1,7 +1,7 @@
 from .colors import color_ramps
 import geojson
 import json
-
+import re
 
 def row_to_geojson(row, lon, lat):
     """Convert a pandas dataframe row to a geojson format object.  Converts all datetimes to epoch seconds.
@@ -113,6 +113,9 @@ def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
 
     if isinstance(colors, list):
         ramp = colors
+        for color in color:
+            if not validateColor(color):
+                raise ValueError("Color is in wrong format: " + str(color))
     else:
         if colors not in color_ramps.keys():
             raise ValueError('color does not exist in colorBrewer!')
@@ -126,3 +129,17 @@ def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
     for i, b in enumerate(breaks):
         stops.append([b, ramp[i]])
     return stops
+
+def validateColor(color):
+    if not isinstance(color, str):
+        return False
+    regex = "rgb\([0-9]{1,3},[0-9]{1,3},[0-9]{1,3}\)"
+    if not re.fullmatch(regex, color):
+        return False
+    color = color.replace("rgb(", "")
+    color = color.replace(")", "")
+    color = color.split(",")
+    for value in color:
+        if not 0 <= int(value) <= 255:
+            return False
+    return True
