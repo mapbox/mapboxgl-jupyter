@@ -1,0 +1,120 @@
+{% extends "main.html" %}
+
+{% block javascript %}
+function calcCentroid(coords) {
+    //Calculate centroid
+    var numPoints = coords.length;
+    var x = 0;
+    var y = 0;
+    for (var ii = 0; ii < numPoints; ii++) {
+       x += coords[ii][0] / numPoints;
+       y += coords[ii][1] / numPoints;
+    }
+    return [x, y];
+}
+
+mapboxgl.accessToken = '{{ accessToken }}';
+
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: '{{ styleUrl }}', 
+    center: {{ center }},
+    zoom: {{ zoom }},
+    transformRequest: (url, resourceType)=> {
+        if ( url.slice(0,22) == 'https://api.mapbox.com' ) {
+            //Add Python Plugin identifier for Mapbox API traffic
+            return {
+               url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
+             }
+         }
+         else {
+             //Do not transform URL for non Mapbox GET requests
+             return {url: url}
+         }
+    }
+});
+
+map.addControl(new mapboxgl.NavigationControl());
+
+calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+
+map.on('style.load', function() {
+    
+    map.addSource("data", {
+        "type": "geojson",
+        "data": {{ geojson_data }},
+        "buffer": 1,
+        "maxzoom": 14
+    });
+
+    map.addLayer({
+        "id": "label",
+        "source": "data",
+        "type": "symbol",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
+        "layout": {
+            {% if labelProperty %}
+            "text-field": "{{ labelProperty }}",
+            {% endif %}
+            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
+            "text-offset": [0,-1]
+        },
+        "paint": {
+            "text-halo-color": "white",
+            "text-halo-width": 1
+        }
+    }, "{{belowLayer}}" )
+    
+    map.addLayer({
+        "id": "polygon",
+        "source": "data",
+        "type": "fill",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
+        "paint": {
+            "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+            "fill-outline-color": "white",
+            "fill-opacity": 0.8
+        }
+    }, "label");
+    
+    // Create a popup
+    var popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+    
+    // Show the popup on mouseover
+    map.on('mousemove', 'polygon', function(e) {
+        map.getCanvas().style.cursor = 'pointer';
+        
+        let f = e.features[0];
+        let centroid = calcCentroid(f.geometry.coordinates[0]);
+        let popup_html = '<div><li><b>Location</b>: ' + centroid[0].toPrecision(6) +
+            ', ' + centroid[1].toPrecision(6) + '</li>';
+
+        for (key in f.properties) {
+            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+        }
+
+        popup_html += '</div>'
+        popup.setLngLat(centroid)
+            .setHTML(popup_html)
+            .addTo(map);
+    });
+
+    map.on('mouseleave', 'polygon', function() {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
+    
+    // Fly to on click
+    map.on('click', 'polygon', function(e) {
+        map.easeTo({
+            center: calcCentroid(e.features[0].geometry.coordinates[0]),
+            zoom: map.getZoom() + 1
+        });
+    });
+});
+{% endblock %}
