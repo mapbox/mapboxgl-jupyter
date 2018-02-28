@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
-from mapboxgl.utils import df_to_geojson, scale_between, create_radius_stops, create_weight_stops
+from mapboxgl.utils import df_to_geojson, scale_between, create_radius_stops, create_weight_stops, create_color_stops
 
 
 @pytest.fixture()
@@ -55,6 +55,25 @@ def test_scale_between_maxMin():
     scale = scale_between(0,1,1)
     assert scale == [0,1]
 
+def test_color_stops():
+    """Create color stops from breaks using colorBrewer"""
+    stops = create_color_stops([0, 1, 2], colors='YlGn')
+    assert stops == [[0,"rgb(247,252,185)"], [1,"rgb(173,221,142)"], [2,"rgb(49,163,84)"]]
+
+def test_color_stops_custom():
+    """Create color stops from custom color breaks"""
+    stops = create_color_stops([0, 1, 2], colors=['red', 'yellow', 'green'])
+    assert stops == [[0,"red"], [1,"yellow"], [2,"green"]]
+
+def test_color_stops_custom_invalid():
+    """Create invalid color stops from custom color breaks and throw value error"""
+    with pytest.raises(ValueError):
+        create_color_stops([0, 1, 2], colors=['x', 'yellow', 'green'])
+
+def test_color_stops_custom_null():
+    """Create invalid number of color stops that do not match the number of breaks"""
+    with pytest.raises(ValueError):
+        create_color_stops([0, 1, 2], colors=['red', 'yellow', 'green', 'grey'])
 
 def test_create_radius_stops(df):
     domain = [7678.214347826088, 5793.63142857143, 1200]
