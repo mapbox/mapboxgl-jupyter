@@ -282,12 +282,18 @@ viz.show()
 ![screen shot 2018-02-21 at 3 34 55 pm](https://user-images.githubusercontent.com/11286381/36511775-cfc4d794-171c-11e8-86b9-5f1a6060a387.png)
 
 
-## class ChloroplethViz
+## class 
 
-The `ChloroplethViz` object handles the creation of a chloropleth map and is built on top of the `MapViz` class.
+ChoroplethViz
+
+The `
+
+ChoroplethViz` object handles the creation of a choropleth map and is built on top of the `MapViz` class.
 
 ### Params
-**ChloroplethViz**(_data, label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, *args, **kwargs_)
+**
+
+ChoroplethViz**(_data, label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, *args, **kwargs_)
 
 Parameter | Description | Example
 --|--|--
@@ -297,9 +303,9 @@ color_property | property to determine circle color | "density"
 color_stops | property to determine circle color | [[0, "red"], [0.5, "blue"], [1, "green"]]
 color_default | property to determine default circle color if match lookup fails | "#F0F0F0"
 color_function_type | property to determine `type` used by Mapbox to assign color | "interpolate"
-line_color | property to determine chloropleth line color | "#FFFFFF"
-line_stroke | property to determine chloropleth line stroke (one of solid, dashed, dotted, dash dot) | "solid"
-line_width | property to determine chloropleth line width | 1
+line_color | property to determine choropleth line color | "#FFFFFF"
+line_stroke | property to determine choropleth line stroke (one of solid, dashed, dotted, dash dot) | "solid"
+line_width | property to determine choropleth line width | 1
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
@@ -321,8 +327,10 @@ color_stops = [
     [10000.0,'rgb(128,0,38)']
 ]
 
-# Create Chloropleth
-viz = ChloroplethViz('us-states.geojson', 
+# Create Choropleth
+viz = 
+
+ChoroplethViz('us-states.geojson', 
                      access_token=token,
                      color_property='density',
                      color_stops=sample_color_stops,

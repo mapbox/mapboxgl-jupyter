@@ -47,7 +47,7 @@ map.on('style.load', function() {
     
     // Add data layer
     map.addLayer({
-        "id": "chloropleth-fill",
+        "id": "choropleth-fill",
         "source": "data",
         "type": "fill",
         "paint": {
@@ -58,7 +58,7 @@ map.on('style.load', function() {
 
     // Add data layer
     map.addLayer({
-        "id": "chloropleth-line",
+        "id": "choropleth-line",
         "source": "data",
         "type": "line",
         "layout": {
@@ -77,7 +77,7 @@ map.on('style.load', function() {
 
     // Add label layer
     map.addLayer({
-        "id": "chloropleth-label",
+        "id": "choropleth-label",
         "source": "data",
         "type": "symbol",
         "layout": {
@@ -100,7 +100,7 @@ map.on('style.load', function() {
     });
     
     // Show the popup on mouseover
-    map.on('mousemove', 'chloropleth-fill', function(e) {
+    map.on('mousemove', 'choropleth-fill', function(e) {
         map.getCanvas().style.cursor = 'pointer';
         
         let f = e.features[0];
@@ -116,13 +116,13 @@ map.on('style.load', function() {
             .addTo(map);
     });
 
-    map.on('mouseleave', 'chloropleth-fill', function() {
+    map.on('mouseleave', 'choropleth-fill', function() {
         map.getCanvas().style.cursor = '';
         popup.remove();
     });
     
     // Fly to on click
-    map.on('click', 'chloropleth-fill', function(e) {
+    map.on('click', 'choropleth-fill', function(e) {
         map.flyTo({
             center: e.lngLat,
             zoom: map.getZoom() + 1

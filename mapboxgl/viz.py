@@ -278,8 +278,8 @@ class ClusteredCircleViz(MapViz):
         ))
 
 
-class ChloroplethViz(MapViz):
-    """Create a chloropleth viz"""
+class ChoroplethViz(MapViz):
+    """Create a choropleth viz"""
 
     def __init__(self,
                  data,
@@ -300,14 +300,14 @@ class ChloroplethViz(MapViz):
         :param color_stops: property to determine circle color
         :param color_default: property to determine default circle color if match lookup fails
         :param color_function_type: property to determine `type` used by Mapbox to assign color
-        :param line_color: property to determine chloropleth line color
-        :param line_stroke: property to determine chloropleth line stroke (solid, dashed, dotted, dash dot)
-        :param line_width: property to determine chloropleth line width
+        :param line_color: property to determine choropleth line color
+        :param line_stroke: property to determine choropleth line stroke (solid, dashed, dotted, dash dot)
+        :param line_width: property to determine choropleth line width
 
         """
-        super(ChloroplethViz, self).__init__(data, *args, **kwargs)
+        super(ChoroplethViz, self).__init__(data, *args, **kwargs)
 
-        self.template = 'chloropleth'
+        self.template = 'choropleth'
         self.label_property = label_property
         self.color_property = color_property
         self.color_stops = color_stops
