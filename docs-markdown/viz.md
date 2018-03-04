@@ -21,14 +21,14 @@
 The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visualizations. You can use this class to set default values for all visualizations rather than calling them directly from the other visualization objects.
 
 ### Params
-**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style_url='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24_)
+**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24_)
 
 Parameter | Description
 --|--
 data | GeoJSON Feature Collection
 access_token | Mapbox GL JS access token.
 center | map center point
-style_url | url to mapbox style
+style | url to mapbox style or stylesheet as a Python dictionary in JSON format
 div_id | The HTML div id of the map container in the viz
 width | The CSS width of the HTML div id in % or pixels.
 height | The CSS height of the HTML map div in % or pixels.
