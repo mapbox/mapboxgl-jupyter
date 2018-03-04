@@ -4,7 +4,6 @@ from mock import patch
 import pytest
 
 from mapboxgl.viz import *
-from mapboxgl.errors import TokenError
 
 
 @pytest.fixture()
@@ -14,22 +13,6 @@ def data():
 
 
 TOKEN = 'pk.abc123'
-
-
-def test_secret_key_CircleViz(data):
-    """Secret key raises a token error
-    """
-    secret = 'sk.abc123'
-    with pytest.raises(TokenError):
-        CircleViz(data, access_token=secret)
-
-
-def test_secret_key_GraduatedCircleViz(data):
-    """Secret key raises a token error
-    """
-    secret = 'sk.abc123'
-    with pytest.raises(TokenError):
-        GraduatedCircleViz(data, access_token=secret)
 
 
 def test_token_env_CircleViz(monkeypatch, data):
