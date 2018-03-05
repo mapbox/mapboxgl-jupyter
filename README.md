@@ -73,7 +73,10 @@ Install the python library locally with pip:
 
 To run tests use pytest:
 
+`pip install mock`
+
 `pip install pytest`
+
 `pytest`
 
 To run the Jupyter examples, 
