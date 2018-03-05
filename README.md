@@ -85,6 +85,8 @@ To run the Jupyter examples,
 2. `pip install jupyter`
 2. `jupyter notebook`
 
+We follow the [PEP8 style guide for Python](http://www.python.org/dev/peps/pep-0008/) for all Python code.
+
 # Release process
 
 - After merging all relevant PRs for the upcoming release, pull the master branch
