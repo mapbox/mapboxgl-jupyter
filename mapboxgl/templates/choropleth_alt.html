@@ -31,14 +31,49 @@ var map = new mapboxgl.Map({
     }
 });
 
+var joinData = {{ joinData }};
+
 map.addControl(new mapboxgl.NavigationControl());
 
 calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
 
+function calcNumericColorValue(num, arr) {
+
+    var curr = arr[0];
+    var diff = Math.abs (num - curr);
+    for (var val = 0; val < arr.length; val++) {
+        var newdiff = Math.abs (num - arr[val]);
+        if (newdiff < diff) {
+            diff = newdiff;
+            curr = arr[val];
+        }
+    }
+    return ({{colorStops}})[curr];
+
+}
+
 map.on('style.load', function() {
     
+    {% if joinData %}
+        var vectorColorStops = [],
+            popUpKeys = [];
+
+        // create categorical color stops for features in vector layer
+        joinData.forEach(function(row, index) {
+            var red = Math.max(255 - row["{{ colorProperty }}"], 0),
+                green = Math.max(255 - row["{{ colorProperty }}"], 0),
+                blue = Math.min(204 + row["{{ colorProperty }}"], 255);
+
+            var color = "rgba(" + red + ", " + green + ", " + blue + ", 1)";
+            vectorColorStops.push([row["id"], color]);
+            
+            // for adding joined data to pop-up
+            popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
+        });
+    {% endif %}
+
     {% if vectorPolygonSource %}
-        
+
         // Add vector data source
         map.addSource("vector-data", {
             type: "vector",
@@ -52,7 +87,8 @@ map.on('style.load', function() {
             "source": "vector-data",
             "source-layer": "{{ vectorLayer }}",
             "paint": {
-                "fill-color": generatePropertyExpression("match", "{{ vectorJoinColorProperty }}", {{ vectorColorStops }}, "{{ defaultColor }}"), 
+                "fill-color": generatePropertyExpression("match", "{{ vectorJoinColorProperty }}", vectorColorStops, "{{ defaultColor }}"), 
+                "fill-opacity": {{ opacity }}
             }
         }, "{{ belowLayer }}");
 
@@ -142,6 +178,8 @@ map.on('style.load', function() {
         for (key in f.properties) {
             popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
         }
+
+        popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinColorProperty }}"]] + ' </li>'
 
         popup_html += '</div>'
         popup.setLngLat(e.lngLat)

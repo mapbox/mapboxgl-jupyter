@@ -283,6 +283,11 @@ class ChoroplethViz(MapViz):
 
     def __init__(self,
                  data,
+                 vector_polygon_source=False,
+                 vector_url=None,
+                 vector_layer_name=None,
+                 vector_color_stops=None,
+                 vector_join_color_property=None,
                  label_property=None,
                  color_property=None,
                  color_stops=None,
@@ -308,6 +313,11 @@ class ChoroplethViz(MapViz):
         super(ChoroplethViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'choropleth'
+        self.vector_polygon_source = vector_polygon_source
+        self.vector_url = vector_url
+        self.vector_layer_name = vector_layer_name
+        self.vector_color_stops = vector_color_stops
+        self.vector_join_color_property = vector_join_color_property
         self.label_property = label_property
         self.color_property = color_property
         self.color_stops = color_stops
@@ -335,6 +345,11 @@ class ChoroplethViz(MapViz):
 
         options.update(dict(
             geojson_data=json.dumps(self.data, ensure_ascii=False),
+            vectorPolygonSource=self.vector_polygon_source,
+            vectorUrl=self.vector_url,
+            vectorLayer=self.vector_layer_name,
+            vectorColorStops=self.vector_color_stops,
+            vectorJoinColorProperty=self.vector_join_color_property,
             colorProperty=self.color_property,
             colorType=self.color_function_type,
             colorStops=self.color_stops,
@@ -345,3 +360,88 @@ class ChoroplethViz(MapViz):
             lineWidth=self.line_width,
         ))
 
+
+class AltChoroplethViz(MapViz):
+    """Create a choropleth viz"""
+
+    def __init__(self,
+                 data,
+                 vector_polygon_source=False,
+                 vector_url=None,
+                 vector_layer_name=None,
+                 vector_join_color_property=None,
+                 join_data=[],
+                 data_join_property=None,
+                 label_property=None,
+                 color_property=None,
+                 color_stops=None,
+                 color_default='grey',
+                 color_function_type='interpolate',
+                 line_color='white',
+                 line_stroke='solid',
+                 line_width=1,
+                 *args,
+                 **kwargs):
+        """Construct a Mapviz object
+
+        :param label_property: property to use for marker label
+        :param color_property: property to determine circle color
+        :param color_stops: property to determine circle color
+        :param color_default: property to determine default circle color if match lookup fails
+        :param color_function_type: property to determine `type` used by Mapbox to assign color
+        :param line_color: property to determine choropleth line color
+        :param line_stroke: property to determine choropleth line stroke (solid, dashed, dotted, dash dot)
+        :param line_width: property to determine choropleth line width
+
+        """
+        super(AltChoroplethViz, self).__init__(data, *args, **kwargs)
+
+        self.template = 'choropleth_alt'
+        self.vector_polygon_source = vector_polygon_source
+        self.vector_url = vector_url
+        self.vector_layer_name = vector_layer_name
+        self.vector_join_color_property = vector_join_color_property
+        self.join_data = join_data
+        self.data_join_property = data_join_property
+        self.label_property = label_property
+        self.color_property = color_property
+        self.color_stops = color_stops
+        self.color_default = color_default
+        self.color_function_type = color_function_type
+        self.line_color = line_color
+        self.line_stroke = line_stroke
+        self.line_width = line_width
+
+    def add_unique_template_variables(self, options):
+        """Update map template variables specific to heatmap visual"""
+
+        # set line stroke dash interval based on line_stroke property
+        if self.line_stroke == "dashed":
+            self.line_dash_array = [6, 4]
+        elif self.line_stroke == "dotted":
+            self.line_dash_array = [0.5, 4]
+        elif self.line_stroke == "dash dot":
+            self.line_dash_array = [6, 4, 0.5, 4]
+        elif self.line_stroke == "solid":
+            self.line_dash_array = [1, 0]
+        else:
+            # default to solid line
+            self.line_dash_array = [1, 0]
+
+        options.update(dict(
+            geojson_data=json.dumps(self.data, ensure_ascii=False),
+            vectorPolygonSource=self.vector_polygon_source,
+            vectorUrl=self.vector_url,
+            vectorLayer=self.vector_layer_name,
+            vectorJoinColorProperty=self.vector_join_color_property,
+            joinData=json.dumps(self.join_data, ensure_ascii=False),
+            dataJoinProperty=self.data_join_property,
+            colorProperty=self.color_property,
+            colorType=self.color_function_type,
+            colorStops=self.color_stops,
+            defaultColor=self.color_default,
+            lineColor=self.line_color,
+            lineDashArray=self.line_dash_array,
+            lineStroke=self.line_stroke,
+            lineWidth=self.line_width,
+        ))
