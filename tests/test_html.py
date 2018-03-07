@@ -1,4 +1,7 @@
+import os
 import json
+import base64
+
 from mock import patch
 
 import pytest
@@ -134,5 +137,26 @@ def test_max_zoom(display, data):
                      radius_stops=[[0, 1], [12, 30]],
                      access_token=TOKEN,
                      max_zoom=5)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_ImageViz(display, data):
+    """Assert that show calls the mocked display function
+    """
+
+    image_path = os.path.join(os.path.dirname(__file__), 'mosaic.jpg')
+    with open(image_path, 'rb') as f:
+        img_str = base64.b64encode(f.read())
+        image = 'data:image/jpeg;base64,{}'.format(img_str)
+
+    coordinates = [
+        [-123.40515640309, 32.08296982365502],
+        [-115.92938988349292, 32.08296982365502],
+        [-115.92938988349292, 38.534294809274336],
+        [-123.40515640309, 38.534294809274336]][::-1]
+
+    viz = ImageViz(data, image, coordinates, access_token=TOKEN)
     viz.show()
     display.assert_called_once()

@@ -1,0 +1,44 @@
+{% extends "main.html" %}
+
+{% block javascript %}
+mapboxgl.accessToken = '{{ accessToken }}';
+
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: '{{ styleUrl }}',
+    center: {{ center }},
+    zoom: {{ zoom }},
+    transformRequest: (url, resourceType)=> {
+        if ( url.slice(0,22) == 'https://api.mapbox.com' ) {
+            //Add Python Plugin identifier for Mapbox API traffic
+            return {
+               url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
+             }
+         }
+         else {
+             //Do not transform URL for non Mapbox GET requests
+             return {url: url}
+         }
+    }
+});
+
+map.addControl(new mapboxgl.NavigationControl());
+
+document.getElementById('legend').style.visibility = 'hidden';
+
+map.on('style.load', function() {
+
+  map.addSource("image", {
+     "type": "image",
+     "url": "{{ image }}", // url or base64 encoded image
+     "coordinates': {{ coordinates }}
+  });
+
+  map.addLayer({
+    "id": 'image',
+    "type": "raster",
+    "source": "image"
+  }, "{{belowLayer}}");
+
+});
+{% endblock %}

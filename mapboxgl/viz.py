@@ -276,3 +276,33 @@ class ClusteredCircleViz(MapViz):
             clusterRadius=self.clusterRadius,
             clusterMaxZoom=self.clusterMaxZoom
         ))
+
+
+class ImageViz(MapViz):
+    """Create a image viz"""
+
+    def __init__(self,
+                 data,
+                 image,
+                 coordinates,
+                 *args,
+                 **kwargs):
+        """Construct a Mapviz object
+
+        :param coordinates: property to determine image coordinates.
+            EX. [[-80.425, 46.437], [-71.516, 46.437], [-71.516, 37.936], [-80.425, 37.936]]
+        :param image: image url or base64 encoded.  EX. "https://www.mapbox.com/mapbox-gl-js/assets/radar.gif"]
+
+        """
+        super(ImageViz, self).__init__(data, *args, **kwargs)
+
+        self.template = 'image'
+        self.image = image
+        self.coordinates = coordinates
+
+    def add_unique_template_variables(self, options):
+        """Update map template variables specific to image visual"""
+        options.update(dict(
+            image=self.image,
+            coordinates=self.coordinates
+        ))
