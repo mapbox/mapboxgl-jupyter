@@ -276,3 +276,36 @@ class ClusteredCircleViz(MapViz):
             clusterRadius=self.clusterRadius,
             clusterMaxZoom=self.clusterMaxZoom
         ))
+
+
+class RasterTilesViz(MapViz):
+    """Create a raster map"""
+
+    def __init__(self,
+                 tiles_url,
+                 tiles_size=256,
+                 tiles_bounds=None,
+                 tiles_minzoom=0,
+                 tiles_maxzoom=22,
+                 *args,
+                 **kwargs):
+        """Construct a Mapviz object
+        """
+        super(RasterTilesViz, self).__init__(tiles_url, *args, **kwargs)
+
+        self.template = 'raster'
+        self.tiles_url = tiles_url
+        self.tiles_size = tiles_size
+        self.tiles_bounds = tiles_bounds
+        self.tiles_minzoom = tiles_minzoom
+        self.tiles_maxzoom = tiles_maxzoom
+
+    def add_unique_template_variables(self, options):
+        """Update map template variables specific to a raster visual"""
+        options.update(dict(
+            tiles_url=self.tiles_url,
+            tiles_size=self.tiles_size,
+            tiles_minzoom=self.tiles_minzoom,
+            tiles_maxzoom=self.tiles_maxzoom,
+            tiles_bounds=self.tiles_bounds if self.tiles_bounds else 'undefined'
+        ))
