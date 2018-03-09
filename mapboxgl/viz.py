@@ -289,7 +289,7 @@ class ImageViz(MapViz):
                  **kwargs):
         """Construct a Mapviz object
 
-        :param coordinates: property to determine image coordinates.
+        :param coordinates: property to determine image coordinates (UL, UR, LR, LL).
             EX. [[-80.425, 46.437], [-71.516, 46.437], [-71.516, 37.936], [-80.425, 37.936]]
         :param image: image url or base64 encoded.  EX. "https://www.mapbox.com/mapbox-gl-js/assets/radar.gif"]
 
