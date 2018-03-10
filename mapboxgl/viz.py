@@ -39,6 +39,10 @@ class MapViz(object):
         """
         if access_token is None:
             access_token = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
+        if access_token.startswith('sk'):
+            raise TokenError('Mapbox access token must be public (pk), not secret (sk). ' \
+                             'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
+                             'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
         self.access_token = access_token
         self.template = 'base'
         self.data = data
