@@ -8,6 +8,7 @@ import pytest
 
 from mapboxgl.viz import *
 from mapboxgl.errors import TokenError
+from matplotlib.pyplot import imread
 
 
 @pytest.fixture()
@@ -142,14 +143,11 @@ def test_max_zoom(display, data):
 
 
 @patch('mapboxgl.viz.display')
-def test_display_ImageViz(display, data):
+def test_display_ImageVizPath(display, data):
     """Assert that show calls the mocked display function
     """
 
     image_path = os.path.join(os.path.dirname(__file__), 'mosaic.jpg')
-    with open(image_path, 'rb') as f:
-        img_str = base64.b64encode(f.read())
-        image = 'data:image/jpeg;base64,{}'.format(img_str)
 
     coordinates = [
         [-123.40515640309, 32.08296982365502],
@@ -157,6 +155,25 @@ def test_display_ImageViz(display, data):
         [-115.92938988349292, 38.534294809274336],
         [-123.40515640309, 38.534294809274336]][::-1]
 
-    viz = ImageViz(data, image, coordinates, access_token=TOKEN)
+    viz = ImageViz(image_path, coordinates, access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_ImageVizArray(display, data):
+    """Assert that show calls the mocked display function
+    """
+
+    image_path = os.path.join(os.path.dirname(__file__), 'mosaic.jpg')
+    image = imread(image_path)
+
+    coordinates = [
+        [-123.40515640309, 32.08296982365502],
+        [-115.92938988349292, 32.08296982365502],
+        [-115.92938988349292, 38.534294809274336],
+        [-123.40515640309, 38.534294809274336]][::-1]
+
+    viz = ImageViz(image, coordinates, access_token=TOKEN)
     viz.show()
     display.assert_called_once()
