@@ -91,6 +91,6 @@ def test_create_weight_stops(df):
 
 
 def test_img_encode():
-    image_path = 'tests/mosaic.jpg'
+    image_path = os.path.join(os.path.dirname(__file__), 'mosaic.png')
     image = imread(image_path)
     assert img_encode(image).startswith('data:image/png;base64')
