@@ -1,8 +1,8 @@
 ## Quick start
-1. Signup for a [Mapbox Account](https://www.mapbox.com/signup/). 
+1. Signup for a [Mapbox Account](https://www.mapbox.com/signup/).
     * If you already have an account, grab your access token from the [account dashboard](https://www.mapbox.com/account/).
 
-<img width="1175" alt="e3b76b4e9effe60170379326885d7144 _image 2018-02-22 at 3 11 09 pm" src="https://user-images.githubusercontent.com/11286381/36569461-be9b0454-17e2-11e8-89c9-43e5a50bb7d0.png">
+![tokens](https://user-images.githubusercontent.com/11286381/36569461-be9b0454-17e2-11e8-89c9-43e5a50bb7d0.png)
 
 
 2. Install dependencies:  
@@ -50,7 +50,7 @@ Build the HTML text representation of the visual. The output of this is a valid 
 The `CircleViz` class handles the creation of a circle map and is built on top of the `MapViz` class.
 
 ### Params
-**CircleViz**(_data, label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', *args, **kwargs_)
+**CircleViz**(_data, label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', \*args, \*\*kwargs_)
 
 Parameter | Description
 --|--
@@ -99,7 +99,7 @@ viz = CircleViz('points.geojson',
 viz.show()
 ```
 
-![screen shot 2018-02-21 at 3 02 44 pm](https://user-images.githubusercontent.com/11286381/36511701-8ea5e64a-171c-11e8-8f27-6bc2f50319c9.png)
+![CircleViz](https://user-images.githubusercontent.com/11286381/36511701-8ea5e64a-171c-11e8-8f27-6bc2f50319c9.png)
 
 
 ## class ClusteredCircleViz
@@ -107,7 +107,7 @@ viz.show()
 The `ClusteredCircleViz` object handles the creation of a clustered circle map and is built on top of the `MapViz` class.  Cluster radius and color are keyed on point density.
 
 ### Params
-**ClusteredCircleViz**(_data, color_stops=None, radius_stops=None, cluster_radius=30, cluster_maxzoom=14, *args, **kwargs_)
+**ClusteredCircleViz**(_data, color_stops=None, radius_stops=None, cluster_radius=30, cluster_maxzoom=14, \*args, \*\*kwargs_)
 
 Parameter | Description
 --|--
@@ -154,7 +154,7 @@ viz = ClusteredCircleViz('points.geojson',
 
 viz.show()
 ```
-![screen shot 2018-02-21 at 3 33 46 pm](https://user-images.githubusercontent.com/11286381/36511731-a4ca9af6-171c-11e8-9cde-60ef59e7e3b9.png)
+![ClusteredCircleViz](https://user-images.githubusercontent.com/11286381/36511731-a4ca9af6-171c-11e8-9cde-60ef59e7e3b9.png)
 
 
 ## class GraduatedCircleViz
@@ -162,7 +162,7 @@ viz.show()
 The `GraduatedCircleViz` object handles the creation of a graduated map and is built on top of the `MapViz` class.
 
 ### Params
-**GraduatedCircleViz**(_data, label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', radius_property=None, radius_stops=None, radius_default=None, radius_function_type='interpolate', *args, **kwargs_)
+**GraduatedCircleViz**(_data, label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', radius_property=None, radius_stops=None, radius_default=None, radius_function_type='interpolate', \*args, \*\*kwargs_)
 
 Parameter | Description
 --|--
@@ -216,7 +216,7 @@ viz = GraduatedCircleViz('points.geojson',
 
 viz.show()
 ```
-![screen shot 2018-02-21 at 3 34 18 pm](https://user-images.githubusercontent.com/11286381/36511755-b58e6cc8-171c-11e8-9385-e90c3795be14.png)
+![GraduatedCircleViz](https://user-images.githubusercontent.com/11286381/36511755-b58e6cc8-171c-11e8-9385-e90c3795be14.png)
 
 
 ## class HeatmapViz
@@ -224,7 +224,7 @@ viz.show()
 The `HeatmapViz` object handles the creation of a heat map and is built on top of the `MapViz` class.
 
 ### Params
-**HeatmapViz**(_data, weight_property=None, weight_stops=None, color_stops=None, radius_stops=None, *args, **kwargs_)
+**HeatmapViz**(_data, weight_property=None, weight_stops=None, color_stops=None, radius_stops=None, \*args, \*\*kwargs_)
 
 Parameter | Description | Example
 --|--|--
@@ -279,4 +279,44 @@ viz = HeatmapViz('points.geojson',
 
 viz.show()
 ```
-![screen shot 2018-02-21 at 3 34 55 pm](https://user-images.githubusercontent.com/11286381/36511775-cfc4d794-171c-11e8-86b9-5f1a6060a387.png)
+![HeatmapViz](https://user-images.githubusercontent.com/11286381/36511775-cfc4d794-171c-11e8-86b9-5f1a6060a387.png)
+
+
+## class ImageViz
+
+The `ImageViz` object handles the creation of a simple image visualization on map and is built on top of the `MapViz` class.
+
+### Params
+**ImageViz**(image, coordinates, \*args, \*\*kwargs_)
+
+Parameter | Description | Example
+--|--|--
+image | image url, path or numpy ndarray | "./my_image.png"
+coordinates | property to image coordinates (UL, UR, LR, LL) | [[-80.425, 46.437], [-71.516, 46.437], [-71.516, 37.936], [-80.425, 37.936]]
+
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+
+### Usage
+```python
+from mapboxgl.viz import ImageViz
+
+img_url = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/mosaic.jpg'
+
+# Coordinates must be an array in the form of [UL, UR, LR, LL]
+coordinates = [
+    [-123.40515640309, 38.534294809274336],
+    [-115.92938988349292, 38.534294809274336],
+    [-115.92938988349292, 32.08296982365502],
+    [-123.40515640309, 32.08296982365502]]
+
+# Create the viz
+viz = ImageViz(img_url, coordinates, access_token=token,
+                height='600px',
+                center = (-119, 35),
+                zoom = 5,
+                below_layer = 'waterway-label')
+viz.show()
+```
+![ImageViz](https://user-images.githubusercontent.com/10407788/37532428-5c8ff7a8-2915-11e8-8d03-2b258a0a53a8.jpg)
+
+[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/image-viz-types-example.ipynb)

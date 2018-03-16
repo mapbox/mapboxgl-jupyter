@@ -1,0 +1,5 @@
+{"type": "FeatureCollection", "features": [
+{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-85.362856, 31.216215]}, "properties": {"Avg Medicare Payments": 7678.2143478261, "Avg Covered Charges": 35247.0281521739, "Avg Total Payments": 8749.0251086956}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-88.1427969, 32.4529763]}, "properties": {"Avg Medicare Payments": 5793.6314285714, "Avg Covered Charges": 16451.0920408163, "Avg Total Payments": 6812.1312244898}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-89.1427969, 31.4529763]}, "properties": {"Avg Medicare Payments": 1200.0, "Avg Covered Charges": 1800.0, "Avg Total Payments": 2200.0}}
+]}
