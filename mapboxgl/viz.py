@@ -317,7 +317,7 @@ class ImageViz(MapViz):
 
 
 class RasterTilesViz(MapViz):
-    """Create a raster map"""
+    """Create a rastertiles map"""
 
     def __init__(self,
                  tiles_url,
@@ -328,8 +328,14 @@ class RasterTilesViz(MapViz):
                  *args,
                  **kwargs):
         """Construct a Mapviz object
+
+        :param tiles_url: property to determine tiles url endpoint
+        :param tiles_size: property to determine displayed tiles size
+        :param tiles_bounds: property to determine the tiles endpoint bounds
+        :param tiles_minzoom: property to determine the tiles endpoint min zoom
+        :param tiles_max: property to determine the tiles endpoint max zoom
         """
-        super(RasterTilesViz, self).__init__(tiles_url, *args, **kwargs)
+        super(RasterTilesViz, self).__init__(None, *args, **kwargs)
 
         self.template = 'raster'
         self.tiles_url = tiles_url
