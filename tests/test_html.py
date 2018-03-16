@@ -147,8 +147,7 @@ def test_display_ImageVizPath(display, data):
     """Assert that show calls the mocked display function
     """
 
-    image_path = os.path.join(os.path.dirname(__file__), 'mosaic.jpg')
-
+    image_path = 'tests/mosaic.jpg'
     coordinates = [
         [-123.40515640309, 32.08296982365502],
         [-115.92938988349292, 32.08296982365502],
@@ -165,7 +164,7 @@ def test_display_ImageVizArray(display, data):
     """Assert that show calls the mocked display function
     """
 
-    image_path = os.path.join(os.path.dirname(__file__), 'mosaic.jpg')
+    image_path = 'tests/mosaic.jpg'
     image = imread(image_path)
 
     coordinates = [
