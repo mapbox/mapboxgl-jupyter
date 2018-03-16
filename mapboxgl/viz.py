@@ -3,8 +3,12 @@ import os
 
 from IPython.core.display import HTML, display
 
+import numpy
+
 from mapboxgl.errors import TokenError
 from mapboxgl import templates
+from mapboxgl.utils import img_encode
+
 
 GL_JS_VERSION = 'v0.44.1'
 
@@ -297,6 +301,9 @@ class ImageViz(MapViz):
 
         """
         super(ImageViz, self).__init__(None, *args, **kwargs)
+
+        if type(image) is numpy.ndarray:
+            image = img_encode(image)
 
         self.template = 'image'
         self.image = image
