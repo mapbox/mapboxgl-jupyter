@@ -19,7 +19,7 @@ class MapViz(object):
                  opacity=1,
                  div_id='map',
                  height='500px',
-                 style_url='mapbox://styles/mapbox/light-v9?optimize=true',
+                 style='mapbox://styles/mapbox/light-v9?optimize=true',
                  width='100%',
                  zoom=0,
                  min_zoom=0,
@@ -29,7 +29,7 @@ class MapViz(object):
         :param data: GeoJSON Feature Collection
         :param access_token: Mapbox GL JS access token.
         :param center: map center point
-        :param style_url: url to mapbox style
+        :param style: url to mapbox style or stylesheet as a Python dictionary in JSON format
         :param div_id: The HTML div id of the map container in the viz
         :param width: The CSS width of the HTML div id in % or pixels.
         :param height: The CSS height of the HTML map div in % or pixels.
@@ -39,18 +39,17 @@ class MapViz(object):
         """
         if access_token is None:
             access_token = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
-        if not access_token.startswith('pk'):
-            raise TokenError('Mapbox access token must be public (pk). ' \
+        if access_token.startswith('sk'):
+            raise TokenError('Mapbox access token must be public (pk), not secret (sk). ' \
                              'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
                              'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
         self.access_token = access_token
-
         self.template = 'base'
         self.data = data
         self.div_id = div_id
         self.width = width
         self.height = height
-        self.style_url = style_url
+        self.style = style
         self.center = center
         self.zoom = zoom
         self.below_layer = below_layer
@@ -83,11 +82,15 @@ class MapViz(object):
 
     def create_html(self):
         """Create a circle visual from a geojson data source"""
+        if isinstance(self.style, str):
+            style = "'{}'".format(self.style)
+        else:
+            style = self.style
         options = dict(
             gl_js_version=GL_JS_VERSION,
             accessToken=self.access_token,
             div_id=self.div_id,
-            styleUrl=self.style_url,
+            style=style,
             center=list(self.center),
             zoom=self.zoom,
             geojson_data=json.dumps(self.data, ensure_ascii=False),
