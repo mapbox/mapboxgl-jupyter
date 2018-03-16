@@ -27,26 +27,18 @@ map.addControl(new mapboxgl.NavigationControl());
 document.getElementById('legend').style.visibility = 'hidden';
 
 map.on('style.load', function() {
-  console.log('Yoooooo');
-    let params = {
-        "type": "raster",
-        "tiles": [
-             "{{ tiles_url }}"
-        ],
-        "tileSize": {{ tiles_size }},
-        "minzoom": {{ tiles_minzoom }},
-        "maxzoom": {{ tiles_maxzoom }}
-    }
-    if ({{ tiles_bounds }} !== undefined) params.bounds = {{ tiles_bounds }};
 
-    map.addSource("raster-tiles", params);
+  map.addSource("image", {
+     "type": "image",
+     "url": "{{ image }}", // url or base64 encoded image
+     "coordinates': {{ coordinates }}
+  });
 
-    map.addLayer({
-        "id": "raster-tiles",
-        "type": "raster",
-        "source": "raster-tiles"
-    }, "{{belowLayer}}" );
+  map.addLayer({
+    "id": 'image',
+    "type": "raster",
+    "source": "image"
+  }, "{{belowLayer}}");
 
 });
-
 {% endblock %}
