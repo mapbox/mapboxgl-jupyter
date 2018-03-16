@@ -285,7 +285,6 @@ class ImageViz(MapViz):
     """Create a image viz"""
 
     def __init__(self,
-                 data,
                  image,
                  coordinates,
                  *args,
@@ -297,7 +296,7 @@ class ImageViz(MapViz):
         :param image: image url or base64 encoded.  EX. "https://www.mapbox.com/mapbox-gl-js/assets/radar.gif"]
 
         """
-        super(ImageViz, self).__init__(data, *args, **kwargs)
+        super(ImageViz, self).__init__(None, *args, **kwargs)
 
         self.template = 'image'
         self.image = image
