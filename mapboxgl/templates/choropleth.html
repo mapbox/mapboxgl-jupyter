@@ -37,57 +37,31 @@ calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
 
 map.on('style.load', function() {
     
-    {% if vectorPolygonSource %}
-        
-        // Add vector data source
-        map.addSource("vector-data", {
-            type: "vector",
-            url: "{{ vectorUrl }}",
-        });
+    {% block choropleth %}
 
-        // Add layer from the vector tile source with data-driven style
-        map.addLayer({
-            "id": "choropleth-fill",
-            "type": "fill",
-            "source": "vector-data",
-            "source-layer": "{{ vectorLayer }}",
-            "paint": {
-                "fill-color": generatePropertyExpression("match", "{{ vectorJoinColorProperty }}", {{ vectorColorStops }}, "{{ defaultColor }}"), 
-            }
-        }, "{{ belowLayer }}");
+    // Add geojson data source
+    map.addSource("data", {
+        "type": "geojson",
+        "data": {{ geojson_data }},
+        "buffer": 1,
+        "maxzoom": 14
+    });
 
-    {% else %}
-
-        // Add geojson data source
-        map.addSource("data", {
-            "type": "geojson",
-            "data": {{ geojson_data }},
-            "buffer": 1,
-            "maxzoom": 14
-        });
-
-        // Add data layer
-        map.addLayer({
-            "id": "choropleth-fill",
-            "source": "data",
-            "type": "fill",
-            "paint": {
-                "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
-                "fill-opacity": {{ opacity }}
-            }
-        }, "{{ belowLayer }}" );
-
-    {% endif %}
+    // Add data layer
+    map.addLayer({
+        "id": "choropleth-fill",
+        "source": "data",
+        "type": "fill",
+        "paint": {
+            "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+            "fill-opacity": {{ opacity }}
+        }
+    }, "{{ belowLayer }}" );
 
     // Add border layer
     map.addLayer({
         "id": "choropleth-line",
-        {% if vectorPolygonSource %}
-            "source": "vector-data",
-            "source-layer": "{{ vectorLayer }}",
-        {% else %}
-            "source": "data",
-        {% endif %}
+        "source": "data",
         "type": "line",
         "layout": {
             "line-join": "round",
@@ -106,12 +80,7 @@ map.on('style.load', function() {
     // Add label layer
     map.addLayer({
         "id": "choropleth-label",
-        {% if vectorPolygonSource %}
-            "source": "vector-data",
-            "source-layer": "{{ vectorLayer }}",
-        {% else %}
-            "source": "data",
-        {% endif %}
+        "source": "data",
         "type": "symbol",
         "layout": {
             {% if labelProperty %}
@@ -125,6 +94,8 @@ map.on('style.load', function() {
             "text-halo-width": 1
         }
     }, "{{belowLayer}}" );
+
+    {% endblock choropleth %}
 
     // Create a popup
     var popup = new mapboxgl.Popup({

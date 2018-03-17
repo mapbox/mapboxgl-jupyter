@@ -282,30 +282,24 @@ viz.show()
 ![screen shot 2018-02-21 at 3 34 55 pm](https://user-images.githubusercontent.com/11286381/36511775-cfc4d794-171c-11e8-86b9-5f1a6060a387.png)
 
 
-## class 
+## class ChoroplethViz
 
-ChoroplethViz
-
-The `
-
-ChoroplethViz` object handles the creation of a choropleth map and is built on top of the `MapViz` class.
+The `ChoroplethViz` object handles the creation of a choropleth map and inherits from the `MapViz` class. It applies a thematic map style to polygon features with color shading in proportion to the intensity of the data being displayed. 
 
 ### Params
-**
-
-ChoroplethViz**(_data, label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, *args, **kwargs_)
+**ChoroplethViz**(_data, label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, *args, **kwargs_)
 
 Parameter | Description | Example
 --|--|--
-data | name of GeoJson file or object
+data | GeoJson file name or object
 label_property | property to use for marker label | "density"
-color_property | property to determine circle color | "density"
-color_stops | property to determine circle color | [[0, "red"], [0.5, "blue"], [1, "green"]]
-color_default | property to determine default circle color if match lookup fails | "#F0F0F0"
-color_function_type | property to determine `type` used by Mapbox to assign color | "interpolate"
-line_color | property to determine choropleth line color | "#FFFFFF"
-line_stroke | property to determine choropleth line stroke (one of solid, dashed, dotted, dash dot) | "solid"
-line_width | property to determine choropleth line width | 1
+color_property | property to determine fill color | "density"
+color_stops | property to determine fill color | [[0, "red"], [0.5, "blue"], [1, "green"]]
+color_default | property to determine default fill color in match lookups | "#F0F0F0"
+color_function_type | property to determine type of expression used by Mapbox to assign color | "interpolate"
+line_color | property to determine choropleth border line color | "#FFFFFF"
+line_stroke | property to determine choropleth border line stroke (one of solid, dashed, dotted, dash dot) | "solid"
+line_width | property to determine choropleth border line width | 1
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
@@ -320,20 +314,18 @@ token = os.getenv('MAPBOX_ACCESS_TOKEN')
 # Color stops
 color_stops = [
     [0.0, 'rgb(255,255,204)'],
-    [100.0, 'rgb(255,237,160)'],
-    [500.0, 'rgb(253,141,60)'],
-    [2000.0, 'rgb(227,26,28)'],
-    [5000.0, 'rgb(189,0,38)'],
-    [10000.0,'rgb(128,0,38)']
+    [50.0, 'rgb(255,237,160)'],
+    [100.0, 'rgb(253,141,60)'],
+    [500.0, 'rgb(227,26,28)'],
+    [2500.0, 'rgb(189,0,38)'],
+    [5000.0, 'rgb(128,0,38)']
 ]
 
 # Create Choropleth
-viz = 
-
-ChoroplethViz('us-states.geojson', 
+viz = ChoroplethViz('us-states.geojson', 
                      access_token=token,
                      color_property='density',
-                     color_stops=sample_color_stops,
+                     color_stops=color_stops,
                      color_function_type='interpolate',
                      line_stroke='dashed',
                      line_color='rgb(128,0,38)',
