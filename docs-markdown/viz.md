@@ -294,7 +294,7 @@ Parameter | Description | Example
 image | image url, path or numpy ndarray | "./my_image.png"
 coordinates | property to image coordinates (UL, UR, LR, LL) | [[-80.425, 46.437], [-71.516, 46.437], [-71.516, 37.936], [-80.425, 37.936]]
 
-[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+[MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
 ### Usage
 ```python
@@ -320,3 +320,48 @@ viz.show()
 ![ImageViz](https://user-images.githubusercontent.com/10407788/37532428-5c8ff7a8-2915-11e8-8d03-2b258a0a53a8.jpg)
 
 [Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/image-viz-types-example.ipynb)
+
+
+## class RasterTilesViz
+
+The `RasterTilesViz` object handles the creation of a simple raster tiles visualization on map and is built on top of the `MapViz` class.
+
+### Params
+**RasterTilesViz**(tiles\_url, \*args, \*\*kwargs_)
+
+Parameter | Description | Example
+--|--|--
+tiles_url | tiles endpoint | "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
+tiles_size | mapbox-gl tiles size | 256
+tiles_bounds | tiles endpoint bounds | [124.97480681619507, 10.876763902260592, 124.99391704636035, 10.888369402219947]
+tiles_minzoom | tiles endpoint min zoom | 0
+tiles_maxzoom | tiles endpoint max zoom | 22
+
+
+
+[MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+
+### Usage
+```python
+from mapboxgl.viz import RasterTilesViz
+
+tiles_url = 'https://cogeo.remotepixel.ca/tiles/{z}/{x}/{y}.jpg?tile=256&nodata=0&url=http://oin-hotosm.s3.amazonaws.com/594ab0ba1b114600111194a3/0/d66720c4-148c-4e11-9d54-4ae2a6ba6351.tif'
+
+# Define the tile endpoint bounds
+tiles_bounds = [124.97480681619507, 10.876763902260592, 124.99391704636035, 10.888369402219947]
+tiles_center = [124.9843619312777, 10.88256665224027]
+
+viz = RasterTilesViz(tiles_url,
+                     tiles_size=256,
+                     tiles_bounds=tiles_bounds,
+                     height='500px',
+                     center=tiles_center,
+                     tiles_minzoom=13,
+                     tiles_maxzoom=18,
+                     zoom=16)
+viz.show()
+```
+![RasterTilesViz](https://user-images.githubusercontent.com/10407788/37537676-b055a108-2924-11e8-94cb-ad3203b736af.jpg)
+
+
+[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/rastertile-viz-types-example.ipynb)

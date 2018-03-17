@@ -176,3 +176,11 @@ def test_display_ImageVizArray(display, data):
     viz = ImageViz(image, coordinates, access_token=TOKEN)
     viz.show()
     display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_RasterTileViz(display, data):
+    """Assert that show calls the mocked display function
+    """
+    tiles_url = 'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    viz = RasterTilesViz(tiles_url, access_token=TOKEN)
