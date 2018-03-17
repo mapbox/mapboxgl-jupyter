@@ -89,6 +89,10 @@ def test_display_GraduatedCircleViz(display, data):
                              color_property="Avg Medicare Payments",
                              label_property="Avg Medicare Payments",
                              radius_property="Avg Covered Charges",
+                             radius_function_type="match",
+                             color_function_type="match",
+                             radius_default=2,
+                             color_default="red",
                              access_token=TOKEN)
     viz.show()
     display.assert_called_once()
