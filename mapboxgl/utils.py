@@ -6,6 +6,8 @@ from matplotlib.image import imsave
 
 from .colors import color_ramps
 import geojson
+import json
+import re
 from colour import Color
 
 
@@ -45,22 +47,20 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, fil
             pass
 
         with open(filename, 'a+') as f:
-            features = []
-            df[[lon, lat] + properties].apply(lambda x: features.append(
-                row_to_geojson(x, lon, lat)), axis=1)
 
+            # Write out file to line
             f.write('{"type": "FeatureCollection", "features": [\n')
-            for idx, feat in enumerate(features):
+            for idx, row in df[[lon, lat] + properties].iterrows():
                 if idx == 0:
-                    f.write(geojson.dumps(feat) + '\n')
+                    f.write(geojson.dumps(row_to_geojson(row, lon, lat)) + '\n')
                 else:
-                    f.write(',' + geojson.dumps(feat) + '\n')
+                    f.write(',' + geojson.dumps(row_to_geojson(row, lon, lat)) + '\n')
             f.write(']}')
 
             return {
                 "type": "file",
                 "filename": filename,
-                "feature_count": len(features)
+                "feature_count": df.shape[0]
             }
     else:
         features = []
