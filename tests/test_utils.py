@@ -1,9 +1,13 @@
+import os
 import json
 import pytest
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
-from mapboxgl.utils import df_to_geojson, scale_between, create_radius_stops, create_weight_stops, create_color_stops
+from matplotlib.pyplot import imread
+
+from mapboxgl.utils import (df_to_geojson, scale_between, create_radius_stops,
+                            create_weight_stops, create_color_stops, img_encode)
 
 
 @pytest.fixture()
@@ -84,3 +88,9 @@ def test_create_radius_stops(df):
 def test_create_weight_stops(df):
     res = create_weight_stops([1, 2, 3, 4])
     assert res == [[1, 0.0], [2, 0.25], [3, 0.5], [4, 0.75]]
+
+
+def test_img_encode():
+    image_path = os.path.join(os.path.dirname(__file__), 'mosaic.png')
+    image = imread(image_path)
+    assert img_encode(image).startswith('data:image/png;base64')

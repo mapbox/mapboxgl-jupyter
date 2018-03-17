@@ -1,3 +1,9 @@
+import json
+import base64
+from io import BytesIO
+
+from matplotlib.image import imsave
+
 from .colors import color_ramps
 import geojson
 import json
@@ -147,3 +153,20 @@ def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
                 stops.append([b, ramp[i]])
 
     return stops
+
+
+def img_encode(arr, **kwargs):
+    """Encode ndarray to base64 string image data
+
+    Parameters
+    ----------
+    arr: ndarray (rows, cols, depth)
+    kwargs: passed directly to matplotlib.image.imsave
+    """
+    sio = BytesIO()
+    imsave(sio, arr, **kwargs)
+    sio.seek(0)
+    img_format = kwargs['format'] if kwargs.get('format') else 'png'
+    img_str = base64.b64encode(sio.getvalue()).decode()
+
+    return 'data:image/{};base64,{}'.format(img_format, img_str)

@@ -27,26 +27,24 @@ map.addControl(new mapboxgl.NavigationControl());
 document.getElementById('legend').style.visibility = 'hidden';
 
 map.on('style.load', function() {
+  console.log('Yoooooo');
+    let params = {
+        "type": "raster",
+        "tiles": [
+             "{{ tiles_url }}"
+        ],
+        "tileSize": {{ tiles_size }},
+        "minzoom": {{ tiles_minzoom }},
+        "maxzoom": {{ tiles_maxzoom }}
+    }
+    if ({{ tiles_bounds }} !== undefined) params.bounds = {{ tiles_bounds }};
 
-    map.addSource("data", {
-        "type": "geojson",
-        "data": {{ geojson_data }}, //data from dataframe output to geojson
-        "buffer": 0,
-        "maxzoom": 14
-    });
+    map.addSource("raster-tiles", params);
 
     map.addLayer({
-        "id": "circle",
-        "source": "data",
-        "type": "heatmap",
-        "maxzoom": {{ maxzoom }},
-        "minzoom": {{ minzoom }},
-        "paint": {
-            "heatmap-weight": generateInterpolateExpression( "{{ weightProperty }}", {{ weightStops }} ),
-            "heatmap-radius" : generateInterpolateExpression('zoom', {{ radiusStops }} ),
-            "heatmap-color" : generateInterpolateExpression('heatmap-density', {{ colorStops }} ),
-            "heatmap-opacity" : {{ opacity }}
-        }
+        "id": "raster-tiles",
+        "type": "raster",
+        "source": "raster-tiles"
     }, "{{belowLayer}}" );
 
 });
