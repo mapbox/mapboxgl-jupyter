@@ -42,7 +42,14 @@ map.on('style.load', function() {
         "maxzoom": {{ maxzoom }},
         "minzoom": {{ minzoom }},
         "paint": {
-            "heatmap-weight": generateInterpolateExpression( "{{ weightProperty }}", {{ weightStops }} ),
+            {% if weightProperty %}
+                {% if weightStops %}
+                    "heatmap-weight": generateInterpolateExpression( "{{ weightProperty }}", {{ weightStops }} ),
+                {% endif %}
+            {% endif %}
+            {% if intensityStops %}
+                "heatmap-intensity": generateInterpolateExpression('zoom', {{ intensityStops }} ),
+            {% endif %}
             "heatmap-radius" : generateInterpolateExpression('zoom', {{ radiusStops }} ),
             "heatmap-color" : generateInterpolateExpression('heatmap-density', {{ colorStops }} ),
             "heatmap-opacity" : {{ opacity }}
