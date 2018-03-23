@@ -3,9 +3,13 @@ import os
 
 from IPython.core.display import HTML, display
 
+import numpy
+
 from mapboxgl.errors import TokenError
 from mapboxgl.utils import color_map
 from mapboxgl import templates
+from mapboxgl.utils import img_encode
+
 
 GL_JS_VERSION = 'v0.44.1'
 
@@ -20,7 +24,7 @@ class MapViz(object):
                  opacity=1,
                  div_id='map',
                  height='500px',
-                 style_url='mapbox://styles/mapbox/light-v9?optimize=true',
+                 style='mapbox://styles/mapbox/light-v9?optimize=true',
                  width='100%',
                  zoom=0,
                  min_zoom=0,
@@ -30,7 +34,7 @@ class MapViz(object):
         :param data: GeoJSON Feature Collection
         :param access_token: Mapbox GL JS access token.
         :param center: map center point
-        :param style_url: url to mapbox style
+        :param style: url to mapbox style or stylesheet as a Python dictionary in JSON format
         :param div_id: The HTML div id of the map container in the viz
         :param width: The CSS width of the HTML div id in % or pixels.
         :param height: The CSS height of the HTML map div in % or pixels.
@@ -40,18 +44,17 @@ class MapViz(object):
         """
         if access_token is None:
             access_token = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
-        if not access_token.startswith('pk'):
-            raise TokenError('Mapbox access token must be public (pk). ' \
+        if access_token.startswith('sk'):
+            raise TokenError('Mapbox access token must be public (pk), not secret (sk). ' \
                              'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
                              'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
         self.access_token = access_token
-
         self.template = 'base'
         self.data = data
         self.div_id = div_id
         self.width = width
         self.height = height
-        self.style_url = style_url
+        self.style = style
         self.center = center
         self.zoom = zoom
         self.below_layer = below_layer
@@ -84,11 +87,15 @@ class MapViz(object):
 
     def create_html(self):
         """Create a circle visual from a geojson data source"""
+        if isinstance(self.style, str):
+            style = "'{}'".format(self.style)
+        else:
+            style = self.style
         options = dict(
             gl_js_version=GL_JS_VERSION,
             accessToken=self.access_token,
             div_id=self.div_id,
-            styleUrl=self.style_url,
+            style=style,
             center=list(self.center),
             zoom=self.zoom,
             geojson_data=json.dumps(self.data, ensure_ascii=False),
@@ -396,3 +403,71 @@ class ChoroplethViz(MapViz):
                 geojson_data=json.dumps(self.data, ensure_ascii=False),
             ))
 
+
+class ImageViz(MapViz):
+    """Create a image viz"""
+
+    def __init__(self,
+                 image,
+                 coordinates,
+                 *args,
+                 **kwargs):
+        """Construct a Mapviz object
+
+        :param coordinates: property to determine image coordinates (UL, UR, LR, LL).
+            EX. [[-80.425, 46.437], [-71.516, 46.437], [-71.516, 37.936], [-80.425, 37.936]]
+        :param image: url, local path or a numpy ndarray
+        
+        """
+        super(ImageViz, self).__init__(None, *args, **kwargs)
+
+        if type(image) is numpy.ndarray:
+            image = img_encode(image)
+
+        self.template = 'image'
+        self.image = image
+        self.coordinates = coordinates
+
+    def add_unique_template_variables(self, options):
+        """Update map template variables specific to image visual"""
+        options.update(dict(
+            image=self.image,
+            coordinates=self.coordinates))
+
+
+class RasterTilesViz(MapViz):
+    """Create a rastertiles map"""
+
+    def __init__(self,
+                 tiles_url,
+                 tiles_size=256,
+                 tiles_bounds=None,
+                 tiles_minzoom=0,
+                 tiles_maxzoom=22,
+                 *args,
+                 **kwargs):
+        """Construct a Mapviz object
+
+        :param tiles_url: property to determine tiles url endpoint
+        :param tiles_size: property to determine displayed tiles size
+        :param tiles_bounds: property to determine the tiles endpoint bounds
+        :param tiles_minzoom: property to determine the tiles endpoint min zoom
+        :param tiles_max: property to determine the tiles endpoint max zoom
+        """
+        super(RasterTilesViz, self).__init__(None, *args, **kwargs)
+
+        self.template = 'raster'
+        self.tiles_url = tiles_url
+        self.tiles_size = tiles_size
+        self.tiles_bounds = tiles_bounds
+        self.tiles_minzoom = tiles_minzoom
+        self.tiles_maxzoom = tiles_maxzoom
+
+    def add_unique_template_variables(self, options):
+        """Update map template variables specific to a raster visual"""
+        options.update(dict(
+            tiles_url=self.tiles_url,
+            tiles_size=self.tiles_size,
+            tiles_minzoom=self.tiles_minzoom,
+            tiles_maxzoom=self.tiles_maxzoom,
+            tiles_bounds=self.tiles_bounds if self.tiles_bounds else 'undefined'))

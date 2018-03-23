@@ -2,7 +2,11 @@ from .colors import color_ramps, common_html_colors
 from chroma import Color, Scale
 import geojson
 import json
+import base64
+from io import BytesIO
 import re
+from matplotlib.image import imsave
+from colour import Color as Colour
 
 
 def row_to_geojson(row, lon, lat):
@@ -41,22 +45,20 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, fil
             pass
 
         with open(filename, 'a+') as f:
-            features = []
-            df[[lon, lat] + properties].apply(lambda x: features.append(
-                row_to_geojson(x, lon, lat)), axis=1)
 
+            # Write out file to line
             f.write('{"type": "FeatureCollection", "features": [\n')
-            for idx, feat in enumerate(features):
+            for idx, row in df[[lon, lat] + properties].iterrows():
                 if idx == 0:
-                    f.write(geojson.dumps(feat) + '\n')
+                    f.write(geojson.dumps(row_to_geojson(row, lon, lat)) + '\n')
                 else:
-                    f.write(',' + geojson.dumps(feat) + '\n')
+                    f.write(',' + geojson.dumps(row_to_geojson(row, lon, lat)) + '\n')
             f.write(']}')
 
             return {
                 "type": "file",
                 "filename": filename,
-                "feature_count": len(features)
+                "feature_count": df.shape[0]
             }
     else:
         features = []
@@ -110,22 +112,45 @@ def create_weight_stops(breaks):
 
 def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
     """Convert a list of breaks into color stops using colors from colorBrewer
-    see www.colorbrewer2.org for a list of color options to pass
+    or a custom list of color values in RGB, RGBA, HSL, CSS text, or HEX format.
+    See www.colorbrewer2.org for a list of color options to pass
     """
-    num_breaks = len(breaks)
 
-    if colors not in color_ramps.keys():
-        raise ValueError('color does not exist in colorBrewer!')
-    else:
-        stops = []
-        try:
-            ramp = color_ramps[colors][num_breaks]
-        except KeyError:
-            raise ValueError("Color ramp {} does not have a {} breaks".format(
-                colors, num_breaks))
+    num_breaks = len(breaks)
+    stops = []
+
+    if isinstance(colors, list):
+        # Check if colors contain a list of color values
+        if len(colors) == 0 or len(colors) != num_breaks:
+            raise ValueError(
+                'custom color list must be of same length as breaks list')
+
+        for color in colors:
+            # Check if color is valid string
+            try:
+                Colour(color)
+            except:
+                raise ValueError(
+                    'The color code {color} is in the wrong format'.format(color=color))
+
         for i, b in enumerate(breaks):
-            stops.append([b, ramp[i]])
-        return stops
+            stops.append([b, colors[i]])
+
+    else:
+        if colors not in color_ramps.keys():
+            raise ValueError('color does not exist in colorBrewer!')
+        else:
+
+            try:
+                ramp = color_ramps[colors][num_breaks]
+            except KeyError:
+                raise ValueError("Color ramp {} does not have a {} breaks".format(
+                    colors, num_breaks))
+
+            for i, b in enumerate(breaks):
+                stops.append([b, ramp[i]])
+
+    return stops
 
 
 def rgb_tuple_from_str(color_string):
@@ -204,3 +229,20 @@ def color_map(lookup, color_stops, default_color='rgb(122,122,122)'):
 
         # return string representing rgb color value
         return match_map.get(lookup, default_color)
+
+
+def img_encode(arr, **kwargs):
+    """Encode ndarray to base64 string image data
+    
+    Parameters
+    ----------
+    arr: ndarray (rows, cols, depth)
+    kwargs: passed directly to matplotlib.image.imsave
+    """
+    sio = BytesIO()
+    imsave(sio, arr, **kwargs)
+    sio.seek(0)
+    img_format = kwargs['format'] if kwargs.get('format') else 'png'
+    img_str = base64.b64encode(sio.getvalue()).decode()
+
+    return 'data:image/{};base64,{}'.format(img_format, img_str)

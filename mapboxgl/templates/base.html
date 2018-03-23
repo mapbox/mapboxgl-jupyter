@@ -8,7 +8,7 @@ mapboxgl.accessToken = '{{ accessToken }}';
 
 var map = new mapboxgl.Map({
     container: 'map',
-    style: '{{ styleUrl }}', 
+    style: {{ style }},
     center: {{ center }},
     zoom: {{ zoom }},
     transformRequest: (url, resourceType)=> {

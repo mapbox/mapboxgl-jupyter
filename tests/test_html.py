@@ -1,10 +1,14 @@
+import os
 import json
+import base64
+
 from mock import patch
 
 import pytest
 
 from mapboxgl.viz import *
 from mapboxgl.errors import TokenError
+from matplotlib.pyplot import imread
 
 
 @pytest.fixture()
@@ -115,6 +119,10 @@ def test_display_GraduatedCircleViz(display, data):
                              color_property="Avg Medicare Payments",
                              label_property="Avg Medicare Payments",
                              radius_property="Avg Covered Charges",
+                             radius_function_type="match",
+                             color_function_type="match",
+                             radius_default=2,
+                             color_default="red",
                              access_token=TOKEN)
     viz.show()
     display.assert_called_once()
@@ -181,3 +189,47 @@ def test_max_zoom(display, data):
                      max_zoom=5)
     viz.show()
     display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_ImageVizPath(display, data):
+    """Assert that show calls the mocked display function
+    """
+
+    image_path = os.path.join(os.path.dirname(__file__), 'mosaic.png')
+    coordinates = [
+        [-123.40515640309, 32.08296982365502],
+        [-115.92938988349292, 32.08296982365502],
+        [-115.92938988349292, 38.534294809274336],
+        [-123.40515640309, 38.534294809274336]][::-1]
+
+    viz = ImageViz(image_path, coordinates, access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_ImageVizArray(display, data):
+    """Assert that show calls the mocked display function
+    """
+
+    image_path = os.path.join(os.path.dirname(__file__), 'mosaic.png')
+    image = imread(image_path)
+
+    coordinates = [
+        [-123.40515640309, 32.08296982365502],
+        [-115.92938988349292, 32.08296982365502],
+        [-115.92938988349292, 38.534294809274336],
+        [-123.40515640309, 38.534294809274336]][::-1]
+
+    viz = ImageViz(image, coordinates, access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_RasterTileViz(display, data):
+    """Assert that show calls the mocked display function
+    """
+    tiles_url = 'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    viz = RasterTilesViz(tiles_url, access_token=TOKEN)

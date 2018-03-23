@@ -73,7 +73,10 @@ Install the python library locally with pip:
 
 To run tests use pytest:
 
+`pip install mock`
+
 `pip install pytest`
+
 `pytest`
 
 To run the Jupyter examples, 
@@ -81,6 +84,8 @@ To run the Jupyter examples,
 1. `cd examples`
 2. `pip install jupyter`
 2. `jupyter notebook`
+
+We follow the [PEP8 style guide for Python](http://www.python.org/dev/peps/pep-0008/) for all Python code.
 
 # Release process
 

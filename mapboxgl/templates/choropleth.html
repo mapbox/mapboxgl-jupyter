@@ -14,14 +14,14 @@ mapboxgl.accessToken = '{{ accessToken }}';
 
 var map = new mapboxgl.Map({
     container: 'map',
-    style: '{{ styleUrl }}', 
+    style: {{ style }}, 
     center: {{ center }},
     zoom: {{ zoom }},
     transformRequest: (url, resourceType)=> {
         if ( url.slice(0,22) == 'https://api.mapbox.com' ) {
             //Add Python Plugin identifier for Mapbox API traffic
             return {
-                url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
+               url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
             }
         }
         else {

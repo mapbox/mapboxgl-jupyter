@@ -5,7 +5,7 @@ mapboxgl.accessToken = '{{ accessToken }}';
 
 var map = new mapboxgl.Map({
     container: 'map',
-    style: '{{ styleUrl }}', 
+    style: {{ style }},
     center: {{ center }},
     zoom: {{ zoom }},
     transformRequest: (url, resourceType)=> {
@@ -63,7 +63,7 @@ map.on('style.load', function() {
         "minzoom": {{ minzoom }},
         "paint": {
             "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
-            "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, "{{ defaultRadius }}" ),
+            "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
             "circle-stroke-color": "grey",
             "circle-stroke-width": generatePropertyExpression('interpolate','zoom', [[0,0.01], [18,1]]),
             "circle-opacity" : {{ opacity }}
