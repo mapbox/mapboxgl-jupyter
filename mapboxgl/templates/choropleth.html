@@ -2,9 +2,9 @@
 
 <!-- update legend item key style -->
 {% block extra_css %}
-<style type='text/css'>
-    .legend div span { border-radius: 20%; }
-</style>
+    <style type='text/css'>
+        .legend div span { border-radius: 20%; }
+    </style>
 {% endblock extra_css %}
 
 {% block javascript %}
@@ -103,6 +103,8 @@ map.on('style.load', function() {
         closeOnClick: false
     });
     
+    {% block choropleth_popup %}
+
     // Show the popup on mouseover
     map.on('mousemove', 'choropleth-fill', function(e) {
         map.getCanvas().style.cursor = 'pointer';
@@ -120,6 +122,8 @@ map.on('style.load', function() {
             .addTo(map);
     });
 
+    {% endblock choropleth_popup %}
+
     map.on('mouseleave', 'choropleth-fill', function() {
         map.getCanvas().style.cursor = '';
         popup.remove();
@@ -134,4 +138,5 @@ map.on('style.load', function() {
     });
 
 });
+
 {% endblock %}

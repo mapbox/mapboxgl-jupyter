@@ -31,6 +31,6 @@ setup(
         'mapboxgl': ['templates/*']},
     include_package_data=True,
     zip_safe=False,
-    install_requires=['jinja2', 'geojson'],
+    install_requires=['jinja2', 'geojson', 'chroma-py'],
     extras_require={
         'test': ['pytest', 'pytest-cov', 'codecov', 'mock', 'jupyter', 'Sphinx', 'pandas']})

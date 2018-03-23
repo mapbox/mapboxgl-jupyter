@@ -1,26 +1,6 @@
 {% extends "choropleth.html" %}
-    
-    {% block choropleth %}
 
-    var joinData = {{ joinData }};
-
-    {% if joinData %}
-        var vectorColorStops = [],
-            popUpKeys = [];
-
-        // create categorical color stops for features in vector layer
-        joinData.forEach(function(row, index) {
-            var red = Math.max(255 - row["{{ colorProperty }}"], 0),
-                green = Math.max(255 - row["{{ colorProperty }}"], 0),
-                blue = Math.min(204 + row["{{ colorProperty }}"], 255);
-
-            var color = "rgba(" + red + ", " + green + ", " + blue + ", 1)";
-            vectorColorStops.push([row["id"], color]);
-            
-            // for adding joined data to pop-up
-            popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
-        });
-    {% endif %}
+{% block choropleth %}
 
     // Add vector data source
     map.addSource("vector-data", {
@@ -35,7 +15,7 @@
         "source": "vector-data",
         "source-layer": "{{ vectorLayer }}",
         "paint": {
-            "fill-color": generatePropertyExpression("match", "{{ vectorJoinColorProperty }}", vectorColorStops, "{{ defaultColor }}"), 
+            "fill-color": generatePropertyExpression("match", "{{ vectorJoinColorProperty }}", {{ vectorColorStops }}, "{{ defaultColor }}"), 
             "fill-opacity": {{ opacity }}
         }
     }, "{{ belowLayer }}");
@@ -79,9 +59,23 @@
         }
     }, "{{belowLayer}}" );
 
-    {% endblock choropleth %}
+{% endblock choropleth %}
 
-    {% block choropleth_popup %}
+{% block choropleth_popup %}
+
+    // extract JSON property used for data-driven styling to add to popup
+    {% if joinData %}
+
+        let joinData = {{ joinData }};
+
+        var popUpKeys = {};
+
+        joinData.forEach(function(row, index) {
+            popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
+        });
+
+    {% endif %}
+
     // Show the popup on mouseover
     map.on('mousemove', 'choropleth-fill', function(e) {
         map.getCanvas().style.cursor = 'pointer';
@@ -101,4 +95,5 @@
             .setHTML(popup_html)
             .addTo(map);
     });
-    {% endblock choropleth_popup %}
+
+{% endblock choropleth_popup %}

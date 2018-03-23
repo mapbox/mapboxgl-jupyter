@@ -1,6 +1,8 @@
-from .colors import color_ramps
+from .colors import color_ramps, common_html_colors
+from chroma import Color, Scale
 import geojson
 import json
+import re
 
 
 def row_to_geojson(row, lon, lat):
@@ -124,3 +126,81 @@ def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
         for i, b in enumerate(breaks):
             stops.append([b, ramp[i]])
         return stops
+
+
+def rgb_tuple_from_str(color_string):
+    """Convert color in format 'rgb(RRR,GGG,BBB)', 'rgba(RRR,GGG,BBB,alpha)',  
+    '#RRGGBB', or limited English color name (eg 'red') to tuple (RRR, GGG, BBB)
+    """
+    try:
+        # English color names (limited)
+        rgb_string = common_html_colors[color_string]
+        return tuple([float(x) for x in re.findall(r'\d{1,3}', rgb_string)]) 
+    
+    except KeyError:
+        try:
+            # HEX color code
+            hex_string = color_string.lstrip('#')
+            return tuple(int(hex_string[i:i+2], 16) for i in (0, 2 ,4))
+        
+        except ValueError:
+            # RGB or RGBA formatted strings
+            return tuple([int(x) if float(x) > 1 else float(x) 
+                          for x in re.findall(r"[-+]?\d*\.*\d+", color_string)])
+
+
+def color_map(lookup, color_stops, default_color='rgb(122,122,122)'):
+    """Return an rgb color value interpolated from given color_stops;
+    assumes colors in color_stops provided as strings of form 'rgb(RRR,GGG,BBB)'
+    or in hex: '#RRGGBB'
+    """
+
+    if len(color_stops) == 0:
+        return default_color
+
+    # if lookup value numeric, map color by interpolating from color scale
+    if isinstance(lookup, (int, float, complex)):
+
+        stops, colors = zip(*sorted(color_stops))
+        
+        # check if lookup value in stops bounds
+        if float(lookup) <= stops[0]:
+            return colors[0]
+        
+        elif float(lookup) >= stops[-1]:
+            return colors[-1]
+        
+        # check if lookup value matches any stop value
+        elif float(lookup) in stops:
+            return colors[stops.index(lookup)]
+        
+        # interpolation required
+        else:
+
+            rgb_tuples = [Color(rgb_tuple_from_str(x)) for x in colors]
+
+            # identify bounding color stop values
+            lower = max([stops[0]] + [x for x in stops if x < lookup])
+            upper = min([stops[-1]] + [x for x in stops if x > lookup])
+            
+            # colors from bounding stops
+            lower_color = rgb_tuples[stops.index(lower)]
+            upper_color = rgb_tuples[stops.index(upper)]
+            
+            # generate color scale for mapping lookup value to interpolated color
+            scale = Scale(Color(lower_color), Color(upper_color))
+
+            # compute linear "relative distance" from lower bound color to upper bound color
+            distance = (lookup - lower) / (upper - lower)
+
+            # return string representing rgb color value
+            return scale(distance).to_string().replace(', ', ',')
+
+    # if non-numeric color_stop "key", find color by match
+    else:
+
+        # dictionary to lookup color from match-type color_stops
+        match_map = dict((x, y) for (x, y) in color_stops)
+
+        # return string representing rgb color value
+        return match_map.get(lookup, default_color)

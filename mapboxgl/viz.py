@@ -4,6 +4,7 @@ import os
 from IPython.core.display import HTML, display
 
 from mapboxgl.errors import TokenError
+from mapboxgl.utils import color_map
 from mapboxgl import templates
 
 GL_JS_VERSION = 'v0.44.1'
@@ -285,8 +286,7 @@ class ChoroplethViz(MapViz):
                  data,
                  vector_url=None,
                  vector_layer_name=None,
-                 vector_color_stops=None,
-                 vector_join_color_property=None,
+                 vector_join_property=None,
                  data_join_property=None, # vector only
                  label_property=None,
                  color_property=None,
@@ -300,6 +300,11 @@ class ChoroplethViz(MapViz):
                  **kwargs):
         """Construct a Mapviz object
 
+        :param data: can be either GeoJSON (containing polygon features) or JSON for data-join technique with vector polygons
+        :param vector_url: optional property to define vector polygon source
+        :param vector_layer_name: property to define target layer of vector source
+        :param vector_join_property: property to aid in determining color for styling vector polygons
+        :param data_join_property: property to join json data to vector features
         :param label_property: property to use for marker label
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
@@ -314,8 +319,7 @@ class ChoroplethViz(MapViz):
         
         self.vector_url = vector_url
         self.vector_layer_name = vector_layer_name
-        self.vector_color_stops = vector_color_stops
-        self.vector_join_color_property = vector_join_color_property
+        self.vector_join_property = vector_join_property
         self.data_join_property = data_join_property
 
         if self.vector_url is not None and self.vector_layer_name is not None:
@@ -333,6 +337,19 @@ class ChoroplethViz(MapViz):
         self.line_color = line_color
         self.line_stroke = line_stroke
         self.line_width = line_width
+
+    def generate_vector_color_map(self):
+        """Generate color stops array for use with match expression in mapbox template"""
+        vector_stops = []
+        for row in self.data:
+
+            # map color to JSON feature using color_property
+            color = color_map(row[self.color_property], self.color_stops, self.color_default)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], color])
+
+        return vector_stops
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
@@ -367,11 +384,12 @@ class ChoroplethViz(MapViz):
             options.update(dict(
                 vectorUrl=self.vector_url,
                 vectorLayer=self.vector_layer_name,
-                vectorColorStops=self.vector_color_stops,
-                vectorJoinColorProperty=self.vector_join_color_property,
+                vectorColorStops=self.generate_vector_color_map(),
+                vectorJoinColorProperty=self.vector_join_property,
                 joinData=json.dumps(self.data, ensure_ascii=False),
                 dataJoinProperty=self.data_join_property,
             ))
+        
         # geojson-based choropleth map variables
         else:
             options.update(dict(
