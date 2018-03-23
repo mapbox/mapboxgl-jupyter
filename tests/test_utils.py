@@ -7,7 +7,8 @@ from pandas.util.testing import assert_frame_equal
 from matplotlib.pyplot import imread
 
 from mapboxgl.utils import (df_to_geojson, scale_between, create_radius_stops,
-                            create_weight_stops, create_color_stops, img_encode)
+                            create_weight_stops, create_color_stops, img_encode,
+                            rgb_tuple_from_str, color_map)
 
 
 @pytest.fixture()
@@ -94,3 +95,7 @@ def test_img_encode():
     image_path = os.path.join(os.path.dirname(__file__), 'mosaic.png')
     image = imread(image_path)
     assert img_encode(image).startswith('data:image/png;base64')
+
+
+def test_rgb_tuple_from_str():
+    assert rgb_tuple_from_str('rgba(122,43,17,0.5)') == (122, 43, 17, 0.5)

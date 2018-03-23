@@ -182,12 +182,25 @@ def color_map(lookup, color_stops, default_color='rgb(122,122,122)'):
 
     if len(color_stops) == 0:
         return default_color
+    
+    # dictionary to lookup color from match-type color_stops
+    match_map = dict((x, y) for (x, y) in color_stops)
 
     # if lookup value numeric, map color by interpolating from color scale
     if isinstance(lookup, (int, float, complex)):
 
-        stops, colors = zip(*sorted(color_stops))
+        # try ordering stops 
+        try:
+            stops, colors = zip(*sorted(color_stops))
         
+        # if not all stops are numeric, attempt looking up as if categorical stops
+        except TypeError:
+            return match_map.get(lookup, default_color)
+
+        # for interpolation, all stops must be numeric
+        if not all(isinstance(x, (int, float, complex)) for x in stops):
+            return default_color
+
         # check if lookup value in stops bounds
         if float(lookup) <= stops[0]:
             return colors[0]
@@ -223,9 +236,6 @@ def color_map(lookup, color_stops, default_color='rgb(122,122,122)'):
 
     # if non-numeric color_stop "key", find color by match
     else:
-
-        # dictionary to lookup color from match-type color_stops
-        match_map = dict((x, y) for (x, y) in color_stops)
 
         # return string representing rgb color value
         return match_map.get(lookup, default_color)
