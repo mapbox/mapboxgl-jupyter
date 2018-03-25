@@ -23,8 +23,12 @@ var map = new mapboxgl.Map({
 });
 
 map.addControl(new mapboxgl.NavigationControl());
-    
-calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+
+{% if colorStops and colorProperty and radiusProperty %}
+    calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+    {% else %}
+    document.getElementById('legend').style.visibility='hidden'
+{% endif %}
 
 map.on('style.load', function() {
     
@@ -63,8 +67,16 @@ map.on('style.load', function() {
         "maxzoom": {{ maxzoom }},
         "minzoom": {{ minzoom }},
         "paint": {
-            "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
-            "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
+            {% if colorProperty %}
+                "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+                {% else %}
+                "circle-color": "{{ defaultColor }}",
+            {% endif %}
+            {% if radiusProperty %}
+                "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
+                {% else %}
+                "circle-radius": {{ defaultRadius }},
+            {% endif %}
             "circle-stroke-color": "{{ strokeColor }}",
             "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
             "circle-opacity" : {{ opacity }},

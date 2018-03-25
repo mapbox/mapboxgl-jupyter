@@ -28,8 +28,8 @@
     .legend h4 { margin: 0 0 10px; }
     .legend-title {
         margin: 6px;
-        padding: 6px:
-        font-weight: bold;
+        padding: 6px;
+        font-weight: bold !important;
         font-size: 14px;
         font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
     }
@@ -48,6 +48,7 @@
 <div id='legend' class='legend'></div>
 
 <script type='text/javascript'>
+
 function calcCircleColorLegend(myColorStops, title) {
     //Calculate a legend element on a Mapbox GL Style Spec property function stops array
     var mytitle = document.createElement('div');
