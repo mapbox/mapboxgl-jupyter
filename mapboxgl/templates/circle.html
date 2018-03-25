@@ -62,9 +62,9 @@ map.on('style.load', function() {
         "minzoom": {{ minzoom }},
         "paint": {
             "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
-            "circle-radius" : generatePropertyExpression('interpolate', 'zoom', [[0,1], [18,10]]),
-            "circle-stroke-color": "white",
-            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,0.01], [18,1]]),
+            "circle-radius" : generatePropertyExpression('interpolate', 'zoom', [[0,{{ radius }}], [22,10 * {{ radius }}]]),
+            "circle-stroke-color": "{{ strokeColor }}",
+            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
             "circle-opacity" : {{ opacity }}
         }
     }, "label");

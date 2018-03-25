@@ -64,8 +64,8 @@ map.on('style.load', function() {
         "paint": {
             "circle-color": generateInterpolateExpression( "point_count", {{ colorStops }} ),
             "circle-radius" : generateInterpolateExpression( "point_count", {{ radiusStops }} ),
-            "circle-stroke-color": "grey",
-            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]]),
+            "circle-stroke-color": "{{ strokeColor }}",
+            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
             "circle-opacity" : {{ opacity }}
         }
     }, "label");
@@ -79,9 +79,9 @@ map.on('style.load', function() {
         "filter": ["!has", "point_count"],
         "paint": {
             "circle-color": "{{ baseColor }}",
-            "circle-radius" : generateInterpolateExpression( 'zoom', [[0,1], [22,10]]),
-            "circle-stroke-color": "grey",
-            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]]),
+            "circle-radius" : generateInterpolateExpression( 'zoom', [[0, {{ radiusDefault }} ], [22,10 * {{ radiusDefault }}]]),
+            "circle-stroke-color": "{{ strokeColor }}",
+            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
             "circle-opacity" : {{ opacity }}
         }
     }, "circle-cluster");

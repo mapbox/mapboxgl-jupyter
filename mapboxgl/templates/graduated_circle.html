@@ -64,8 +64,8 @@ map.on('style.load', function() {
         "paint": {
             "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
             "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
-            "circle-stroke-color": "grey",
-            "circle-stroke-width": generatePropertyExpression('interpolate','zoom', [[0,0.01], [18,1]]),
+            "circle-stroke-color": "{{ strokeColor }}",
+            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
             "circle-opacity" : {{ opacity }}
         }
     }, "label");

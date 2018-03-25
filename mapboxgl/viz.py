@@ -121,6 +121,9 @@ class CircleViz(MapViz):
                  label_property=None,
                  color_property=None,
                  color_stops=None,
+                 radius=1,
+                 stroke_color='grey',
+                 stroke_width=0.1,
                  color_default='grey',
                  color_function_type='interpolate',
                  *args,
@@ -132,7 +135,9 @@ class CircleViz(MapViz):
         :param color_stops: property to determine circle color
         :param color_default: property to determine default circle color if match lookup fails
         :param color_function_type: property to determine `type` used by Mapbox to assign color
-
+        :param radius: radius of circle
+        :param stroke_color: color of circle stroke outline
+        :param stroke_width: with of circle stroke outline
         """
         super(CircleViz, self).__init__(data, *args, **kwargs)
 
@@ -140,6 +145,9 @@ class CircleViz(MapViz):
         self.label_property = label_property
         self.color_property = color_property
         self.color_stops = color_stops
+        self.radius = radius
+        self.stroke_color = stroke_color
+        self.stroke_width = stroke_width
         self.color_function_type = color_function_type
         self.color_default = color_default
 
@@ -150,6 +158,9 @@ class CircleViz(MapViz):
             colorProperty=self.color_property,
             colorType=self.color_function_type,
             colorStops=self.color_stops,
+            strokeWidth=self.stroke_width,
+            strokeColor=self.stroke_color,
+            radius=self.radius,
             defaultColor=self.color_default
         ))
 
@@ -164,9 +175,11 @@ class GraduatedCircleViz(MapViz):
                  color_stops=None,
                  color_default='grey',
                  color_function_type='interpolate',
+                 stroke_color='grey',
+                 stroke_width=0.1,
                  radius_property=None,
                  radius_stops=None,
-                 radius_default=1,
+                 radius_default=2,
                  radius_function_type='interpolate',
                  *args,
                  **kwargs):
@@ -181,6 +194,8 @@ class GraduatedCircleViz(MapViz):
         :param radius_stops: property to determine circle radius
         :param radius_default: property to determine default circle radius if match lookup fails
         :param radius_function_type: property to determine `type` used by Mapbox to assign radius size
+        :param stroke_color: color of circle stroke outline
+        :param stroke_width: with of circle stroke outline
 
         """
         super(GraduatedCircleViz, self).__init__(data, *args, **kwargs)
@@ -195,6 +210,8 @@ class GraduatedCircleViz(MapViz):
         self.color_default = color_default
         self.radius_function_type = radius_function_type
         self.radius_default = radius_default
+        self.stroke_color = stroke_color
+        self.stroke_width = stroke_width
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to graduated circle visual"""
@@ -207,6 +224,8 @@ class GraduatedCircleViz(MapViz):
             defaultRadius=self.radius_default,
             radiusProperty=self.radius_property,
             radiusStops=self.radius_stops,
+            strokeWidth=self.stroke_width,
+            strokeColor=self.stroke_color
         ))
 
 
@@ -256,6 +275,9 @@ class ClusteredCircleViz(MapViz):
                  radius_stops=None,
                  cluster_radius=30,
                  cluster_maxzoom=14,
+                 radius_default=2,
+                 stroke_color='grey',
+                 stroke_width=0.1,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -264,6 +286,9 @@ class ClusteredCircleViz(MapViz):
         :param color_stops: property to determine circle color
         :param radius_property: property to determine circle radius
         :param radius_stops: property to determine circle radius
+        :param stroke_color: color of circle stroke outline
+        :param stroke_width: with of circle stroke outline
+        :param radius_default: radius of circles not contained in a cluster
 
         """
         super(ClusteredCircleViz, self).__init__(data, *args, **kwargs)
@@ -273,6 +298,9 @@ class ClusteredCircleViz(MapViz):
         self.radius_stops = radius_stops
         self.clusterRadius = cluster_radius
         self.clusterMaxZoom = cluster_maxzoom
+        self.radius_default = radius_default
+        self.stroke_color = stroke_color
+        self.stroke_width = stroke_width
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to a clustered circle visual"""
@@ -281,7 +309,10 @@ class ClusteredCircleViz(MapViz):
             baseColor=self.color_stops[0][1],
             radiusStops=self.radius_stops,
             clusterRadius=self.clusterRadius,
-            clusterMaxZoom=self.clusterMaxZoom
+            clusterMaxZoom=self.clusterMaxZoom,
+            strokeWidth=self.stroke_width,
+            strokeColor=self.stroke_color,
+            radiusDefault=self.radius_default
         ))
 
 
