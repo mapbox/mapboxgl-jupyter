@@ -46,11 +46,12 @@ map.on('style.load', function() {
         "minzoom": {{ minzoom }},
         "layout": {
             "text-field": "{point_count_abbreviated}",
-            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] )
+            "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
         },
         "paint": {
-            "text-halo-color": "white",
-            "text-halo-width": 1
+            "text-halo-color": "{{ labelHaloColor }}",
+            "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+            "text-color": "{{ labelColor }}"
         }
     }, "{{belowLayer}}" )
 
@@ -66,7 +67,8 @@ map.on('style.load', function() {
             "circle-radius" : generateInterpolateExpression( "point_count", {{ radiusStops }} ),
             "circle-stroke-color": "{{ strokeColor }}",
             "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
-            "circle-opacity" : {{ opacity }}
+            "circle-opacity" : {{ opacity }},
+            "circle-stroke-opacity" : {{ opacity }}
         }
     }, "label");
 
@@ -78,11 +80,12 @@ map.on('style.load', function() {
         "minzoom": {{ minzoom }},
         "filter": ["!has", "point_count"],
         "paint": {
-            "circle-color": "{{ baseColor }}",
+            "circle-color": "{{ colorDefault }}",
             "circle-radius" : generateInterpolateExpression( 'zoom', [[0, {{ radiusDefault }} ], [22,10 * {{ radiusDefault }}]]),
             "circle-stroke-color": "{{ strokeColor }}",
             "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
-            "circle-opacity" : {{ opacity }}
+            "circle-opacity" : {{ opacity }},
+            "circle-stroke-opacity" : {{ opacity }}
         }
     }, "circle-cluster");
     

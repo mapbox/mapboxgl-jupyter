@@ -123,13 +123,13 @@ class CircleViz(MapViz):
                  label_color='#131516',
                  label_halo_color='white',
                  label_halo_width=1,
+                 radius=1,
                  color_property=None,
                  color_stops=None,
-                 radius=1,
-                 stroke_color='grey',
-                 stroke_width=0.1,
                  color_default='grey',
                  color_function_type='interpolate',
+                 stroke_color='grey',
+                 stroke_width=0.1,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -188,6 +188,10 @@ class GraduatedCircleViz(MapViz):
     def __init__(self,
                  data,
                  label_property=None,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -219,6 +223,10 @@ class GraduatedCircleViz(MapViz):
 
         self.template = 'graduated_circle'
         self.label_property = label_property
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
         self.color_property = color_property
         self.color_stops = color_stops
         self.radius_property = radius_property
@@ -242,7 +250,11 @@ class GraduatedCircleViz(MapViz):
             radiusProperty=self.radius_property,
             radiusStops=self.radius_stops,
             strokeWidth=self.stroke_width,
-            strokeColor=self.stroke_color
+            strokeColor=self.stroke_color,
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
         ))
 
 
@@ -288,11 +300,16 @@ class ClusteredCircleViz(MapViz):
 
     def __init__(self,
                  data,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
                  color_stops=None,
                  radius_stops=None,
                  cluster_radius=30,
                  cluster_maxzoom=14,
                  radius_default=2,
+                 color_default='black',
                  stroke_color='grey',
                  stroke_width=0.1,
                  *args,
@@ -306,30 +323,41 @@ class ClusteredCircleViz(MapViz):
         :param stroke_color: color of circle stroke outline
         :param stroke_width: with of circle stroke outline
         :param radius_default: radius of circles not contained in a cluster
+        :param color_default: color of circles not contained in a cluster
 
         """
         super(ClusteredCircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'clustered_circle'
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
         self.color_stops = color_stops
         self.radius_stops = radius_stops
         self.clusterRadius = cluster_radius
         self.clusterMaxZoom = cluster_maxzoom
         self.radius_default = radius_default
+        self.color_default = color_default
         self.stroke_color = stroke_color
         self.stroke_width = stroke_width
+        self.color_default = color_default
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to a clustered circle visual"""
         options.update(dict(
             colorStops=self.color_stops,
-            baseColor=self.color_stops[0][1],
+            colorDefault=self.color_default,
             radiusStops=self.radius_stops,
             clusterRadius=self.clusterRadius,
             clusterMaxZoom=self.clusterMaxZoom,
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
-            radiusDefault=self.radius_default
+            radiusDefault=self.radius_default,
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
         ))
 
 
