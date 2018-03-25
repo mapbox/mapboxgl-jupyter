@@ -46,11 +46,12 @@ map.on('style.load', function() {
         "minzoom": {{ minzoom }},
         "layout": {
             "text-field": "{point_count_abbreviated}",
-            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] )
+            "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
         },
         "paint": {
-            "text-halo-color": "white",
-            "text-halo-width": 1
+            "text-halo-color": "{{ labelHaloColor }}",
+            "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+            "text-color": "{{ labelColor }}"
         }
     }, "{{belowLayer}}" )
 
@@ -64,9 +65,10 @@ map.on('style.load', function() {
         "paint": {
             "circle-color": generateInterpolateExpression( "point_count", {{ colorStops }} ),
             "circle-radius" : generateInterpolateExpression( "point_count", {{ radiusStops }} ),
-            "circle-stroke-color": "grey",
-            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]]),
-            "circle-opacity" : {{ opacity }}
+            "circle-stroke-color": "{{ strokeColor }}",
+            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
+            "circle-opacity" : {{ opacity }},
+            "circle-stroke-opacity" : {{ opacity }}
         }
     }, "label");
 
@@ -78,11 +80,12 @@ map.on('style.load', function() {
         "minzoom": {{ minzoom }},
         "filter": ["!has", "point_count"],
         "paint": {
-            "circle-color": "{{ baseColor }}",
-            "circle-radius" : generateInterpolateExpression( 'zoom', [[0,1], [22,10]]),
-            "circle-stroke-color": "grey",
-            "circle-stroke-width": generateInterpolateExpression('zoom', [[0,0.01], [18,1]]),
-            "circle-opacity" : {{ opacity }}
+            "circle-color": "{{ colorDefault }}",
+            "circle-radius" : generateInterpolateExpression( 'zoom', [[0, {{ radiusDefault }} ], [22,10 * {{ radiusDefault }}]]),
+            "circle-stroke-color": "{{ strokeColor }}",
+            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
+            "circle-opacity" : {{ opacity }},
+            "circle-stroke-opacity" : {{ opacity }}
         }
     }, "circle-cluster");
     

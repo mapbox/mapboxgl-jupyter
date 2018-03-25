@@ -28,8 +28,8 @@
     .legend h4 { margin: 0 0 10px; }
     .legend-title {
         margin: 6px;
-        padding: 6px:
-        font-weight: bold;
+        padding: 6px;
+        font-weight: bold !important;
         font-size: 14px;
         font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
     }
@@ -48,6 +48,7 @@
 <div id='legend' class='legend'></div>
 
 <script type='text/javascript'>
+
 function calcCircleColorLegend(myColorStops, title) {
     //Calculate a legend element on a Mapbox GL Style Spec property function stops array
     var mytitle = document.createElement('div');
@@ -85,13 +86,13 @@ function calcCircleColorLegend(myColorStops, title) {
 function generateInterpolateExpression(propertyValue, stops) {
     var expression;
     if (propertyValue == 'zoom') {
-        expression = ['interpolate', ['linear'], ['zoom']]
+        expression = ['interpolate', ['exponential', 1.2], ['zoom']]
     }
     else if (propertyValue == 'heatmap-density') {
-        expression = ['interpolate', ['linear'], ['heatmap-density']]
+        expression = ['interpolate', ['exponential', 1.2], ['heatmap-density']]
     }
     else {
-        expression = ['interpolate', ['linear'], ['get', propertyValue]]
+        expression = ['interpolate', ['exponential', 1.2], ['get', propertyValue]]
     }
 
     for (var i=0; i<stops.length; i++) {
