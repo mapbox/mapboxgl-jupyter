@@ -166,7 +166,7 @@ class GraduatedCircleViz(MapViz):
                  color_function_type='interpolate',
                  radius_property=None,
                  radius_stops=None,
-                 radius_default=None,
+                 radius_default=1,
                  radius_function_type='interpolate',
                  *args,
                  **kwargs):
