@@ -256,7 +256,7 @@ viz.show()
 The `HeatmapViz` object handles the creation of a heat map and is built on top of the `MapViz` class.
 
 ### Params
-**HeatmapViz**(_data, weight_property=None, weight_stops=None, color_stops=None, radius_stops=None, \*args, \*\*kwargs_)
+**HeatmapViz**(_data, weight_property=None, weight_stops=None, color_stops=None, radius_stops=None, intensity_stops=None, \*args, \*\*kwargs_)
 
 Parameter | Description | Example
 --|--|--
@@ -265,6 +265,7 @@ weight_property | property to determine heatmap weight. | "population"
 weight_stops | stops to determine heatmap weight. | [[10, 0], [100, 1]]
 color_stops | stops to determine heatmap color. | [[0, "red"], [0.5, "blue"], [1, "green"]]
 radius_stops | stops to determine heatmap radius based on zoom. | [[0, 1], [12, 30]]
+intensity_stops | stops to determine the heatmap intensity based on zoom. EX: [[0, 0.1], [20, 5]]
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 

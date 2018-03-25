@@ -267,6 +267,7 @@ class HeatmapViz(MapViz):
                  weight_stops=None,
                  color_stops=None,
                  radius_stops=None,
+                 intensity_stops=None,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -275,6 +276,7 @@ class HeatmapViz(MapViz):
         :param weight_stops: stops to determine heatmap weight.  EX. [[10, 0], [100, 1]]
         :param color_stops: stops to determine heatmap color.  EX. [[0, "red"], [0.5, "blue"], [1, "green"]]
         :param radius_stops: stops to determine heatmap radius based on zoom.  EX: [[0, 1], [12, 30]]
+        :param intensity_stops: stops to determine the heatmap intensity based on zoom. EX: [[0, 0.1], [20, 5]]
 
         """
         super(HeatmapViz, self).__init__(data, *args, **kwargs)
@@ -282,8 +284,11 @@ class HeatmapViz(MapViz):
         self.template = 'heatmap'
         self.weight_property = weight_property
         self.weight_stops = weight_stops
-        self.color_stops = color_stops
+        if color_stops:
+            # Make the first color stop in a heatmap have opacity 0 for good visual effect
+            self.color_stops = [[0.00001, 'rgba(0,0,0,0)']] + color_stops
         self.radius_stops = radius_stops
+        self.intensity_stops = intensity_stops
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
@@ -291,7 +296,8 @@ class HeatmapViz(MapViz):
             colorStops=self.color_stops,
             radiusStops=self.radius_stops,
             weightProperty=self.weight_property,
-            weightStops=self.weight_stops
+            weightStops=self.weight_stops,
+            intensityStops=self.intensity_stops
         ))
 
 
