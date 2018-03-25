@@ -119,6 +119,10 @@ class CircleViz(MapViz):
     def __init__(self,
                  data,
                  label_property=None,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
                  color_property=None,
                  color_stops=None,
                  radius=1,
@@ -131,6 +135,10 @@ class CircleViz(MapViz):
         """Construct a Mapviz object
 
         :param label_property: property to use for marker label
+        :param label_size: size of label text
+        :param label_color: color of label text
+        :param label_halo_color: color of label text halo
+        :param label_halo_width: width of label text halo
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
         :param color_default: property to determine default circle color if match lookup fails
@@ -138,11 +146,16 @@ class CircleViz(MapViz):
         :param radius: radius of circle
         :param stroke_color: color of circle stroke outline
         :param stroke_width: with of circle stroke outline
+
         """
         super(CircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'circle'
         self.label_property = label_property
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
         self.color_property = color_property
         self.color_stops = color_stops
         self.radius = radius
@@ -161,7 +174,11 @@ class CircleViz(MapViz):
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
             radius=self.radius,
-            defaultColor=self.color_default
+            defaultColor=self.color_default,
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
         ))
 
 
