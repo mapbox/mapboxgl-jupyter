@@ -50,16 +50,22 @@ Build the HTML text representation of the visual. The output of this is a valid 
 The `CircleViz` class handles the creation of a circle map and is built on top of the `MapViz` class.
 
 ### Params
-**CircleViz**(_data, label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', \*args, \*\*kwargs_)
+**CircleViz**(_data, label_property=None, label_size=8, label_color='#131516', label_halo_color='white', label_halo_width=1, radius=1, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', stroke_color='grey', stroke_width=0.1, \*args, \*\*kwargs_)
 
 Parameter | Description
 --|--
 data | name of GeoJson file or object
-label_property | property to use for marker label
+label_property | property to use for marker label.  No labels will be shown if omitted
+label_size | size of text labels
+label_color | color of text labels
+label_halo_color | color of text halo outline
+label_halo_width | width (in pixels) of text halo outline
 color_property | property to determine circle color
 color_stops | property to determine circle color
 color_default | color of circle to use if no lookup value matches the property value. Only used for the **match** color_function_type.
 color_function_type | property to determine `type` used by Mapbox to assign color. One of "interpolate" or "match". Default is interpolate
+stroke_color | color of circle outline stroke
+stroke_width | width (in pixels) of circle outline stroke
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
@@ -92,6 +98,8 @@ viz = CircleViz('points.geojson',
                 height='400px',
                 color_property = "Avg Medicare Payments",
                 color_stops = color_stops,
+                label_property = 'Avg Medicare Payments',
+                stroke_color = 'black',
                 center = (-95, 40),
                 zoom = 3,
                 below_layer = 'waterway-label'
@@ -107,15 +115,23 @@ viz.show()
 The `ClusteredCircleViz` object handles the creation of a clustered circle map and is built on top of the `MapViz` class.  Cluster radius and color are keyed on point density.
 
 ### Params
-**ClusteredCircleViz**(_data, color_stops=None, radius_stops=None, cluster_radius=30, cluster_maxzoom=14, \*args, \*\*kwargs_)
+**ClusteredCircleViz**(_data, label_size=8, label_color='#131516', label_halo_color='white', label_halo_width=1, color_stops=None, radius_stops=None, cluster_radius=30, cluster_maxzoom=14, radius_default=2, color_default='black', stroke_color='grey', stroke_width=0.1, \*args, \*\*kwargs_)
 
 Parameter | Description
 --|--
 data | name of GeoJson file or object
+label_size | size of text labels
+label_color | color of text labels
+label_halo_color | color of text halo outline
+label_halo_width | width (in pixels) of text halo outline
 color_stops | property to determine circle color
 radius_stops | property to determine circle radius
 cluster_radius | property to determine radius of each cluster when clustering points
 cluster_maxzoom | property to determine the max zoom to use for clustering points
+radius_default | Radius of points not contained in a cluster
+color_default | Color of points not contained in a cluster
+stroke_color | Color of stroke outline on circles
+stroke_width | Width of stroke outline on circles
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
@@ -145,8 +161,10 @@ viz = ClusteredCircleViz('points.geojson',
                           access_token=token,
                           color_stops = color_stops,
                           radius_stops = [[1,5], [10, 10], [50, 15], [100, 20]],
+                          radius_default = 2,
                           cluster_maxzoom = 10,
                           cluster_radius = 30,
+                          label_size = 12,
                           opacity = 0.9,
                           center = (-95, 40),
                           zoom = 3
@@ -162,12 +180,16 @@ viz.show()
 The `GraduatedCircleViz` object handles the creation of a graduated map and is built on top of the `MapViz` class.
 
 ### Params
-**GraduatedCircleViz**(_data, label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', radius_property=None, radius_stops=None, radius_default=None, radius_function_type='interpolate', \*args, \*\*kwargs_)
+**GraduatedCircleViz**(_data, label_property=None, label_size=8, label_color='#131516', label_halo_color='white', label_halo_width=1, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', stroke_color='grey', stroke_width=0.1, radius_property=None, radius_stops=None, radius_default=2, radius_function_type='interpolate', \*args, \*\*kwargs_)
 
 Parameter | Description
 --|--
 data | name of GeoJson file or object
 label_property | property to use for marker label.
+label_size | size of text labels
+label_color | color of text labels
+label_halo_color | color of text halo outline
+label_halo_width | width (in pixels) of text halo outline
 color_property | property to determine circle color.
 color_stops | property to determine circle color.
 color_default | color of the circle to use if no lookup value matches the property value. Only used for the **match** color_function_type.
@@ -176,6 +198,8 @@ radius_property | property to determine circle radius.
 radius_stops | property to determine circle radius.
 radius_default | radius of the circle to use if no lookup value matches the property value. Only used for the **match** radius_function_type.
 radius_function_type | property to determine `type` used by Mapbox to assign radius size. One of "interpolate" or "match". Default is interpolate.
+stroke_color | Color of stroke outline on circles
+stroke_width | Width of stroke outline on circles
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
@@ -198,9 +222,15 @@ df_to_geojson(df, filename='points.geojson',
               properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
                      lat='lat', lon='lon', precision=3)
 
+# Generate color stops from colorBrewer
+measure_color = 'Avg Covered Charges'
+color_breaks = [round(df[measure_color].quantile(q=x*0.1), 2) for x in range(2, 10)]
+color_stops = create_color_stops(color_breaks, colors='Blues')
+
 # Generate radius breaks from data domain and circle-radius range
-radius_breaks = [0,10,100,1000,10000]
-radius_stops = create_radius_stops(radius_breaks, 1, 10)
+measure_radius = 'Avg Medicare Payments'
+radius_breaks = [round(df[measure_radius].quantile(q=x*0.1), 2) for x in range(2,10)]
+radius_stops = create_radius_stops(radius_breaks, 0.5, 10)
 
 # Create the viz
 viz = GraduatedCircleViz('points.geojson',
@@ -208,6 +238,8 @@ viz = GraduatedCircleViz('points.geojson',
                           color_property = "Avg Covered Charges",
                           color_stops = color_stops,
                           radius_property = "Avg Medicare Payments",
+                          stroke_color = 'black',
+                          stroke_width = 0.5,
                           radius_stops = radius_stops,
                           center = (-95, 40),
                           zoom = 3,
