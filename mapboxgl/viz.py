@@ -120,27 +120,48 @@ class CircleViz(MapViz):
     def __init__(self,
                  data,
                  label_property=None,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
+                 radius=1,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
                  color_function_type='interpolate',
+                 stroke_color='grey',
+                 stroke_width=0.1,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
 
         :param label_property: property to use for marker label
+        :param label_size: size of label text
+        :param label_color: color of label text
+        :param label_halo_color: color of label text halo
+        :param label_halo_width: width of label text halo
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
         :param color_default: property to determine default circle color if match lookup fails
         :param color_function_type: property to determine `type` used by Mapbox to assign color
+        :param radius: radius of circle
+        :param stroke_color: color of circle stroke outline
+        :param stroke_width: with of circle stroke outline
 
         """
         super(CircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'circle'
         self.label_property = label_property
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
         self.color_property = color_property
         self.color_stops = color_stops
+        self.radius = radius
+        self.stroke_color = stroke_color
+        self.stroke_width = stroke_width
         self.color_function_type = color_function_type
         self.color_default = color_default
 
@@ -151,7 +172,14 @@ class CircleViz(MapViz):
             colorProperty=self.color_property,
             colorType=self.color_function_type,
             colorStops=self.color_stops,
-            defaultColor=self.color_default
+            strokeWidth=self.stroke_width,
+            strokeColor=self.stroke_color,
+            radius=self.radius,
+            defaultColor=self.color_default,
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
         ))
 
 
@@ -161,13 +189,19 @@ class GraduatedCircleViz(MapViz):
     def __init__(self,
                  data,
                  label_property=None,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
                  color_function_type='interpolate',
+                 stroke_color='grey',
+                 stroke_width=0.1,
                  radius_property=None,
                  radius_stops=None,
-                 radius_default=None,
+                 radius_default=2,
                  radius_function_type='interpolate',
                  *args,
                  **kwargs):
@@ -182,12 +216,18 @@ class GraduatedCircleViz(MapViz):
         :param radius_stops: property to determine circle radius
         :param radius_default: property to determine default circle radius if match lookup fails
         :param radius_function_type: property to determine `type` used by Mapbox to assign radius size
+        :param stroke_color: color of circle stroke outline
+        :param stroke_width: with of circle stroke outline
 
         """
         super(GraduatedCircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'graduated_circle'
         self.label_property = label_property
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
         self.color_property = color_property
         self.color_stops = color_stops
         self.radius_property = radius_property
@@ -196,6 +236,8 @@ class GraduatedCircleViz(MapViz):
         self.color_default = color_default
         self.radius_function_type = radius_function_type
         self.radius_default = radius_default
+        self.stroke_color = stroke_color
+        self.stroke_width = stroke_width
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to graduated circle visual"""
@@ -208,6 +250,12 @@ class GraduatedCircleViz(MapViz):
             defaultRadius=self.radius_default,
             radiusProperty=self.radius_property,
             radiusStops=self.radius_stops,
+            strokeWidth=self.stroke_width,
+            strokeColor=self.stroke_color,
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
         ))
 
 
@@ -220,6 +268,7 @@ class HeatmapViz(MapViz):
                  weight_stops=None,
                  color_stops=None,
                  radius_stops=None,
+                 intensity_stops=None,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -228,6 +277,7 @@ class HeatmapViz(MapViz):
         :param weight_stops: stops to determine heatmap weight.  EX. [[10, 0], [100, 1]]
         :param color_stops: stops to determine heatmap color.  EX. [[0, "red"], [0.5, "blue"], [1, "green"]]
         :param radius_stops: stops to determine heatmap radius based on zoom.  EX: [[0, 1], [12, 30]]
+        :param intensity_stops: stops to determine the heatmap intensity based on zoom. EX: [[0, 0.1], [20, 5]]
 
         """
         super(HeatmapViz, self).__init__(data, *args, **kwargs)
@@ -235,8 +285,11 @@ class HeatmapViz(MapViz):
         self.template = 'heatmap'
         self.weight_property = weight_property
         self.weight_stops = weight_stops
-        self.color_stops = color_stops
+        if color_stops:
+            # Make the first color stop in a heatmap have opacity 0 for good visual effect
+            self.color_stops = [[0.00001, 'rgba(0,0,0,0)']] + color_stops
         self.radius_stops = radius_stops
+        self.intensity_stops = intensity_stops
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
@@ -244,7 +297,8 @@ class HeatmapViz(MapViz):
             colorStops=self.color_stops,
             radiusStops=self.radius_stops,
             weightProperty=self.weight_property,
-            weightStops=self.weight_stops
+            weightStops=self.weight_stops,
+            intensityStops=self.intensity_stops
         ))
 
 
@@ -253,10 +307,18 @@ class ClusteredCircleViz(MapViz):
 
     def __init__(self,
                  data,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
                  color_stops=None,
                  radius_stops=None,
                  cluster_radius=30,
                  cluster_maxzoom=14,
+                 radius_default=2,
+                 color_default='black',
+                 stroke_color='grey',
+                 stroke_width=0.1,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -265,24 +327,44 @@ class ClusteredCircleViz(MapViz):
         :param color_stops: property to determine circle color
         :param radius_property: property to determine circle radius
         :param radius_stops: property to determine circle radius
+        :param stroke_color: color of circle stroke outline
+        :param stroke_width: with of circle stroke outline
+        :param radius_default: radius of circles not contained in a cluster
+        :param color_default: color of circles not contained in a cluster
 
         """
         super(ClusteredCircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'clustered_circle'
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
         self.color_stops = color_stops
         self.radius_stops = radius_stops
         self.clusterRadius = cluster_radius
         self.clusterMaxZoom = cluster_maxzoom
+        self.radius_default = radius_default
+        self.color_default = color_default
+        self.stroke_color = stroke_color
+        self.stroke_width = stroke_width
+        self.color_default = color_default
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to a clustered circle visual"""
         options.update(dict(
             colorStops=self.color_stops,
-            baseColor=self.color_stops[0][1],
+            colorDefault=self.color_default,
             radiusStops=self.radius_stops,
             clusterRadius=self.clusterRadius,
-            clusterMaxZoom=self.clusterMaxZoom
+            clusterMaxZoom=self.clusterMaxZoom,
+            strokeWidth=self.stroke_width,
+            strokeColor=self.stroke_color,
+            radiusDefault=self.radius_default,
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
         ))
 
 

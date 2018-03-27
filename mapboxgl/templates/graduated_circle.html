@@ -23,8 +23,12 @@ var map = new mapboxgl.Map({
 });
 
 map.addControl(new mapboxgl.NavigationControl());
-    
-calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+
+{% if colorStops and colorProperty and radiusProperty %}
+    calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+    {% else %}
+    document.getElementById('legend').style.visibility='hidden'
+{% endif %}
 
 map.on('style.load', function() {
     
@@ -46,12 +50,13 @@ map.on('style.load', function() {
             {% if labelProperty %}
             "text-field": "{{ labelProperty }}",
             {% endif %}
-            "text-size" : generatePropertyExpression('interpolate','zoom', [[0,8],[22,16]] ),
+            "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
             "text-offset": [0,-1]
         },
         "paint": {
-            "text-halo-color": "white",
-            "text-halo-width": 1
+            "text-halo-color": "{{ labelHaloColor }}",
+            "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+            "text-color": "{{ labelColor }}"
         }
     }, "{{belowLayer}}" )
 
@@ -62,11 +67,20 @@ map.on('style.load', function() {
         "maxzoom": {{ maxzoom }},
         "minzoom": {{ minzoom }},
         "paint": {
-            "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
-            "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
-            "circle-stroke-color": "grey",
-            "circle-stroke-width": generatePropertyExpression('interpolate','zoom', [[0,0.01], [18,1]]),
-            "circle-opacity" : {{ opacity }}
+            {% if colorProperty %}
+                "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+                {% else %}
+                "circle-color": "{{ defaultColor }}",
+            {% endif %}
+            {% if radiusProperty %}
+                "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
+                {% else %}
+                "circle-radius": {{ defaultRadius }},
+            {% endif %}
+            "circle-stroke-color": "{{ strokeColor }}",
+            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
+            "circle-opacity" : {{ opacity }},
+            "circle-stroke-opacity" : {{ opacity }}
         }
     }, "label");
     
