@@ -132,7 +132,7 @@ def test_color_map_numeric_default_color():
 def test_color_map_default_color():
     """Default color when look up value does not match any stop in categorical color stops"""
     match_stops = [[0.0, 'rgb(255,0,255)'],['CA', 'rgb(255,0,0)'], ['NY', 'rgb(255,255,0)'], ['MA', 'rgb(0,0,255)']]
-    assert color_map('MI', match_stops, 'gray') == 'gray')
+    assert color_map('MI', match_stops, 'gray') == 'gray'
 
 
 def test_color_map_numeric_match():
