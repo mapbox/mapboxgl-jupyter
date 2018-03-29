@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block legend %}
+
+    var legend = document.getElementById('legend');
+    legend.remove();
+
+{% endblock legend %}
+
+{% block map %}
+
+    map.on('style.load', function() {
+        
+        // Add data source
+        map.addSource("data", {
+            "type": "geojson",
+            "data": {{ geojson_data }},
+            "buffer": 1,
+            "maxzoom": 14
+        });
+        
+        // Add data layer
+        map.addLayer({
+            "id": "circle",
+            "source": "data",
+            "type": "circle",
+            "maxzoom": {{ maxzoom }},
+            "minzoom": {{ minzoom }},
+            "paint": { "circle-radius": 1 }
+        });
+
+    });
+
+{% endblock map %}
