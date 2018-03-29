@@ -315,6 +315,61 @@ viz.show()
 ![HeatmapViz](https://user-images.githubusercontent.com/11286381/36511775-cfc4d794-171c-11e8-86b9-5f1a6060a387.png)
 
 
+## class ChoroplethViz
+
+The `ChoroplethViz` object handles the creation of a choropleth map and inherits from the `MapViz` class. It applies a thematic map style to polygon features with color shading in proportion to the intensity of the data being displayed. Choropleth polygons can be initialized with geojson source or vector source styled using the data-join technique.
+
+### Params
+**ChoroplethViz**(_data, vector_url=None, vector_layer_name=None, vector_join_property=None, data_join_property=None, # vector only label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, *args, **kwargs_)
+
+Parameter | Description | Example
+--|--|--
+data | can be either GeoJSON (containing polygon features) or JSON for data-join technique with vector polygons |
+vector_url | optional property to define vector polygon source | "mapbox://mapbox.us_census_states_2015"
+vector_layer_name | property to define target layer of vector source if using vector polygon source | "states"
+vector_join_property | property to aid in determining color for styling vector polygons | "STATEFP"
+data_join_property | property of json data to use as link to vector features | "state_name"
+label_property | property to use for marker label | "density"
+color_property | property to determine fill color | "density"
+color_stops | property to determine fill color | [[0, "red"], [0.5, "blue"], [1, "green"]]
+color_default | property to determine default fill color in match lookups | "#F0F0F0"
+color_function_type | property to determine type of expression used by Mapbox to assign color | "interpolate"
+line_color | property to determine choropleth border line color | "#FFFFFF"
+line_stroke | property to determine choropleth border line stroke (one of solid (-), dashed (--), dotted (:), dash dot (-.)) | "solid" or "-"
+line_width | property to determine choropleth border line width | 1
+
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+
+### Usage
+```python
+import os
+from mapboxgl.viz import *
+from mapboxgl.utils import *
+
+# Must be a public token, starting with `pk`
+token = os.getenv('MAPBOX_ACCESS_TOKEN')
+
+# Create Choropleth with GeoJSON Source
+viz = ChoroplethViz('us-states.geojson', 
+                     color_property='density',
+                     color_stops=create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd'),
+                     color_function_type='interpolate',
+                     line_stroke='--',
+                     line_color='rgb(128,0,38)',
+                     line_width=1,
+                     opacity=0.8,
+                     center=(-96, 37.8),
+                     zoom=3,
+                     below_layer='waterway-label'
+                    )
+viz.show()
+```
+![ChoroplethViz](https://user-images.githubusercontent.com/13527707/37823022-73782a0a-2e45-11e8-9fdd-4a8ddd35cb92.png)
+
+
+[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/choropleth-viz-example.ipynb)
+
+
 ## class ImageViz
 
 The `ImageViz` object handles the creation of a simple image visualization on map and is built on top of the `MapViz` class.

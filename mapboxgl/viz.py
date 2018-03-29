@@ -6,6 +6,7 @@ from IPython.core.display import HTML, display
 import numpy
 
 from mapboxgl.errors import TokenError
+from mapboxgl.utils import color_map
 from mapboxgl import templates
 from mapboxgl.utils import img_encode
 
@@ -367,6 +368,124 @@ class ClusteredCircleViz(MapViz):
         ))
 
 
+class ChoroplethViz(MapViz):
+    """Create a choropleth viz"""
+
+    def __init__(self,
+                 data,
+                 vector_url=None,
+                 vector_layer_name=None,
+                 vector_join_property=None,
+                 data_join_property=None, # vector only
+                 label_property=None,
+                 color_property=None,
+                 color_stops=None,
+                 color_default='grey',
+                 color_function_type='interpolate',
+                 line_color='white',
+                 line_stroke='solid',
+                 line_width=1,
+                 *args,
+                 **kwargs):
+        """Construct a Mapviz object
+
+        :param data: can be either GeoJSON (containing polygon features) or JSON for data-join technique with vector polygons
+        :param vector_url: optional property to define vector polygon source
+        :param vector_layer_name: property to define target layer of vector source
+        :param vector_join_property: property to aid in determining color for styling vector polygons
+        :param data_join_property: property to join json data to vector features
+        :param label_property: property to use for marker label
+        :param color_property: property to determine circle color
+        :param color_stops: property to determine circle color
+        :param color_default: property to determine default circle color if match lookup fails
+        :param color_function_type: property to determine `type` used by Mapbox to assign color
+        :param line_color: property to determine choropleth line color
+        :param line_stroke: property to determine choropleth line stroke (solid, dashed, dotted, dash dot)
+        :param line_width: property to determine choropleth line width
+
+        """
+        super(ChoroplethViz, self).__init__(data, *args, **kwargs)
+        
+        self.vector_url = vector_url
+        self.vector_layer_name = vector_layer_name
+        self.vector_join_property = vector_join_property
+        self.data_join_property = data_join_property
+
+        if self.vector_url is not None and self.vector_layer_name is not None:
+            self.template = 'vector_choropleth'
+            self.vector_source = True
+        else:
+            self.vector_source = False
+            self.template = 'choropleth'
+
+        self.label_property = label_property
+        self.color_property = color_property
+        self.color_stops = color_stops
+        self.color_default = color_default
+        self.color_function_type = color_function_type
+        self.line_color = line_color
+        self.line_stroke = line_stroke
+        self.line_width = line_width
+
+    def generate_vector_color_map(self):
+        """Generate color stops array for use with match expression in mapbox template"""
+        vector_stops = []
+        for row in self.data:
+
+            # map color to JSON feature using color_property
+            color = color_map(row[self.color_property], self.color_stops, self.color_default)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], color])
+
+        return vector_stops
+
+    def add_unique_template_variables(self, options):
+        """Update map template variables specific to heatmap visual"""
+
+        # set line stroke dash interval based on line_stroke property
+        if self.line_stroke in ["dashed", "--"]:
+            self.line_dash_array = [6, 4]
+        elif self.line_stroke in ["dotted", ":"]:
+            self.line_dash_array = [0.5, 4]
+        elif self.line_stroke in ["dash dot", "-."]:
+            self.line_dash_array = [6, 4, 0.5, 4]
+        elif self.line_stroke in ["solid", "-"]:
+            self.line_dash_array = [1, 0]
+        else:
+            # default to solid line
+            self.line_dash_array = [1, 0]
+
+        # common variables for vector and geojson-based choropleths
+        options.update(dict(
+            colorStops=self.color_stops,
+            colorProperty=self.color_property,
+            colorType=self.color_function_type,
+            defaultColor=self.color_default,
+            lineColor=self.line_color,
+            lineDashArray=self.line_dash_array,
+            lineStroke=self.line_stroke,
+            lineWidth=self.line_width,
+        ))
+
+        # vector-based choropleth map variables
+        if self.vector_source:
+            options.update(dict(
+                vectorUrl=self.vector_url,
+                vectorLayer=self.vector_layer_name,
+                vectorColorStops=self.generate_vector_color_map(),
+                vectorJoinColorProperty=self.vector_join_property,
+                joinData=json.dumps(self.data, ensure_ascii=False),
+                dataJoinProperty=self.data_join_property,
+            ))
+        
+        # geojson-based choropleth map variables
+        else:
+            options.update(dict(
+                geojson_data=json.dumps(self.data, ensure_ascii=False),
+            ))
+
+
 class ImageViz(MapViz):
     """Create a image viz"""
 
@@ -380,7 +499,7 @@ class ImageViz(MapViz):
         :param coordinates: property to determine image coordinates (UL, UR, LR, LL).
             EX. [[-80.425, 46.437], [-71.516, 46.437], [-71.516, 37.936], [-80.425, 37.936]]
         :param image: url, local path or a numpy ndarray
-
+        
         """
         super(ImageViz, self).__init__(None, *args, **kwargs)
 

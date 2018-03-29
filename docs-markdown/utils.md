@@ -134,3 +134,50 @@ df = pd.read_csv(data_url)
 color_breaks = [0,10,100,1000,10000]
 color_stops = create_color_stops(color_breaks, colors='YlOrRd')
 ```
+
+## rgb_tuple_from_str
+Convert color represented as a string in format 'rgb(RRR,GGG,BBB)', 'rgba(RRR,GGG,BBB,alpha)', '#RRGGBB' or limited English color name (eg 'red') to tuple of integers from 0 to 255, (RRR, GGG, BBB).
+
+### Params
+**rgb_tuple_from_str**(_rgb_string_)
+
+Parameter | Description
+--|--
+rgb_string | color represented as string in form 'rgb(RRR,GGG,BBB)', 'rgba(RRR,GGG,BBB,alpha)', '#RRGGBB', or limited HTML color names (eg 'red')
+
+### Usage
+```python
+from mapboxgl.utils import rgb_tuple_from_str
+
+# convert color string to tuple of integers
+rgb_tuple_from_str('rgb(255,143,17')
+```
+
+## color_map
+Convert color represented as a string in format 'rgb(RRR,GGG,BBB)' to tuple of integers from 0 to 255, (RRR, GGG, BBB).
+
+### Params
+**color_map**(_lookup, color_stops, default_color='rgb(122,122,122)'_)
+
+Parameter | Description
+--|--
+lookup | value is numeric for interpolated colors or string for categorical color stops
+color_stops | color ramp stops generated from `create_color_stops`, or custom list of numeric or categorical stops with paired colors
+default_color | representation of color as hex, RGB, or RGBA strings
+
+### Usage
+```python
+from mapboxgl.utils import create_color_stops, color_map
+
+# interpolate color for numeric color_stops
+color_stops = create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd')
+color = color_map(73, color_stops)
+
+# categorical look up
+match_color_stops = [
+    ['Massachusetts', 'rgb(46,204,113)'],
+    ['Utah', 'rgb(231,76,60)'],
+    ['California', 'rgb(142,68,173)'],
+]
+color = color_map('California', match_color_stops, default_color='grey)')
+```
