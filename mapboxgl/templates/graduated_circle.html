@@ -1,125 +1,106 @@
-{% extends "main.html" %}
+{% extends "base.html" %}
 
-{% block javascript %}
-mapboxgl.accessToken = '{{ accessToken }}';
+{% block legend %}
 
-var map = new mapboxgl.Map({
-    container: 'map',
-    style: {{ style }},
-    center: {{ center }},
-    zoom: {{ zoom }},
-    transformRequest: (url, resourceType)=> {
-        if ( url.slice(0,22) == 'https://api.mapbox.com' ) {
-            //Add Python Plugin identifier for Mapbox API traffic
-            return {
-               url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
-             }
-         }
-         else {
-             //Do not transform URL for non Mapbox GET requests
-             return {url: url}
-         }
-    }
-});
-
-map.addControl(new mapboxgl.NavigationControl());
-
-{% if colorStops and colorProperty and radiusProperty %}
-    calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+    {% if colorStops and colorProperty and radiusProperty %}
+        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
     {% else %}
-    document.getElementById('legend').style.visibility='hidden'
-{% endif %}
+        document.getElementById('legend').style.visibility='hidden'
+    {% endif %}
 
-map.on('style.load', function() {
-    
+{% endblock legend %}
 
-    map.addSource("data", {
-        "type": "geojson",
-        "data": {{ geojson_data }}, //data from dataframe output to geojson
-        "buffer": 0,
-        "maxzoom": 14
-    });
+{% block map %}
 
-    map.addLayer({
-        "id": "label",
-        "source": "data",
-        "type": "symbol",
-        "maxzoom": {{ maxzoom }},
-        "minzoom": {{ minzoom }},
-        "layout": {
-            {% if labelProperty %}
-            "text-field": "{{ labelProperty }}",
-            {% endif %}
-            "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
-            "text-offset": [0,-1]
-        },
-        "paint": {
-            "text-halo-color": "{{ labelHaloColor }}",
-            "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
-            "text-color": "{{ labelColor }}"
-        }
-    }, "{{belowLayer}}" )
+    map.on('style.load', function() {
+        
+        map.addSource("data", {
+            "type": "geojson",
+            "data": {{ geojson_data }}, //data from dataframe output to geojson
+            "buffer": 0,
+            "maxzoom": 14
+        });
 
-    map.addLayer({
-        "id": "circle",
-        "source": "data",
-        "type": "circle",
-        "maxzoom": {{ maxzoom }},
-        "minzoom": {{ minzoom }},
-        "paint": {
-            {% if colorProperty %}
-                "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
-                {% else %}
-                "circle-color": "{{ defaultColor }}",
-            {% endif %}
-            {% if radiusProperty %}
-                "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
-                {% else %}
-                "circle-radius": {{ defaultRadius }},
-            {% endif %}
-            "circle-stroke-color": "{{ strokeColor }}",
-            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
-            "circle-opacity" : {{ opacity }},
-            "circle-stroke-opacity" : {{ opacity }}
-        }
-    }, "label");
-    
-    // Create a popup
-    var popup = new mapboxgl.Popup({
-        closeButton: false,
-        closeOnClick: false
-    });
-    
-    // Show the popup on mouseover
-    map.on('mousemove', 'circle', function(e) {
-        map.getCanvas().style.cursor = 'pointer';
-        let f = e.features[0];
-        let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
-            ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
+        map.addLayer({
+            "id": "label",
+            "source": "data",
+            "type": "symbol",
+            "maxzoom": {{ maxzoom }},
+            "minzoom": {{ minzoom }},
+            "layout": {
+                {% if labelProperty %}
+                "text-field": "{{ labelProperty }}",
+                {% endif %}
+                "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
+                "text-offset": [0,-1]
+            },
+            "paint": {
+                "text-halo-color": "{{ labelHaloColor }}",
+                "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+                "text-color": "{{ labelColor }}"
+            }
+        }, "{{belowLayer}}" )
 
-        for (key in f.properties) {
-            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
-        }
+        map.addLayer({
+            "id": "circle",
+            "source": "data",
+            "type": "circle",
+            "maxzoom": {{ maxzoom }},
+            "minzoom": {{ minzoom }},
+            "paint": {
+                {% if colorProperty %}
+                    "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+                    {% else %}
+                    "circle-color": "{{ defaultColor }}",
+                {% endif %}
+                {% if radiusProperty %}
+                    "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
+                    {% else %}
+                    "circle-radius": {{ defaultRadius }},
+                {% endif %}
+                "circle-stroke-color": "{{ strokeColor }}",
+                "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
+                "circle-opacity" : {{ opacity }},
+                "circle-stroke-opacity" : {{ opacity }}
+            }
+        }, "label");
+        
+        // Create a popup
+        var popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+        
+        // Show the popup on mouseover
+        map.on('mousemove', 'circle', function(e) {
+            map.getCanvas().style.cursor = 'pointer';
+            let f = e.features[0];
+            let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+                ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
 
-        popup_html += '</div>'
+            for (key in f.properties) {
+                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+            }
 
-        popup.setLngLat(e.features[0].geometry.coordinates)
-            .setHTML(popup_html)
-            .addTo(map);
-    });
+            popup_html += '</div>'
 
-    map.on('mouseleave', 'circle', function() {
-        map.getCanvas().style.cursor = '';
-        popup.remove();
-    });
-    
-    // Fly to on click
-    map.on('click', 'circle', function(e) {
-        map.easeTo({
-            center: e.features[0].geometry.coordinates,
-            zoom: map.getZoom() + 1
+            popup.setLngLat(e.features[0].geometry.coordinates)
+                .setHTML(popup_html)
+                .addTo(map);
+        });
+
+        map.on('mouseleave', 'circle', function() {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+        
+        // Fly to on click
+        map.on('click', 'circle', function(e) {
+            map.easeTo({
+                center: e.features[0].geometry.coordinates,
+                zoom: map.getZoom() + 1
+            });
         });
     });
-});
-
-{% endblock %}
+    
+{% endblock map %}

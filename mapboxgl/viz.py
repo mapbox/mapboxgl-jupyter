@@ -49,7 +49,7 @@ class MapViz(object):
                              'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
                              'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
         self.access_token = access_token
-        self.template = 'base'
+        self.template = 'map'
         self.data = data
         self.div_id = div_id
         self.width = width
