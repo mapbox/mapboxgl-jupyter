@@ -14,9 +14,11 @@ Create [Mapbox GL JS](https://www.mapbox.com/mapbox-gl-js/api/) data visualizati
 
 Try out the interactive map example notebooks from the /examples directory in this repository
 
-1. [Categorical points](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/point-viz-categorical-example.ipynb)
-2. [All visualization types](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/point-viz-types-example.ipynb)
-3. [USGS Earthquakes](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/usgs-earthquakes.ipynb)
+1. [Categorical points](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/point-viz-categorical-example.ipynb)
+2. [All visualization types](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/point-viz-types-example.ipynb)
+3. [Choropleth Visualization types](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/choropleth-viz-example.ipynb)
+4. [Image Visualization types](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/image-vis-type-example.ipynb)
+5. [Raster Tile Visualization types](https://nbviewer.jupyter.org/github/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/rastertile-viz-type-example.ipynb)
 
 ## Installation
 
