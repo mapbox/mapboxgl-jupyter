@@ -1,4 +1,4 @@
-{% extends "main.html" %}
+{% extends "base.html" %}
 
 <!-- update legend item key style -->
 {% block extra_css %}
@@ -7,136 +7,117 @@
     </style>
 {% endblock extra_css %}
 
-{% block javascript %}
-var legend = document.getElementById('legend');
+{% block legend %}
 
-mapboxgl.accessToken = '{{ accessToken }}';
+    var legend = document.getElementById('legend');
+    calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
 
-var map = new mapboxgl.Map({
-    container: 'map',
-    style: {{ style }}, 
-    center: {{ center }},
-    zoom: {{ zoom }},
-    transformRequest: (url, resourceType)=> {
-        if ( url.slice(0,22) == 'https://api.mapbox.com' ) {
-            //Add Python Plugin identifier for Mapbox API traffic
-            return {
-               url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
-            }
-        }
-        else {
-            //Do not transform URL for non Mapbox GET requests
-            return {url: url}
-        }
-    }
-});
+{% endblock legend %}
 
-map.addControl(new mapboxgl.NavigationControl());
+{% block map %}
 
-calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
-
-map.on('style.load', function() {
-    
-    {% block choropleth %}
-
-    // Add geojson data source
-    map.addSource("data", {
-        "type": "geojson",
-        "data": {{ geojson_data }},
-        "buffer": 1,
-        "maxzoom": 14
-    });
-
-    // Add data layer
-    map.addLayer({
-        "id": "choropleth-fill",
-        "source": "data",
-        "type": "fill",
-        "paint": {
-            "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
-            "fill-opacity": {{ opacity }}
-        }
-    }, "{{ belowLayer }}" );
-
-    // Add border layer
-    map.addLayer({
-        "id": "choropleth-line",
-        "source": "data",
-        "type": "line",
-        "layout": {
-            "line-join": "round",
-            "line-cap": "round"
-        },
-        "paint": {
-            {% if lineDashArray %}
-            "line-dasharray": {{ lineDashArray }},
-            {% endif %}
-            "line-color": "{{ lineColor }}",
-            "line-width": {{ lineWidth }},
-            "line-opacity": {{ opacity }}
-        }
-    }, "{{ belowLayer }}" );
-
-    // Add label layer
-    map.addLayer({
-        "id": "choropleth-label",
-        "source": "data",
-        "type": "symbol",
-        "layout": {
-            {% if labelProperty %}
-            "text-field": "{{ labelProperty }}",
-            {% endif %}
-            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
-            "text-offset": [0,-1]
-        },
-        "paint": {
-            "text-halo-color": "white",
-            "text-halo-width": 1
-        }
-    }, "{{belowLayer}}" );
-
-    {% endblock choropleth %}
-
-    // Create a popup
-    var popup = new mapboxgl.Popup({
-        closeButton: false,
-        closeOnClick: false
-    });
-    
-    {% block choropleth_popup %}
-
-    // Show the popup on mouseover
-    map.on('mousemove', 'choropleth-fill', function(e) {
-        map.getCanvas().style.cursor = 'pointer';
+    map.on('style.load', function() {
         
-        let f = e.features[0];
-        let popup_html = '<div>';
+        {% block choropleth %}
 
-        for (key in f.properties) {
-            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
-        }
-
-        popup_html += '</div>'
-        popup.setLngLat(e.lngLat)
-            .setHTML(popup_html)
-            .addTo(map);
-    });
-
-    {% endblock choropleth_popup %}
-
-    map.on('mouseleave', 'choropleth-fill', function() {
-        map.getCanvas().style.cursor = '';
-        popup.remove();
-    });
-    
-    // Fly to on click
-    map.on('click', 'choropleth-fill', function(e) {
-        map.flyTo({
-            center: e.lngLat,
-            zoom: map.getZoom() + 1
+        // Add geojson data source
+        map.addSource("data", {
+            "type": "geojson",
+            "data": {{ geojson_data }},
+            "buffer": 1,
+            "maxzoom": 14
         });
+
+        // Add data layer
+        map.addLayer({
+            "id": "choropleth-fill",
+            "source": "data",
+            "type": "fill",
+            "paint": {
+                "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+                "fill-opacity": {{ opacity }}
+            }
+        }, "{{ belowLayer }}" );
+
+        // Add border layer
+        map.addLayer({
+            "id": "choropleth-line",
+            "source": "data",
+            "type": "line",
+            "layout": {
+                "line-join": "round",
+                "line-cap": "round"
+            },
+            "paint": {
+                {% if lineDashArray %}
+                "line-dasharray": {{ lineDashArray }},
+                {% endif %}
+                "line-color": "{{ lineColor }}",
+                "line-width": {{ lineWidth }},
+                "line-opacity": {{ opacity }}
+            }
+        }, "{{ belowLayer }}" );
+
+        // Add label layer
+        map.addLayer({
+            "id": "choropleth-label",
+            "source": "data",
+            "type": "symbol",
+            "layout": {
+                {% if labelProperty %}
+                "text-field": "{{ labelProperty }}",
+                {% endif %}
+                "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
+                "text-offset": [0,-1]
+            },
+            "paint": {
+                "text-halo-color": "white",
+                "text-halo-width": 1
+            }
+        }, "{{belowLayer}}" );
+
+        {% endblock choropleth %}
+
+        // Create a popup
+        var popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+        
+        {% block choropleth_popup %}
+
+        // Show the popup on mouseover
+        map.on('mousemove', 'choropleth-fill', function(e) {
+            map.getCanvas().style.cursor = 'pointer';
+            
+            let f = e.features[0];
+            let popup_html = '<div>';
+
+            for (key in f.properties) {
+                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+            }
+
+            popup_html += '</div>'
+            popup.setLngLat(e.lngLat)
+                .setHTML(popup_html)
+                .addTo(map);
+        });
+
+        {% endblock choropleth_popup %}
+
+        map.on('mouseleave', 'choropleth-fill', function() {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+        
+        // Fly to on click
+        map.on('click', 'choropleth-fill', function(e) {
+            map.flyTo({
+                center: e.lngLat,
+                zoom: map.getZoom() + 1
+            });
+        });
+
     });
 
-});
-
-{% endblock %}
+{% endblock map %}
