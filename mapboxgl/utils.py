@@ -179,12 +179,17 @@ def color_map(lookup, color_stops, default_color='rgb(122,122,122)'):
     assumes colors in color_stops provided as strings of form 'rgb(RRR,GGG,BBB)'
     or in hex: '#RRGGBB'
     """
-
+    # if no color_stops, use default color
     if len(color_stops) == 0:
         return default_color
     
     # dictionary to lookup color from match-type color_stops
     match_map = dict((x, y) for (x, y) in color_stops)
+
+    # if lookup matches stop exactly, return corresponding color (first priority)
+    # (includes non-numeric color_stop "keys" for finding color by match)
+    if lookup in match_map.keys():
+        return match_map.get(lookup)
 
     # if lookup value numeric, map color by interpolating from color scale
     if isinstance(lookup, (int, float, complex)):
@@ -234,11 +239,8 @@ def color_map(lookup, color_stops, default_color='rgb(122,122,122)'):
             # return string representing rgb color value
             return scale(distance).to_string().replace(', ', ',')
 
-    # if non-numeric color_stop "key", find color by match
-    else:
-
-        # return string representing rgb color value
-        return match_map.get(lookup, default_color)
+    # default color value catch-all
+    return default_color
 
 
 def img_encode(arr, **kwargs):

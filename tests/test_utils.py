@@ -138,7 +138,7 @@ def test_color_map_default_color():
 def test_color_map_numeric_match():
     """Get color for numeric lookup value in categorical color stops if number exists in stops"""
     match_stops = [[0.0, 'rgb(255,0,255)'],['CA', 'rgb(255,0,0)'], ['NY', 'rgb(255,255,0)'], ['MA', 'rgb(0,0,255)']]
-    assert color_map(0.0, match_stops, 'green') == 'rgb(255,0,0)'
+    assert color_map(0.0, match_stops, 'green') == 'rgb(255,0,255)'
 
 
 def test_color_map_interp():
