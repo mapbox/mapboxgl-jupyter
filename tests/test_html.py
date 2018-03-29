@@ -8,6 +8,7 @@ import pytest
 
 from mapboxgl.viz import *
 from mapboxgl.errors import TokenError
+from mapboxgl.utils import create_color_stops
 from matplotlib.pyplot import imread
 
 
@@ -162,6 +163,32 @@ def test_display_ChoroplethViz(display, polygon_data):
                         color_property="density",
                         color_stops=[[0.0, "red"], [50.0, "gold"], [1000.0, "blue"]],
                         access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_vector_ChoroplethViz(display):
+    """Assert that show calls the mocked display function when using data-join technique
+    for ChoroplethViz.
+    """
+    data = [{"id": "06", "name": "California", "density": 241.7}, 
+            {"id": "11", "name": "District of Columbia", "density": 10065}, 
+            {"id": "25", "name": "Massachusetts", "density": 840.2}, 
+            {"id": "30", "name": "Montana", "density": 6.858}, 
+            {"id": "36", "name": "New York", "density": 412.3}, 
+            {"id": "49", "name": "Utah", "density": 34.3}, 
+            {"id": "72", "name": "Puerto Rico", "density": 1082}]
+
+    viz = ChoroplethViz(data, 
+                        vector_url='mapbox://mapbox.us_census_states_2015',
+                        vector_layer_name='states',
+                        vector_join_property='STATEFP',
+                        data_join_property='id',
+                        color_property='density',
+                        color_stops=create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd'),
+                        access_token=TOKEN
+                       )
     viz.show()
     display.assert_called_once()
 

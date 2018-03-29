@@ -98,4 +98,58 @@ def test_img_encode():
 
 
 def test_rgb_tuple_from_str():
+    """Extract RGB values as tuple from string RGB color representation"""
+    assert rgb_tuple_from_str('rgb(122,43,17)') == (122, 43, 17)
+
+
+def test_rgb_tuple_from_str_rgba():
+    """Extract RGBA values as tuple from string RGBA color representation"""
     assert rgb_tuple_from_str('rgba(122,43,17,0.5)') == (122, 43, 17, 0.5)
+
+
+def test_rgb_tuple_from_str_hex():
+    """Extract RGB(A) values as tuple from string HEX color representation"""
+    assert rgb_tuple_from_str('#bada55') == (186, 218, 85)
+
+
+def test_rgb_tuple_from_str_english():
+    """Extract RGB(A) values as tuple from limited English color name strings"""
+    assert rgb_tuple_from_str('red') == (255, 0, 0)
+
+
+def test_color_map():
+    """Compute color for lookup value in gradient based on color_stops argument using categorical match"""
+    match_stops = [[0.0, 'rgb(255,0,255)'],['CA', 'rgb(255,0,0)'], ['NY', 'rgb(255,255,0)'], ['MA', 'rgb(0,0,255)']]
+    assert color_map('CA', match_stops, default_color='gray') == 'rgb(255,0,0)'
+
+
+def test_color_map_numeric_default_color():
+    """Default color when look up value does not match any stop in categorical color stops"""
+    match_stops = [[0.0, 'rgb(255,0,255)'],['CA', 'rgb(255,0,0)'], ['NY', 'rgb(255,255,0)'], ['MA', 'rgb(0,0,255)']]
+    assert color_map(17, match_stops, 'blue') == 'blue'
+
+
+def test_color_map_default_color():
+    """Default color when look up value does not match any stop in categorical color stops"""
+    match_stops = [[0.0, 'rgb(255,0,255)'],['CA', 'rgb(255,0,0)'], ['NY', 'rgb(255,255,0)'], ['MA', 'rgb(0,0,255)']]
+    assert color_map('MI', match_stops, 'gray') == 'gray')
+
+
+def test_color_map_numeric_match():
+    """Get color for numeric lookup value in categorical color stops if number exists in stops"""
+    match_stops = [[0.0, 'rgb(255,0,255)'],['CA', 'rgb(255,0,0)'], ['NY', 'rgb(255,255,0)'], ['MA', 'rgb(0,0,255)']]
+    assert color_map(0.0, match_stops, 'green') == 'rgb(255,0,0)'
+
+
+def test_color_map_interp():
+    """Compute color for lookup value by interpolation of color stops"""
+    interp_stops = [[0.0, 'rgb(255,0,0)'], [50.0, 'rgb(255,255,0)'], [1000.0, 'rgb(0,0,255)']]
+    assert color_map(17, interp_stops, 'orange') == 'rgb(255,87,0)'
+
+
+def test_color_map_interp_exact():
+    """Compute color for lookup value exactly matching numeric stop in color stops"""
+    interp_stops = [[0.0, 'rgb(255,0,0)'], [50.0, 'rgb(255,255,0)'], [1000.0, 'rgb(0,0,255)']]
+    assert color_map(0.0, interp_stops, 'rgb(32,32,32)') == 'rgb(255,0,0)'
+
+
