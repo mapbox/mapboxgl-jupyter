@@ -2,6 +2,22 @@
 
 {% block choropleth %}
 
+    // extract JSON property used for data-driven styling to add to popup
+    {% if joinData %}
+
+        let joinData = {{ joinData }};
+        var popUpKeys = {};
+
+        // Create filter for layers from join data
+        let layerFilter = ['in', "{{ vectorJoinColorProperty }}"]
+        
+        joinData.forEach(function(row, index) {
+            popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
+            layerFilter.push(row["{{ dataJoinProperty }}"]);
+        });
+
+    {% endif %}
+
     // Add vector data source
     map.addSource("vector-data", {
         type: "vector",
@@ -15,9 +31,15 @@
         "source": "vector-data",
         "source-layer": "{{ vectorLayer }}",
         "paint": {
-            "fill-color": generatePropertyExpression("match", "{{ vectorJoinColorProperty }}", {{ vectorColorStops }}, "{{ defaultColor }}"), 
+            "fill-color": {
+                "type": "categorical",
+                "property": "{{ vectorJoinColorProperty }}", 
+                "stops": {{ vectorColorStops }}, 
+                "default": "{{ defaultColor }}"
+            }, 
             "fill-opacity": {{ opacity }}
-        }
+        },
+        filter: layerFilter
     }, "{{ belowLayer }}");
 
     // Add border layer
@@ -37,7 +59,8 @@
             "line-color": "{{ lineColor }}",
             "line-width": {{ lineWidth }},
             "line-opacity": {{ opacity }}
-        }
+        },
+        filter: layerFilter
     }, "{{ belowLayer }}" );
 
     // Add label layer
@@ -56,25 +79,13 @@
         "paint": {
             "text-halo-color": "white",
             "text-halo-width": 1
-        }
+        },
+        filter: layerFilter
     }, "{{belowLayer}}" );
 
 {% endblock choropleth %}
 
 {% block choropleth_popup %}
-
-    // extract JSON property used for data-driven styling to add to popup
-    {% if joinData %}
-
-        let joinData = {{ joinData }};
-
-        var popUpKeys = {};
-
-        joinData.forEach(function(row, index) {
-            popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
-        });
-
-    {% endif %}
 
     // Show the popup on mouseover
     map.on('mousemove', 'choropleth-fill', function(e) {
