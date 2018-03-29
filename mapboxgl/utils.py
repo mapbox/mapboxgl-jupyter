@@ -110,6 +110,13 @@ def create_weight_stops(breaks):
     return stops
 
 
+def create_numeric_stops(breaks, min_value, max_value):
+    """Convert data breaks into a general numeric ramp (height, radius, weight, etc.)
+    """
+    weight_breaks = scale_between(min_value, max_value, len(breaks))
+    return [list(x) for x in zip(breaks, weight_breaks)]
+
+
 def create_color_stops(breaks, colors='RdYlGn', color_ramps=color_ramps):
     """Convert a list of breaks into color stops using colors from colorBrewer
     or a custom list of color values in RGB, RGBA, HSL, CSS text, or HEX format.
@@ -258,3 +265,66 @@ def img_encode(arr, **kwargs):
     img_str = base64.b64encode(sio.getvalue()).decode()
 
     return 'data:image/{};base64,{}'.format(img_format, img_str)
+
+
+def height_map(lookup, height_stops, default_height=0.0):
+    """Return a height value (in meters) interpolated from given height_stops;
+    for use with vector-based visualizations using fill-extrusion layers
+    """
+    # if no height_stops, use default height
+    if len(height_stops) == 0:
+        return default_height
+    
+    # dictionary to lookup height from match-type height_stops
+    match_map = dict((x, y) for (x, y) in height_stops)
+
+    # if lookup matches stop exactly, return corresponding height (first priority)
+    # (includes non-numeric height_stop "keys" for finding height by match)
+    if lookup in match_map.keys():
+        return match_map.get(lookup)
+
+    # if lookup value numeric, map height by interpolating from height scale
+    if isinstance(lookup, (int, float, complex)):
+
+        # try ordering stops 
+        try:
+            stops, heights = zip(*sorted(height_stops))
+        
+        # if not all stops are numeric, attempt looking up as if categorical stops
+        except TypeError:
+            return match_map.get(lookup, default_height)
+
+        # for interpolation, all stops must be numeric
+        if not all(isinstance(x, (int, float, complex)) for x in stops):
+            return default_height
+
+        # check if lookup value in stops bounds
+        if float(lookup) <= stops[0]:
+            return heights[0]
+        
+        elif float(lookup) >= stops[-1]:
+            return heights[-1]
+        
+        # check if lookup value matches any stop value
+        elif float(lookup) in stops:
+            return heights[stops.index(lookup)]
+        
+        # interpolation required
+        else:
+
+            # identify bounding height stop values
+            lower = max([stops[0]] + [x for x in stops if x < lookup])
+            upper = min([stops[-1]] + [x for x in stops if x > lookup])
+            
+            # heights from bounding stops
+            lower_height = heights[stops.index(lower)]
+            upper_height = heights[stops.index(upper)]
+            
+            # compute linear "relative distance" from lower bound height to upper bound height
+            distance = (lookup - lower) / (upper - lower)
+
+            # return string representing rgb height value
+            return lower_height + distance * (upper_height - lower_height)
+
+    # default height value catch-all
+    return default_height

@@ -7,8 +7,8 @@ from pandas.util.testing import assert_frame_equal
 from matplotlib.pyplot import imread
 
 from mapboxgl.utils import (df_to_geojson, scale_between, create_radius_stops,
-                            create_weight_stops, create_color_stops, img_encode,
-                            rgb_tuple_from_str, color_map)
+                            create_weight_stops, create_numeric_stops, create_color_stops, 
+                            img_encode, rgb_tuple_from_str, color_map, height_map)
 
 
 @pytest.fixture()
@@ -153,3 +153,14 @@ def test_color_map_interp_exact():
     assert color_map(0.0, interp_stops, 'rgb(32,32,32)') == 'rgb(255,0,0)'
 
 
+def test_create_numeric_stops():
+    """Create numeric stops from custom breaks"""
+    domain = [7678.214347826088, 5793.63142857143, 1200]
+    stops = create_numeric_stops(domain, 1, 10)
+    assert stops == [[7678.214347826088, 1.0], [5793.63142857143, 4.0], [1200, 7.0]]
+
+
+def test_height_map():
+    """Interpolate height from numeric height stops"""
+    stops = [[0.0, 0], [50.0, 5000.0], [1000.0, 100000.0]]
+    assert height_map(117.0, stops, default_height=0.0) == 11700.0
