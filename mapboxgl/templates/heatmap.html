@@ -1,63 +1,45 @@
-{% extends "main.html" %}
+{% extends "base.html" %}
 
-{% block javascript %}
-mapboxgl.accessToken = '{{ accessToken }}';
+{% block legend %}
 
-var map = new mapboxgl.Map({
-    container: 'map',
-    style: {{ style }},
-    center: {{ center }},
-    zoom: {{ zoom }},
-    transformRequest: (url, resourceType)=> {
-        if ( url.slice(0,22) == 'https://api.mapbox.com' ) {
-            //Add Python Plugin identifier for Mapbox API traffic
-            return {
-               url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
-             }
-         }
-         else {
-             //Do not transform URL for non Mapbox GET requests
-             return {url: url}
-         }
-    }
-});
+    document.getElementById('legend').style.visibility = 'hidden';
 
-map.addControl(new mapboxgl.NavigationControl());
+{% endblock legend %}
 
-document.getElementById('legend').style.visibility = 'hidden';
+{% block map %}
 
-map.on('style.load', function() {
+    map.on('style.load', function() {
 
-    map.addSource("data", {
-        "type": "geojson",
-        "data": {{ geojson_data }}, //data from dataframe output to geojson
-        "buffer": 0,
-        "maxzoom": 14
+        map.addSource("data", {
+            "type": "geojson",
+            "data": {{ geojson_data }}, //data from dataframe output to geojson
+            "buffer": 0,
+            "maxzoom": 14
+        });
+
+        map.addLayer({
+            "id": "circle",
+            "source": "data",
+            "type": "heatmap",
+            "maxzoom": {{ maxzoom }},
+            "minzoom": {{ minzoom }},
+            "paint": {
+                {% if radiusStops %}
+                    "heatmap-radius": generatePropertyExpression('interpolate', 'zoom', {{ radiusStops }}),
+                {% endif %}
+                {% if weightProperty and weightStops %}
+                    "heatmap-weight": generateInterpolateExpression( "{{ weightProperty }}", {{ weightStops }} ),
+                {% endif %}
+                {% if intensityStops %}
+                    "heatmap-intensity": generateInterpolateExpression('zoom', {{ intensityStops }} ),
+                {% endif %}
+                {% if colorStops %}
+                    "heatmap-color" : generateInterpolateExpression('heatmap-density', {{ colorStops }} ),
+                {% endif %}
+                "heatmap-opacity" : {{ opacity }}
+            }
+        }, "{{belowLayer}}" );
+
     });
 
-    map.addLayer({
-        "id": "circle",
-        "source": "data",
-        "type": "heatmap",
-        "maxzoom": {{ maxzoom }},
-        "minzoom": {{ minzoom }},
-        "paint": {
-            {% if radiusStops %}
-                "heatmap-radius": generatePropertyExpression('interpolate', 'zoom', {{ radiusStops }}),
-            {% endif %}
-            {% if weightProperty and weightStops %}
-                "heatmap-weight": generateInterpolateExpression( "{{ weightProperty }}", {{ weightStops }} ),
-            {% endif %}
-            {% if intensityStops %}
-                "heatmap-intensity": generateInterpolateExpression('zoom', {{ intensityStops }} ),
-            {% endif %}
-            {% if colorStops %}
-                "heatmap-color" : generateInterpolateExpression('heatmap-density', {{ colorStops }} ),
-            {% endif %}
-            "heatmap-opacity" : {{ opacity }}
-        }
-    }, "{{belowLayer}}" );
-
-});
-
-{% endblock %}
+{% endblock map %}
