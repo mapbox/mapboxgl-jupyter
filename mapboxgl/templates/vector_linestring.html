@@ -38,7 +38,12 @@
             {% if lineDashArray %}
                 "line-dasharray": {{ lineDashArray }},
             {% endif %}
-            "line-color": "{{ lineColor }}",
+            "line-color": {
+                "type": "categorical",
+                "property": "{{ vectorJoinColorProperty }}", 
+                "stops": {{ vectorColorStops }}, 
+                "default": "{{ defaultColor }}"
+            }, 
             "line-width": {{ lineWidth }},
             "line-opacity": {{ opacity }}
         },

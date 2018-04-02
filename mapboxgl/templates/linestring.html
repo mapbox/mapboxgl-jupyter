@@ -41,7 +41,7 @@
                 {% if lineDashArray %}
                 "line-dasharray": {{ lineDashArray }},
                 {% endif %}
-                "line-color": "{{ lineColor }}",
+                "line-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
                 "line-width": {{ lineWidth }},
                 "line-opacity": {{ opacity }}
             }
