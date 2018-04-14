@@ -10,7 +10,18 @@
 {% block legend %}
 
     var legend = document.getElementById('legend');
-    calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+    
+    {% if extrudeChoropleth %}
+        {% if colorStops and colorProperty and heightProperty %}
+            {% if colorProperty != heightProperty and extrudeChoropleth %}
+                calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ heightProperty }}");
+            {% else %}
+                calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+            {% endif %}
+        {% endif %}
+    {% else %}
+        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+    {% endif %}
 
 {% endblock legend %}
 
