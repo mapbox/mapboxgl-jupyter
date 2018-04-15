@@ -13,6 +13,67 @@ from mapboxgl.utils import img_encode
 
 GL_JS_VERSION = 'v0.44.1'
 
+def height_map(lookup, height_stops, default_height=0.0):
+    """Return a height value (in meters) interpolated from given height_stops;
+    for use with vector-based visualizations using fill-extrusion layers
+    """
+    # if no height_stops, use default height
+    if len(height_stops) == 0:
+        return default_height
+    
+    # dictionary to lookup height from match-type height_stops
+    match_map = dict((x, y) for (x, y) in height_stops)
+
+    # if lookup matches stop exactly, return corresponding height (first priority)
+    # (includes non-numeric height_stop "keys" for finding height by match)
+    if lookup in match_map.keys():
+        return match_map.get(lookup)
+
+    # if lookup value numeric, map height by interpolating from height scale
+    if isinstance(lookup, (int, float, complex)):
+
+        # try ordering stops 
+        try:
+            stops, heights = zip(*sorted(height_stops))
+        
+        # if not all stops are numeric, attempt looking up as if categorical stops
+        except TypeError:
+            return match_map.get(lookup, default_height)
+
+        # for interpolation, all stops must be numeric
+        if not all(isinstance(x, (int, float, complex)) for x in stops):
+            return default_height
+
+        # check if lookup value in stops bounds
+        if float(lookup) <= stops[0]:
+            return heights[0]
+        
+        elif float(lookup) >= stops[-1]:
+            return heights[-1]
+        
+        # check if lookup value matches any stop value
+        elif float(lookup) in stops:
+            return heights[stops.index(lookup)]
+        
+        # interpolation required
+        else:
+
+            # identify bounding height stop values
+            lower = max([stops[0]] + [x for x in stops if x < lookup])
+            upper = min([stops[-1]] + [x for x in stops if x > lookup])
+            
+            # heights from bounding stops
+            lower_height = heights[stops.index(lower)]
+            upper_height = heights[stops.index(upper)]
+            
+            # compute linear "relative distance" from lower bound height to upper bound height
+            distance = (lookup - lower) / (upper - lower)
+
+            # return string representing rgb height value
+            return lower_height + distance * (upper_height - lower_height)
+
+    # default height value catch-all
+    return default_height
 
 class MapViz(object):
 
@@ -555,7 +616,6 @@ class RasterTilesViz(MapViz):
             tiles_bounds=self.tiles_bounds if self.tiles_bounds else 'undefined'))
 
 
-
 class LinestringViz(MapViz):
     """Create a linestring viz"""
 
@@ -564,32 +624,36 @@ class LinestringViz(MapViz):
                  vector_url=None,
                  vector_layer_name=None,
                  vector_join_property=None,
-                 data_join_property=None, # vector only
+                 data_join_property=None,
                  label_property=None,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
                  color_function_type='interpolate',
-                 line_color='white',
                  line_stroke='solid',
-                 line_width=1,
+                 line_width_property=None,
+                 line_width_stops=None,
+                 line_width_default=1,
+                 line_width_function_type='interpolate',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
 
         :param data: can be either GeoJSON (containing polygon features) or JSON for data-join technique with vector polygons
-        :param vector_url: optional property to define vector polygon source
+        :param vector_url: optional property to define vector linestring source
         :param vector_layer_name: property to define target layer of vector source
-        :param vector_join_property: property to aid in determining color for styling vector polygons
+        :param vector_join_property: property to aid in determining color for styling vector lines
         :param data_join_property: property to join json data to vector features
         :param label_property: property to use for marker label
-        :param color_property: property to determine circle color
-        :param color_stops: property to determine circle color
-        :param color_default: property to determine default circle color if match lookup fails
+        :param color_property: property to determine line color
+        :param color_stops: property to determine line color
+        :param color_default: property to determine default line color if match lookup fails
         :param color_function_type: property to determine `type` used by Mapbox to assign color
-        :param line_color: property to determine choropleth line color
-        :param line_stroke: property to determine choropleth line stroke (solid, dashed, dotted, dash dot)
-        :param line_width: property to determine choropleth line width
+        :param line_stroke: property to determine line stroke (solid, dashed, dotted, dash dot)
+        :param line_width_property: property to determine line width
+        :param line_width_stops: property to determine line width
+        :param line_width_default: property to determine default line width if match lookup fails
+        :param line_width_function_type: property to determine `type` used by Mapbox to assign line width
 
         """
         super(LinestringViz, self).__init__(data, *args, **kwargs)
@@ -611,9 +675,11 @@ class LinestringViz(MapViz):
         self.color_stops = color_stops
         self.color_default = color_default
         self.color_function_type = color_function_type
-        self.line_color = line_color
         self.line_stroke = line_stroke
-        self.line_width = line_width
+        self.line_width_property = line_width_property
+        self.line_width_stops = line_width_stops
+        self.line_width_default = line_width_default
+        self.line_width_function_type = line_width_function_type
 
     def generate_vector_color_map(self):
         """Generate color stops array for use with match expression in mapbox template"""
@@ -628,8 +694,25 @@ class LinestringViz(MapViz):
 
         return vector_stops
 
+    def generate_vector_width_map(self):
+        """Generate width stops array for use with match expression in mapbox template"""
+        vector_stops = []
+        
+        if self.line_width_function_type == 'match':
+            match_width = self.line_width_stops
+
+        for row in self.data:
+
+            # map width to JSON feature using width_property
+            width = height_map(row[self.line_width_property], self.line_width_stops, self.line_width_default)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], width])
+
+        return vector_stops
+
     def add_unique_template_variables(self, options):
-        """Update map template variables specific to heatmap visual"""
+        """Update map template variables specific to linestring visual"""
 
         # set line stroke dash interval based on line_stroke property
         if self.line_stroke in ["dashed", "--"]:
@@ -644,30 +727,40 @@ class LinestringViz(MapViz):
             # default to solid line
             self.line_dash_array = [1, 0]
 
-        # common variables for vector and geojson-based choropleths
+        # common variables for vector and geojson-based linestring maps
         options.update(dict(
             colorStops=self.color_stops,
             colorProperty=self.color_property,
             colorType=self.color_function_type,
             defaultColor=self.color_default,
-            lineColor=self.line_color,
+            lineColor=self.color_default,
             lineDashArray=self.line_dash_array,
             lineStroke=self.line_stroke,
-            lineWidth=self.line_width,
+            widthStops=self.line_width_stops,
+            widthProperty=self.line_width_property,
+            widthType=self.line_width_function_type,
+            defaultWidth=self.line_width_default,
         ))
 
-        # vector-based choropleth map variables
+        # vector-based linestring map variables
         if self.vector_source:
             options.update(dict(
                 vectorUrl=self.vector_url,
                 vectorLayer=self.vector_layer_name,
-                vectorColorStops=self.generate_vector_color_map(),
-                vectorJoinColorProperty=self.vector_join_property,
+                vectorJoinDataProperty=self.vector_join_property,
+                vectorColorStops=[[0,self.color_default]],
+                vectorWidthStops=[[0,self.line_width_default]],
                 joinData=json.dumps(self.data, ensure_ascii=False),
                 dataJoinProperty=self.data_join_property,
             ))
+
+            if self.color_property:
+                options.update(dict(vectorColorStops=self.generate_vector_color_map()))
         
-        # geojson-based choropleth map variables
+            if self.line_width_property:
+                options.update(dict(vectorWidthStops=self.generate_vector_width_map()))
+
+        # geojson-based linestring map variables
         else:
             options.update(dict(
                 geojson_data=json.dumps(self.data, ensure_ascii=False),
