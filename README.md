@@ -39,7 +39,7 @@ from mapboxgl.utils import *
 from mapboxgl.viz import *
 
 # Load data from sample csv
-data_url = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/points.csv'
+data_url = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/data/points.csv'
 df = pd.read_csv(data_url)
 
 # Must be a public token, starting with `pk`
