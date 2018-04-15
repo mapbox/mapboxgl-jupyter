@@ -6,13 +6,24 @@
     {% if joinData %}
 
         let joinData = {{ joinData }};
-        var popUpKeys = {};
+        var popUpKeys = {},
+            lineWidthPopUpKeys = {};
 
         // Create filter for layers from join data
-        let layerFilter = ['in', "{{ vectorJoinColorProperty }}"]
+        let layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
         
         joinData.forEach(function(row, index) {
-            popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
+
+            {% if colorProperty %}
+                popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
+            {% endif %}
+
+            {% if widthProperty %}
+                {% if colorProperty != widthProperty %}
+                    lineWidthPopUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ widthProperty }}"];
+                {% endif %}
+            {% endif %}
+
             layerFilter.push(row["{{ dataJoinProperty }}"]);
         });
 
@@ -40,11 +51,17 @@
             {% endif %}
             "line-color": {
                 "type": "categorical",
-                "property": "{{ vectorJoinColorProperty }}", 
+                "property": "{{ vectorJoinDataProperty }}", 
                 "stops": {{ vectorColorStops }}, 
                 "default": "{{ defaultColor }}"
             }, 
-            "line-width": {{ lineWidth }},
+            "line-width": {
+                "type": "categorical",
+                "property": "{{ vectorJoinDataProperty }}", 
+                "stops": {{ vectorWidthStops }}, 
+                "default": {{ defaultWidth }}
+            },
+
             "line-opacity": {{ opacity }}
         },
         filter: layerFilter
@@ -86,7 +103,15 @@
         }
 
         // Add property from joined data to vector's feature popup
-        popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinColorProperty }}"]] + ' </li>'
+        {% if colorProperty %}
+            popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+        {% endif %}
+
+        {% if widthProperty %}
+            {% if colorProperty != widthProperty %}
+                popup_html += '<li><b> ' + "{{ widthProperty }}".toUpperCase() + '</b>: ' + lineWidthPopUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+            {% endif %}
+        {% endif %}
 
         popup_html += '</div>'
         popup.setLngLat(e.lngLat)
