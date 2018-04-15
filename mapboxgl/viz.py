@@ -8,72 +8,11 @@ import numpy
 from mapboxgl.errors import TokenError
 from mapboxgl.utils import color_map
 from mapboxgl import templates
-from mapboxgl.utils import img_encode
+from mapboxgl.utils import img_encode, numeric_map
 
 
 GL_JS_VERSION = 'v0.44.1'
 
-def height_map(lookup, height_stops, default_height=0.0):
-    """Return a height value (in meters) interpolated from given height_stops;
-    for use with vector-based visualizations using fill-extrusion layers
-    """
-    # if no height_stops, use default height
-    if len(height_stops) == 0:
-        return default_height
-    
-    # dictionary to lookup height from match-type height_stops
-    match_map = dict((x, y) for (x, y) in height_stops)
-
-    # if lookup matches stop exactly, return corresponding height (first priority)
-    # (includes non-numeric height_stop "keys" for finding height by match)
-    if lookup in match_map.keys():
-        return match_map.get(lookup)
-
-    # if lookup value numeric, map height by interpolating from height scale
-    if isinstance(lookup, (int, float, complex)):
-
-        # try ordering stops 
-        try:
-            stops, heights = zip(*sorted(height_stops))
-        
-        # if not all stops are numeric, attempt looking up as if categorical stops
-        except TypeError:
-            return match_map.get(lookup, default_height)
-
-        # for interpolation, all stops must be numeric
-        if not all(isinstance(x, (int, float, complex)) for x in stops):
-            return default_height
-
-        # check if lookup value in stops bounds
-        if float(lookup) <= stops[0]:
-            return heights[0]
-        
-        elif float(lookup) >= stops[-1]:
-            return heights[-1]
-        
-        # check if lookup value matches any stop value
-        elif float(lookup) in stops:
-            return heights[stops.index(lookup)]
-        
-        # interpolation required
-        else:
-
-            # identify bounding height stop values
-            lower = max([stops[0]] + [x for x in stops if x < lookup])
-            upper = min([stops[-1]] + [x for x in stops if x > lookup])
-            
-            # heights from bounding stops
-            lower_height = heights[stops.index(lower)]
-            upper_height = heights[stops.index(upper)]
-            
-            # compute linear "relative distance" from lower bound height to upper bound height
-            distance = (lookup - lower) / (upper - lower)
-
-            # return string representing rgb height value
-            return lower_height + distance * (upper_height - lower_height)
-
-    # default height value catch-all
-    return default_height
 
 class MapViz(object):
 
@@ -704,7 +643,7 @@ class LinestringViz(MapViz):
         for row in self.data:
 
             # map width to JSON feature using width_property
-            width = height_map(row[self.line_width_property], self.line_width_stops, self.line_width_default)
+            width = numeric_map(row[self.line_width_property], self.line_width_stops, self.line_width_default)
             
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], width])
