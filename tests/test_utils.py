@@ -163,4 +163,28 @@ def test_create_numeric_stops():
 def test_height_map():
     """Interpolate height from numeric height stops"""
     stops = [[0.0, 0], [50.0, 5000.0], [1000.0, 100000.0]]
-    assert height_map(117.0, stops, default_height=0.0) == 11700.0
+    assert height_map(117.0, stops, 0.0) == 11700.0
+
+
+def test_height_map_match():
+    """Interpolate height from numeric height stops"""
+    match_stops = [['road', 1.0], ['fence', 15.0], ['wall', 10.0]]
+    assert height_map('fence', match_stops, 0.0) == 15.0
+
+
+def test_height_map_no_stops():
+    """Return default if length of stops argument is 0"""
+    stops = []
+    assert height_map(117.0, stops, 42) == 42
+
+
+def test_height_map_default():
+    """Default value when look up does not match any stop in stops"""
+    stops = [[0.0, 0], [50.0, 5000.0], [1000.0, 100000.0]]
+    assert height_map(-1.0, stops, 42) == 0
+
+
+def test_height_map_exact():
+    """Compute mapping for lookup value exactly matching numeric stop in stops"""
+    stops = [[0.0, 0], [50.0, 5000.0], [1000.0, 100000.0]]
+    assert height_map(50.0, stops, 42) == 5000.0
