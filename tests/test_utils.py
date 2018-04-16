@@ -15,6 +15,7 @@ from mapboxgl.utils import (df_to_geojson, scale_between, create_radius_stops,
 def df():
     return pd.read_csv('tests/points.csv')
 
+
 @pytest.fixture()
 def df_no_properties():
     df = pd.read_csv('tests/points.csv')
@@ -36,6 +37,7 @@ def test_df_no_properties(df_no_properties):
     features = df_to_geojson(df_no_properties)[
         'features']
     assert tuple(features[0]['properties'].keys()) == ()
+
 
 def test_df_geojson_file(df):
     features = df_to_geojson(df, filename='out.geojson')
@@ -60,25 +62,30 @@ def test_scale_between_maxMin():
     scale = scale_between(0,1,1)
     assert scale == [0,1]
 
+
 def test_color_stops():
     """Create color stops from breaks using colorBrewer"""
     stops = create_color_stops([0, 1, 2], colors='YlGn')
     assert stops == [[0,"rgb(247,252,185)"], [1,"rgb(173,221,142)"], [2,"rgb(49,163,84)"]]
+
 
 def test_color_stops_custom():
     """Create color stops from custom color breaks"""
     stops = create_color_stops([0, 1, 2], colors=['red', 'yellow', 'green'])
     assert stops == [[0,"red"], [1,"yellow"], [2,"green"]]
 
+
 def test_color_stops_custom_invalid():
     """Create invalid color stops from custom color breaks and throw value error"""
     with pytest.raises(ValueError):
         create_color_stops([0, 1, 2], colors=['x', 'yellow', 'green'])
 
+
 def test_color_stops_custom_null():
     """Create invalid number of color stops that do not match the number of breaks"""
     with pytest.raises(ValueError):
         create_color_stops([0, 1, 2], colors=['red', 'yellow', 'green', 'grey'])
+
 
 def test_create_radius_stops(df):
     domain = [7678.214347826088, 5793.63142857143, 1200]
@@ -153,3 +160,31 @@ def test_color_map_interp_exact():
     assert color_map(0.0, interp_stops, 'rgb(32,32,32)') == 'rgb(255,0,0)'
 
 
+def test_numeric_map():
+    """Map interpolated (or matched) value from numeric stops"""
+    stops = [[0.0, 0], [50.0, 5000.0], [1000.0, 100000.0]]
+    assert numeric_map(117.0, stops, 0.0) == 11700.0
+
+
+def test_numeric_map_match():
+    """Match value from numeric stops"""
+    match_stops = [['road', 1.0], ['fence', 15.0], ['wall', 10.0]]
+    assert numeric_map('fence', match_stops, 0.0) == 15.0
+
+
+def test_numeric_map_no_stops():
+    """Return default if length of stops argument is 0"""
+    stops = []
+    assert numeric_map(117.0, stops, 42) == 42
+
+
+def test_numeric_map_default():
+    """Default value when look up does not match any stop in stops"""
+    stops = [[0.0, 0], [50.0, 5000.0], [1000.0, 100000.0]]
+    assert numeric_map(-1.0, stops, 42) == 0
+
+
+def test_numeric_map_exact():
+    """Compute mapping for lookup value exactly matching numeric stop in stops"""
+    stops = [[0.0, 0], [50.0, 5000.0], [1000.0, 100000.0]]
+    assert numeric_map(50.0, stops, 42) == 5000.0
