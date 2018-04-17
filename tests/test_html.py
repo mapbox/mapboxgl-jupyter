@@ -269,7 +269,7 @@ def test_display_vector_LinestringViz(display):
     """Assert that show calls the mocked display function when using data-join technique
     for LinestringViz.
     """
-    data = [{"elevation": x, "other": random.randint(0,100)} for x in range(0, 21000, 10)]
+    data = [{"elevation": x, "weight": random.randint(0,100)} for x in range(0, 21000, 10)]
 
     viz = LinestringViz(data, 
                         vector_url='mapbox://mapbox.mapbox-terrain-v2',
@@ -278,6 +278,8 @@ def test_display_vector_LinestringViz(display):
                         data_join_property='elevation',
                         color_property="elevation",
                         color_stops=create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd'),
+                        line_width_property='weight',
+                        line_width_stops=create_numeric_stops([0, 25, 50, 75, 100], 1, 6),
                         access_token=TOKEN
                        )
     viz.show()
