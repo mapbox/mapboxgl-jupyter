@@ -27,6 +27,7 @@ class MapViz(object):
                  style='mapbox://styles/mapbox/light-v9?optimize=true',
                  width='100%',
                  zoom=0,
+                 source_buffer=0,
                  min_zoom=0,
                  max_zoom=24,
                  pitch=0,
@@ -64,6 +65,7 @@ class MapViz(object):
         self.below_layer = below_layer
         self.opacity = opacity
         self.label_property = None
+        self.buffer = source_buffer
         self.min_zoom = min_zoom
         self.max_zoom = max_zoom
         self.pitch = pitch
@@ -107,6 +109,7 @@ class MapViz(object):
             geojson_data=json.dumps(self.data, ensure_ascii=False),
             belowLayer=self.below_layer,
             opacity=self.opacity,
+            sourceBuffer=self.buffer,
             minzoom=self.min_zoom,
             maxzoom=self.max_zoom,
             pitch=self.pitch, 
@@ -139,6 +142,7 @@ class CircleViz(MapViz):
                  color_function_type='interpolate',
                  stroke_color='grey',
                  stroke_width=0.1,
+                 source_buffer=1,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -397,6 +401,7 @@ class ChoroplethViz(MapViz):
                  height_stops=None,
                  height_default=0.0,
                  height_function_type='interpolate',
+                 source_buffer=1,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -606,7 +611,6 @@ class RasterTilesViz(MapViz):
             tiles_bounds=self.tiles_bounds if self.tiles_bounds else 'undefined'))
 
 
-
 class LinestringViz(MapViz):
     """Create a linestring viz"""
 
@@ -624,6 +628,7 @@ class LinestringViz(MapViz):
                  line_color='white',
                  line_stroke='solid',
                  line_width=1,
+                 source_buffer=1,
                  *args,
                  **kwargs):
         """Construct a Mapviz object

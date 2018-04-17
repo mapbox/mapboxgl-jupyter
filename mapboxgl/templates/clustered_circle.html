@@ -12,8 +12,8 @@
         
         map.addSource("data", {
             "type": "geojson",
-            "data": {{ geojson_data }}, //data from dataframe output to geojson
-            "buffer": 0,
+            "data": {{ geojson_data }},
+            "buffer": {{ sourceBuffer }},
             "maxzoom": {{ clusterMaxZoom }} + 1,
             "cluster": true,
             "clusterMaxZoom": {{ clusterMaxZoom }},

@@ -17,7 +17,7 @@
         map.addSource("data", {
             "type": "geojson",
             "data": {{ geojson_data }}, //data from dataframe output to geojson
-            "buffer": 0,
+            "buffer": {{ sourceBuffer }},
             "maxzoom": 14
         });
 
@@ -39,7 +39,9 @@
                 "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
                 "text-color": "{{ labelColor }}"
             }
-        }, "{{belowLayer}}" )
+        }, "{{ belowLayer }}" )
+
+        {% block styledlayer %}
 
         map.addLayer({
             "id": "circle",
@@ -64,7 +66,9 @@
                 "circle-stroke-opacity" : {{ opacity }}
             }
         }, "label");
-        
+
+        {% endblock styledlayer %}
+
         // Create a popup
         var popup = new mapboxgl.Popup({
             closeButton: false,
@@ -74,6 +78,7 @@
         // Show the popup on mouseover
         map.on('mousemove', 'circle', function(e) {
             map.getCanvas().style.cursor = 'pointer';
+
             let f = e.features[0];
             let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
                 ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
