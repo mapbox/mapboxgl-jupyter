@@ -9,6 +9,8 @@
         style: {{ style }},
         center: {{ center }},
         zoom: {{ zoom }},
+        pitch: {{ pitch }},
+        bearing: {{ bearing }},
         transformRequest: (url, resourceType)=> {
             if ( url.slice(0,22) == 'https://api.mapbox.com' ) {
                 //Add Python Plugin identifier for Mapbox API traffic

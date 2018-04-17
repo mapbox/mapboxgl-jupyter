@@ -21,7 +21,7 @@
 The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visualizations. You can use this class to set default values for all visualizations rather than calling them directly from the other visualization objects.
 
 ### Params
-**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24_)
+**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0_)
 
 Parameter | Description
 --|--
@@ -34,6 +34,8 @@ width | The CSS width of the HTML div id in % or pixels.
 height | The CSS height of the HTML map div in % or pixels.
 zoom | starting zoom level for map
 opacity | opacity of map data layer
+pitch | starting pitch (in degrees) for map
+bearing | starting bearing (in degrees) for map
 
 ### Methods
 **as_iframe**(_self, html_data_)  
@@ -320,7 +322,7 @@ viz.show()
 The `ChoroplethViz` object handles the creation of a choropleth map and inherits from the `MapViz` class. It applies a thematic map style to polygon features with color shading in proportion to the intensity of the data being displayed. Choropleth polygons can be initialized with geojson source or vector source styled using the data-join technique.
 
 ### Params
-**ChoroplethViz**(_data, vector_url=None, vector_layer_name=None, vector_join_property=None, data_join_property=None, # vector only label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, *args, **kwargs_)
+**ChoroplethViz**(_data, vector_url=None, vector_layer_name=None, vector_join_property=None, data_join_property=None, # vector only label_property=None, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, height_property=None, height_stops=None, height_default=0.0, height_function_type='interpolate', *args, **kwargs_)
 
 Parameter | Description | Example
 --|--|--
@@ -337,6 +339,10 @@ color_function_type | property to determine type of expression used by Mapbox to
 line_color | property to determine choropleth border line color | "#FFFFFF"
 line_stroke | property to determine choropleth border line stroke (one of solid (-), dashed (--), dotted (:), dash dot (-.)) | "solid" or "-"
 line_width | property to determine choropleth border line width | 1
+height_property | feature property for determining polygon height in 3D extruded choropleth map | "density"
+height_stops | property for determining 3D extrusion height | [[0, 0], [500, 50000], [1500, 150000]]
+height_default | default height (in meters) for 3D extruded polygons on map | 1500.0
+height_function_type | roperty to determine `type` used by Mapbox to assign height | "interpolate"
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
