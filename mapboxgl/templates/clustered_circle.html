@@ -35,7 +35,7 @@
                 "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
                 "text-color": "{{ labelColor }}"
             }
-        }, "{{belowLayer}}" )
+        }, "{{ belowLayer }}" )
 
         map.addLayer({
             "id": "circle-cluster",
@@ -97,11 +97,12 @@
 
         map.on('mousemove', 'circle-cluster', function(e) {
             map.getCanvas().style.cursor = 'pointer';
+
             let f = e.features[0];
             let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
                 ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
 
-            popup_html += '<li><b>Point Count:</b>: ' + f.properties.point_count + ' </li>'
+            popup_html += '<li><b>Point Count</b>: ' + f.properties.point_count + ' </li>'
 
             popup_html += '</div>'
 
