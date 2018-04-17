@@ -10,7 +10,18 @@
 {% block legend %}
 
     var legend = document.getElementById('legend');
-    calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+    
+    {% if extrudeChoropleth %}
+        {% if colorStops and colorProperty and heightProperty %}
+            {% if colorProperty != heightProperty and extrudeChoropleth %}
+                calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ heightProperty }}");
+            {% else %}
+                calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+            {% endif %}
+        {% endif %}
+    {% else %}
+        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+    {% endif %}
 
 {% endblock legend %}
 
@@ -74,7 +85,24 @@
                 "text-halo-color": "white",
                 "text-halo-width": 1
             }
-        }, "{{belowLayer}}" );
+        }, "{{ belowLayer }}" );
+
+        // Optional extrusion layer
+        {% if extrudeChoropleth %}
+
+            map.addLayer({
+                id: "choropleth-extrusion",
+                type: "fill-extrusion",            
+                source: "data",
+                paint: {
+                    "fill-extrusion-opacity": {{ opacity }},
+                    "fill-extrusion-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+                    "fill-extrusion-height": generatePropertyExpression("{{ heightType }}", "{{ heightProperty }}", {{ heightStops }}, {{ defaultHeight }}),
+                }
+            }, "{{ belowLayer }}");
+
+        {% endif %}
+
 
         {% endblock choropleth %}
 

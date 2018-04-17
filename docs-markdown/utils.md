@@ -92,6 +92,20 @@ Parameter | Description
 --|--
 breaks | List of float values
 
+
+## create_numeric_stops
+Convert a Python list of a data domain (such as `[0, 1, 5, 100, 10000]`) into a generic numeric ramp between a minimum and maximum value, as in for a heatmap, choropleth 3-D extrusions, etc.
+
+### Params
+**create_numeric_stops**(_breaks, min_value, max_value_)
+
+Parameter | Description
+--|--
+breaks | List of float values
+min_value | Minimum ramp value
+max_value | Maximum ramp value
+
+
 ## create_color_stops
 Convert a Python list of a data domain (such as `[0, 1, 5, 100, 10000]`) into color ramp stops.  Color ramps can be from colorBrewer, or a custom list of color values.
 
@@ -180,4 +194,26 @@ match_color_stops = [
     ['California', 'rgb(142,68,173)'],
 ]
 color = color_map('California', match_color_stops, default_color='grey)')
+```
+
+
+## height_map
+Return a height value (in meters) interpolated from given height_stops; for use with vector-based visualizations using fill-extrusion layers.
+
+### Params
+**height_map**(_lookup, height_stops, default_height=10.0_)
+
+Parameter | Description
+--|--
+lookup | value is numeric for interpolated heights or string for categorical height stops
+height_stops | height ramp stops generated from `create_numeric_stops`, or custom list of numeric or categorical stops with paired heights
+default_height | height, in meters, for display of 3-D extrusion on map
+
+### Usage
+```python
+from mapboxgl.utils import create_numeric_stops, height_map
+
+# interpolate height
+height_stops = create_numeric_stops([0, 50, 100, 500, 1500], 0, 150000)
+height = height_map(117, height_stops)
 ```

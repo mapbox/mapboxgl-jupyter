@@ -6,7 +6,7 @@ from IPython.core.display import HTML, display
 import numpy
 
 from mapboxgl.errors import TokenError
-from mapboxgl.utils import color_map
+from mapboxgl.utils import color_map, height_map
 from mapboxgl import templates
 from mapboxgl.utils import img_encode, numeric_map
 
@@ -28,7 +28,9 @@ class MapViz(object):
                  width='100%',
                  zoom=0,
                  min_zoom=0,
-                 max_zoom=24):
+                 max_zoom=24,
+                 pitch=0,
+                 bearing=0):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -40,6 +42,8 @@ class MapViz(object):
         :param height: The CSS height of the HTML map div in % or pixels.
         :param zoom: starting zoom level for map
         :param opacity: opacity of map data layer
+        :param pitch: starting pitch (in degrees) for map
+        :param bearing: starting bearing (in degrees) for map
 
         """
         if access_token is None:
@@ -62,6 +66,8 @@ class MapViz(object):
         self.label_property = None
         self.min_zoom = min_zoom
         self.max_zoom = max_zoom
+        self.pitch = pitch
+        self.bearing = bearing
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -102,7 +108,9 @@ class MapViz(object):
             belowLayer=self.below_layer,
             opacity=self.opacity,
             minzoom=self.min_zoom,
-            maxzoom=self.max_zoom)
+            maxzoom=self.max_zoom,
+            pitch=self.pitch, 
+            bearing=self.bearing)
 
         if self.label_property is None:
             options.update(labelProperty=None)
@@ -385,6 +393,10 @@ class ChoroplethViz(MapViz):
                  line_color='white',
                  line_stroke='solid',
                  line_width=1,
+                 height_property=None,      
+                 height_stops=None,
+                 height_default=0.0,
+                 height_function_type='interpolate',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -395,14 +407,17 @@ class ChoroplethViz(MapViz):
         :param vector_join_property: property to aid in determining color for styling vector polygons
         :param data_join_property: property to join json data to vector features
         :param label_property: property to use for marker label
-        :param color_property: property to determine circle color
-        :param color_stops: property to determine circle color
-        :param color_default: property to determine default circle color if match lookup fails
+        :param color_property: property to determine polygon color
+        :param color_stops: property to determine polygon color
+        :param color_default: property to determine default polygon color if match lookup fails
         :param color_function_type: property to determine `type` used by Mapbox to assign color
         :param line_color: property to determine choropleth line color
         :param line_stroke: property to determine choropleth line stroke (solid, dashed, dotted, dash dot)
         :param line_width: property to determine choropleth line width
-
+        :param height_property: feature property for determining polygon height in 3D extruded choropleth map
+        :param height_stops: property for determining 3D extrusion height
+        :param height_default: default height for 3D extruded polygons
+        :param height_function_type: roperty to determine `type` used by Mapbox to assign height
         """
         super(ChoroplethViz, self).__init__(data, *args, **kwargs)
         
@@ -426,6 +441,10 @@ class ChoroplethViz(MapViz):
         self.line_color = line_color
         self.line_stroke = line_stroke
         self.line_width = line_width
+        self.height_property = height_property
+        self.height_stops = height_stops
+        self.height_default = height_default
+        self.height_function_type = height_function_type
 
     def generate_vector_color_map(self):
         """Generate color stops array for use with match expression in mapbox template"""
@@ -437,6 +456,23 @@ class ChoroplethViz(MapViz):
             
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], color])
+
+        return vector_stops
+
+    def generate_vector_height_map(self):
+        """Generate height stops array for use with match expression in mapbox template"""
+        vector_stops = []
+        
+        if self.height_function_type == 'match':
+            match_height = self.height_stops
+
+        for row in self.data:
+
+            # map height to JSON feature using height_property
+            height = height_map(row[self.height_property], self.height_stops, self.height_default)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], height])
 
         return vector_stops
 
@@ -456,6 +492,9 @@ class ChoroplethViz(MapViz):
             # default to solid line
             self.line_dash_array = [1, 0]
 
+        # check if choropleth map should include 3-D extrusion
+        self.extrude = all([bool(self.height_property), bool(self.height_stops)])
+
         # common variables for vector and geojson-based choropleths
         options.update(dict(
             colorStops=self.color_stops,
@@ -466,7 +505,15 @@ class ChoroplethViz(MapViz):
             lineDashArray=self.line_dash_array,
             lineStroke=self.line_stroke,
             lineWidth=self.line_width,
+            extrudeChoropleth=self.extrude,
         ))
+        if self.extrude:
+            options.update(dict(
+                heightType=self.height_function_type,
+                heightProperty=self.height_property,
+                heightStops=self.height_stops,
+                defaultHeight=self.height_default,
+            ))
 
         # vector-based choropleth map variables
         if self.vector_source:
@@ -474,11 +521,15 @@ class ChoroplethViz(MapViz):
                 vectorUrl=self.vector_url,
                 vectorLayer=self.vector_layer_name,
                 vectorColorStops=self.generate_vector_color_map(),
-                vectorJoinColorProperty=self.vector_join_property,
+                vectorJoinDataProperty=self.vector_join_property,
                 joinData=json.dumps(self.data, ensure_ascii=False),
                 dataJoinProperty=self.data_join_property,
             ))
-        
+            if self.extrude:
+                options.update(dict(
+                    vectorHeightStops=self.generate_vector_height_map(),
+                ))
+
         # geojson-based choropleth map variables
         else:
             options.update(dict(
