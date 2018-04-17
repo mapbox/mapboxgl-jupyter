@@ -8,7 +8,7 @@ from matplotlib.pyplot import imread
 
 from mapboxgl.utils import (df_to_geojson, scale_between, create_radius_stops,
                             create_weight_stops, create_numeric_stops, create_color_stops, 
-                            img_encode, rgb_tuple_from_str, color_map, height_map)
+                            img_encode, rgb_tuple_from_str, color_map, height_map, numeric_map)
 
 
 @pytest.fixture()
