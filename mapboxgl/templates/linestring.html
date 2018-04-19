@@ -3,14 +3,25 @@
 <!-- update legend item key style -->
 {% block extra_css %}
     <style type='text/css'>
-        .legend div span { border-radius: 20%; }
+        .legend div span { border-radius: 20%; height: 4px; margin-bottom: 3px; }
     </style>
 {% endblock extra_css %}
 
 {% block legend %}
 
     var legend = document.getElementById('legend');
-    calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+
+    {% if colorStops and colorProperty and widthProperty %}
+        {% if colorProperty != widthProperty %}
+            calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}");
+        {% else %}
+            calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+        {% endif %}
+    {% elif colorStops and colorProperty %}
+        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+    {% else %}
+        document.getElementById('legend').style.visibility='hidden';
+    {% endif %}
 
 {% endblock legend %}
 
@@ -39,10 +50,18 @@
             },
             "paint": {
                 {% if lineDashArray %}
-                "line-dasharray": {{ lineDashArray }},
+                    "line-dasharray": {{ lineDashArray }},
                 {% endif %}
-                "line-color": "{{ lineColor }}",
-                "line-width": {{ lineWidth }},
+                {% if colorProperty %}
+                    "line-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+                {% else %}
+                    "line-color": "{{ defaultColor }}",
+                {% endif %}
+                {% if widthProperty %}
+                    "line-width": generatePropertyExpression("{{ widthType }}", "{{ widthProperty }}", {{ widthStops }}, "{{ defaultWidth }}"),
+                {% else %}
+                    "line-width": {{ defaultWidth }},
+                {% endif %}
                 "line-opacity": {{ opacity }}
             }
         }, "{{ belowLayer }}" );
