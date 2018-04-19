@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block legend %}
+
+    var legend = document.getElementById('legend');
+    legend.remove();
+
+{% endblock legend %}
+
+{% block map %}
+
+    var layers = {{ dataLayers }};
+
+    map.on('style.load', function() {
+        
+        layers.forEach(function(element, index) {
+            map.addSource(element["layerName"], element["dataSource"]);
+            map.addLayer(element["layer"], "waterway-label");
+        });
+
+    });
+
+
+{% endblock map %}

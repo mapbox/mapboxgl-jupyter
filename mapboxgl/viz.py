@@ -762,3 +762,208 @@ class LinestringViz(MapViz):
                 geojson_data=json.dumps(self.data, ensure_ascii=False),
             ))
 
+
+class VizCollection(MapViz):
+
+    def __init__(self,
+                 viz_list=[],
+                 access_token=None,
+                 center=(0, 0),
+                 div_id='map',
+                 height='500px',
+                 style='mapbox://styles/mapbox/light-v9?optimize=true',
+                 width='100%',
+                 zoom=0,
+                 pitch=0,
+                 bearing=0):
+        """Construct a VizCollection object
+
+        :param access_token: Mapbox GL JS access token.
+        :param center: map center point
+        :param style: url to mapbox style or stylesheet as a Python dictionary in JSON format
+        :param div_id: The HTML div id of the map container in the viz
+        :param width: The CSS width of the HTML div id in % or pixels.
+        :param height: The CSS height of the HTML map div in % or pixels.
+        :param zoom: starting zoom level for map
+        :param pitch: starting pitch (in degrees) for map
+        :param bearing: starting bearing (in degrees) for map
+
+        """
+        if access_token is None:
+            access_token = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
+        if access_token.startswith('sk'):
+            raise TokenError('Mapbox access token must be public (pk), not secret (sk). ' \
+                             'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
+                             'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
+        
+        self.access_token = access_token
+        self.template = 'collection'
+        self.viz_list = viz_list
+        self.div_id = div_id
+        self.width = width
+        self.height = height
+        self.style = style
+        self.center = center
+        self.zoom = zoom
+        self.pitch = pitch
+        self.bearing = bearing
+
+    def create_html(self):
+        """Create a circle visual from a geojson data source"""
+        if isinstance(self.style, str):
+            style = "'{}'".format(self.style)
+        else:
+            style = self.style
+
+        options = dict(
+            gl_js_version=GL_JS_VERSION,
+            accessToken=self.access_token,
+            div_id=self.div_id,
+            style=style,
+            center=list(self.center),
+            zoom=self.zoom,
+            pitch=self.pitch, 
+            bearing=self.bearing,
+            dataLayers=self.process_layers())
+
+        self.add_unique_template_variables(options)
+
+        return templates.format(self.template, **options)
+
+    def add_circle_layer(self, viz, viz_index):
+
+        if viz.color_stops:
+            color_expression = ['match', ['get', viz.color_property]]
+            for stop, value in viz.color_stops:
+                color_expression.append(stop)
+                color_expression.append(value)
+            color_expression.append(viz.color_default)
+
+        layer = {
+            "layerName": "data-{}".format(viz_index),
+            "dataSource": {
+                "type": "geojson",
+                "data": viz.data,
+                "buffer": viz.buffer,
+                "maxzoom": 14
+            },
+            "layer": {
+                "id": "circle-{}".format(viz_index),
+                "source": "data-{}".format(viz_index),
+                "type": "circle",
+                "maxzoom": viz.max_zoom,
+                "minzoom": viz.min_zoom,
+                "paint": { "circle-radius": viz.radius, 
+                           "circle-color": viz.color_default,
+                           "circle-stroke-color": viz.stroke_color, 
+                           "circle-opacity" : viz.opacity,
+                           "circle-stroke-opacity" : viz.opacity 
+                         }
+            }
+        }
+
+        try:
+            layer["layer"]["paint"]["circle-color"] = color_expression
+        except:
+            pass
+        return layer
+
+    def add_heatmap_layer(self, viz, viz_index):
+
+        layer = {
+            "layerName": "data-{}".format(viz_index),
+            "dataSource": {
+                "type": "geojson",
+                "data": viz.data,
+                "buffer": viz.buffer,
+                "maxzoom": 14
+            },
+            "layer": {
+                "id": "heatmap-{}".format(viz_index),
+                "source": "data-{}".format(viz_index),
+                "type": "heatmap",
+                "maxzoom": viz.max_zoom,
+                "minzoom": viz.min_zoom,
+                "paint": {
+                    # "heatmap-radius": 
+                    "heatmap-color" : "#feca57",
+                    "heatmap-opacity" : viz.opacity
+                }
+            }
+        }
+
+
+        if viz.radius_stops:
+            radius_expression = ['interpolate', ['exponential', 1.2], ['zoom']]
+            for stop, value in viz.radius_stops:
+                radius_expression.append(stop)
+                radius_expression.append(value)
+
+            layer["layer"]["paint"].update({"heatmap-radius": radius_expression})
+
+        if viz.weight_stops:
+            weight_expression = ['interpolate', ['exponential', 1.2], ['get', viz.weight_property]]
+            for stop, value in viz.weight_stops:
+                weight_expression.append(stop)
+                weight_expression.append(value)
+                layer["layer"]["paint"].update({"heatmap-weight": weight_expression})
+
+        if viz.intensity_stops:
+            intensity_expression = ['interpolate', ['exponential', 1.2], ['zoom']]
+            for stop, value in viz.intensity_stops:
+                intensity_expression.append(stop)
+                intensity_expression.append(value)
+                layer["layer"]["paint"].update({"heatmap-intensity": intensity_expression})
+
+        if viz.color_stops:
+            color_expression = ['interpolate', ['exponential', 1.2], ['heatmap-density']]
+            for stop, value in viz.color_stops:
+                color_expression.append(stop)
+                color_expression.append(value)
+                layer["layer"]["paint"].update({"heatmap-color": color_expression})
+
+
+        return layer
+
+
+    def add_linestring_layer(self, viz, viz_index):
+        return {
+            "layerName": "vector-data-{}".format(viz_index),
+            "dataSource": {
+                "type": "vector",
+                "url": viz.vector_url,
+                # "buffer": viz.buffer,
+                # "maxzoom": 14
+            },
+            "layer": {
+                "id": "linestring-{}".format(viz_index),
+                "source": "vector-data-{}".format(viz_index),
+                "source-layer": viz.vector_layer_name,
+                "type": "line",
+                "layout": {
+                    "line-join": "round",
+                    "line-cap": "round"
+                },
+                "paint": {
+                    "line-color": viz.color_default,
+                    "line-width": viz.line_width_default,
+                    "line-opacity": viz.opacity
+                }
+            }
+        }
+
+    def process_layers(self):
+
+        data_layers = []
+        for i, viz in enumerate(self.viz_list):
+
+            if isinstance(viz, CircleViz):
+                data_layers.append(self.add_circle_layer(viz, i))
+
+            elif isinstance(viz, HeatmapViz):
+                data_layers = [self.add_heatmap_layer(viz, i)] + data_layers
+
+            elif isinstance(viz, LinestringViz):
+                data_layers.append(self.add_linestring_layer(viz, i))
+
+        return json.dumps(data_layers, ensure_ascii=False)
