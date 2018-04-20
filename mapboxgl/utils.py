@@ -390,3 +390,31 @@ def height_map(lookup, height_stops, default_height=0.0):
 
     # default height value catch-all
     return default_height
+
+
+def generate_interpolate_expression(property_value, stops):
+    """Python port of function in main.html to generate interpolate,
+    zoom or heatmap-density functions
+    """
+    expression = ['interpolate', ['exponential', 1.2]]
+
+    if property_value in ['zoom', 'heatmap-density']:
+        expression.append([property_value])
+    else:
+        expression.append(['get', property_value])
+
+    flattened_stops = [x for y in stops for x in y]
+    return expression + flattened_stops
+
+
+def generate_match_expression(property_value, stops, default_value):
+    expression = ['match', ['get', property_value]]
+    flattened_stops = [x for y in stops for x in y]
+    return expression + flattened_stops + [default_value]
+
+
+def generate_property_expression(expression_type, property_value, stops, default_value=None):
+    if expression_type == 'match':
+        return generate_match_expression(property_value, stops, default_value)
+    else:
+        return generate_interpolate_expression(property_value, stops)

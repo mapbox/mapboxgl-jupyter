@@ -8,7 +8,7 @@ import numpy
 from mapboxgl.errors import TokenError
 from mapboxgl.utils import color_map, height_map
 from mapboxgl import templates
-from mapboxgl.utils import img_encode, numeric_map
+from mapboxgl.utils import img_encode, numeric_map, generate_interpolate_expression, generate_property_expression
 
 
 GL_JS_VERSION = 'v0.44.1'
@@ -832,13 +832,6 @@ class VizCollection(MapViz):
 
     def add_circle_layer(self, viz, viz_index):
 
-        if viz.color_stops:
-            color_expression = ['match', ['get', viz.color_property]]
-            for stop, value in viz.color_stops:
-                color_expression.append(stop)
-                color_expression.append(value)
-            color_expression.append(viz.color_default)
-
         layer = {
             "layerName": "data-{}".format(viz_index),
             "dataSource": {
@@ -853,19 +846,22 @@ class VizCollection(MapViz):
                 "type": "circle",
                 "maxzoom": viz.max_zoom,
                 "minzoom": viz.min_zoom,
-                "paint": { "circle-radius": viz.radius, 
+                "paint": { "circle-radius": generate_property_expression('interpolate', 'zoom', [[0, viz.radius], [22, 10 * viz.radius]]), 
                            "circle-color": viz.color_default,
                            "circle-stroke-color": viz.stroke_color, 
                            "circle-opacity" : viz.opacity,
-                           "circle-stroke-opacity" : viz.opacity 
+                           "circle-stroke-opacity" : viz.opacity,
+                           "circle-stroke-width": generate_property_expression('interpolate', 'zoom', [[0, viz.stroke_width], [18, 5 * viz.stroke_width]])
                          }
-            }
+            },
+            "belowLayer": "waterway-label"
         }
 
-        try:
-            layer["layer"]["paint"]["circle-color"] = color_expression
-        except:
-            pass
+        if viz.color_stops:
+            layer["layer"]["paint"]["circle-color"] = generate_property_expression(viz.color_function_type,
+                                                                                   viz.color_property, 
+                                                                                   viz.color_stops,
+                                                                                   viz.color_default)
         return layer
 
     def add_heatmap_layer(self, viz, viz_index):
@@ -889,38 +885,25 @@ class VizCollection(MapViz):
                     "heatmap-color" : "#feca57",
                     "heatmap-opacity" : viz.opacity
                 }
-            }
+            },
+            "belowLayer": "waterway-label"
         }
 
-
         if viz.radius_stops:
-            radius_expression = ['interpolate', ['exponential', 1.2], ['zoom']]
-            for stop, value in viz.radius_stops:
-                radius_expression.append(stop)
-                radius_expression.append(value)
-
-            layer["layer"]["paint"].update({"heatmap-radius": radius_expression})
+            layer["layer"]["paint"].update({
+                "heatmap-radius": generate_interpolate_expression('zoom', viz.radius_stops)})
 
         if viz.weight_stops:
-            weight_expression = ['interpolate', ['exponential', 1.2], ['get', viz.weight_property]]
-            for stop, value in viz.weight_stops:
-                weight_expression.append(stop)
-                weight_expression.append(value)
-                layer["layer"]["paint"].update({"heatmap-weight": weight_expression})
+            layer["layer"]["paint"].update({"heatmap-weight": 
+                generate_interpolate_expression(viz.weight_property, viz.weight_stops)})
 
         if viz.intensity_stops:
-            intensity_expression = ['interpolate', ['exponential', 1.2], ['zoom']]
-            for stop, value in viz.intensity_stops:
-                intensity_expression.append(stop)
-                intensity_expression.append(value)
-                layer["layer"]["paint"].update({"heatmap-intensity": intensity_expression})
+            layer["layer"]["paint"].update({"heatmap-intensity": 
+                generate_interpolate_expression('zoom', viz.intensity_stops)})
 
         if viz.color_stops:
-            color_expression = ['interpolate', ['exponential', 1.2], ['heatmap-density']]
-            for stop, value in viz.color_stops:
-                color_expression.append(stop)
-                color_expression.append(value)
-                layer["layer"]["paint"].update({"heatmap-color": color_expression})
+            layer["layer"]["paint"].update({"heatmap-color": 
+                generate_interpolate_expression('heatmap-density', viz.color_stops)})
 
 
         return layer
@@ -949,8 +932,66 @@ class VizCollection(MapViz):
                     "line-width": viz.line_width_default,
                     "line-opacity": viz.opacity
                 }
-            }
+            },
+            "belowLayer": viz.below_layer
         }
+
+    def add_choropleth_layer(self, viz, viz_index):
+
+        layer = {
+            "layerName": "data-{}".format(viz_index),
+            "dataSource": {
+                "type": "geojson",
+                "data": viz.data,
+                "buffer": viz.buffer,
+                "maxzoom": 14
+            },
+            "layer": {
+                "id": "choropleth-fill-{}".format(viz_index),
+                "source": "data-{}".format(viz_index),
+                "type": "fill",
+                "maxzoom": viz.max_zoom,
+                "minzoom": viz.min_zoom,
+                "paint": {
+                    "fill-color" : generate_property_expression(viz.color_function_type, viz.color_property, viz.color_stops, viz.color_default),
+                    "fill-opacity" : viz.opacity
+                }
+            },
+            "border": {
+                "id": "choropleth-line-{}".format(viz_index),
+                "source": "data-{}".format(viz_index),
+                "type": "line",
+                "layout": {
+                    "line-join": "round",
+                    "line-cap": "round"
+                },
+                "paint": {
+                    "line-color": viz.line_color,
+                    "line-width": viz.line_width,
+                    "line-opacity": viz.opacity
+                }
+            },
+            "belowLayer": viz.below_layer
+        }
+
+        if viz.height_stops and viz.height_property:
+            layer["extrusion"] = {
+                "id": "choropleth-extrusion-{}".format(viz_index),
+                "type": "fill-extrusion",            
+                "source": "data-{}".format(viz_index),
+                "paint": {
+                    "fill-extrusion-opacity": viz.opacity,
+                    "fill-extrusion-color": generate_property_expression(viz.color_function_type, 
+                                                                          viz.color_property, 
+                                                                          viz.color_stops, 
+                                                                          viz.color_default ),
+                    "fill-extrusion-height": generate_property_expression(viz.height_function_type, 
+                                                                          viz.height_property, 
+                                                                          viz.height_stops, 
+                                                                          viz.height_default ),
+                }
+            }
+        return layer
 
     def process_layers(self):
 
@@ -965,5 +1006,9 @@ class VizCollection(MapViz):
 
             elif isinstance(viz, LinestringViz):
                 data_layers.append(self.add_linestring_layer(viz, i))
+
+            elif isinstance(viz, ChoroplethViz):
+                data_layers.append(self.add_choropleth_layer(viz, i))
+
 
         return json.dumps(data_layers, ensure_ascii=False)

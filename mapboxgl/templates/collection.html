@@ -15,7 +15,13 @@
         
         layers.forEach(function(element, index) {
             map.addSource(element["layerName"], element["dataSource"]);
-            map.addLayer(element["layer"], "waterway-label");
+            map.addLayer(element["layer"], element["belowLayer"]);
+            if (element["border"]){
+                map.addLayer(element["border"], element["belowLayer"]);
+            }
+            if (element["extrusion"]){
+                map.addLayer(element["extrusion"], element["belowLayer"]);
+            }
         });
 
     });
