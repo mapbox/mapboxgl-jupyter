@@ -90,10 +90,10 @@ function generateInterpolateExpression(propertyValue, stops) {
         expression = ['interpolate', ['exponential', 1.2], ['zoom']]
     }
     else if (propertyValue == 'heatmap-density') {
-        expression = ['interpolate', ['exponential', 1.2], ['heatmap-density']]
+        expression = ['interpolate', ['linear'], ['heatmap-density']]
     }
     else {
-        expression = ['interpolate', ['exponential', 1.2], ['get', propertyValue]]
+        expression = ['interpolate', ['linear'], ['get', propertyValue]]
     }
 
     for (var i=0; i<stops.length; i++) {
