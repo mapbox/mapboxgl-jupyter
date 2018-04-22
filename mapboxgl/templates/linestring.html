@@ -79,8 +79,9 @@
                 "text-offset": [0,-1]
             },
             "paint": {
-                "text-halo-color": "white",
-                "text-halo-width": 1
+                "text-halo-color": "{{ labelHaloColor }}",
+                "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+                "text-color": "{{ labelColor }}"
             }
         }, "{{belowLayer}}" );
 

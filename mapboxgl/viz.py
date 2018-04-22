@@ -616,6 +616,10 @@ class LinestringViz(MapViz):
                  vector_join_property=None,
                  data_join_property=None,
                  label_property=None,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -635,6 +639,10 @@ class LinestringViz(MapViz):
         :param vector_join_property: property to aid in determining color for styling vector lines
         :param data_join_property: property to join json data to vector features
         :param label_property: property to use for marker label
+        :param label_size: size of label text
+        :param label_color: color of label text
+        :param label_halo_color: color of label text halo
+        :param label_halo_width: width of label text halo
         :param color_property: property to determine line color
         :param color_stops: property to determine line color
         :param color_default: property to determine default line color if match lookup fails
@@ -661,6 +669,10 @@ class LinestringViz(MapViz):
             self.template = 'linestring'
 
         self.label_property = label_property
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
         self.color_property = color_property
         self.color_stops = color_stops
         self.color_default = color_default
@@ -730,6 +742,10 @@ class LinestringViz(MapViz):
             widthProperty=self.line_width_property,
             widthType=self.line_width_function_type,
             defaultWidth=self.line_width_default,
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
         ))
 
         # vector-based linestring map variables
