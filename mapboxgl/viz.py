@@ -854,10 +854,10 @@ class VizCollection(MapViz):
                            "circle-stroke-width": generate_property_expression('interpolate', 'zoom', [[0, viz.stroke_width], [18, 5 * viz.stroke_width]])
                          }
             },
-            "belowLayer": "waterway-label"
+            # "belowLayer": "waterway-label"
         }
 
-        if viz.color_stops:
+        if viz.color_property:
             layer["layer"]["paint"]["circle-color"] = generate_property_expression(viz.color_function_type,
                                                                                    viz.color_property, 
                                                                                    viz.color_stops,
@@ -886,7 +886,7 @@ class VizCollection(MapViz):
                     "heatmap-opacity" : viz.opacity
                 }
             },
-            "belowLayer": "waterway-label"
+            # "belowLayer": "waterway-label"
         }
 
         if viz.radius_stops:
@@ -907,7 +907,6 @@ class VizCollection(MapViz):
 
 
         return layer
-
 
     def add_linestring_layer(self, viz, viz_index):
         return {
@@ -933,7 +932,7 @@ class VizCollection(MapViz):
                     "line-opacity": viz.opacity
                 }
             },
-            "belowLayer": viz.below_layer
+            # "belowLayer": viz.below_layer
         }
 
     def add_choropleth_layer(self, viz, viz_index):
@@ -971,7 +970,7 @@ class VizCollection(MapViz):
                     "line-opacity": viz.opacity
                 }
             },
-            "belowLayer": viz.below_layer
+            # "belowLayer": viz.below_layer
         }
 
         if viz.height_stops and viz.height_property:
@@ -993,6 +992,89 @@ class VizCollection(MapViz):
             }
         return layer
 
+    def add_graduated_circle_viz(self, viz, viz_index):
+
+        layer_info = self.add_circle_layer(viz, viz_index)
+
+        layer_info["belowLayer"] = "label"
+
+        if viz.radius_property:
+            layer["layer"]["paint"]["circle-radius"] = generate_property_expression(viz.radius_function_type,
+                                                                                    viz.radius_property, 
+                                                                                    viz.radius_stops,
+                                                                                    viz.radius_default)
+        return layer_info
+
+    def add_clustered_circle_viz(self, viz, viz_index):
+
+        layer_info = {
+            "layerName": "data-{}".format(viz_index),
+            "dataSource": {
+                "type": "geojson",
+                "data": viz.data,
+                "buffer": viz.buffer,
+                "maxzoom": viz.cluster_maxzoom + 1,
+                "cluster": True,
+                "clusterMaxZoom": viz.cluster_maxzoom,
+                "clusterRadius": viz.cluster_radius
+            },
+
+            "unclustered": {
+                "id": "circle-unclustered-{}".format(viz_index),
+                "source": "data-{}".format(viz_index),
+                "type": "circle",
+                "maxzoom": viz.max_zoom,
+                "minzoom": viz.min_zoom,
+                "filter": ["!has", "point_count"],
+                "paint": {
+                    "circle-color": viz.color_default,
+                    "circle-radius" : generate_property_expression('interpolate', 'zoom', [[0, viz.default_radius], [22, 10 * viz.default_radius]]),
+                    "circle-stroke-color": viz.stroke_color,
+                    "circle-stroke-width": generate_property_expression('interpolate', 'zoom', [[0, viz.stroke_width], [18, 5 * viz.stroke_width]]),
+                    "circle-opacity" : viz.opacity,
+                    "circle-stroke-opacity" : viz.opacity
+                }
+            }, # below layer = "circle-cluster"
+
+            "clustered": {
+                "id": "circle-cluster-{}".format(viz_index),
+                "source": "data-{}".format(viz_index),
+                "type": "circle",
+                "maxzoom": viz.max_zoom,
+                "minzoom": viz.min_zoom,
+                "filter": ["has", "point_count"],
+                "paint": {
+                    "circle-color": generate_property_expression('interpolate', 'point_count', viz.color_stops),
+                    "circle-radius" : generate_property_expression('interpolate', 'point_count', viz.radius_stops),
+                    "circle-stroke-color": viz.stroke_color,
+                    "circle-stroke-width": generate_property_expression('interpolate', 'zoom', [[0, viz.stroke_width], [18, 5 * viz.stroke_width]]),
+                    "circle-opacity" : viz.opacity,
+                    "circle-stroke-opacity" : viz.opacity
+                }
+            }, # below layer = "label"
+
+        }
+
+        return layer_info
+
+    def add_image_layer(self, viz, viz_index):
+
+        return {
+            "layerName": "image-{}".format(viz_index),
+            "dataSource": {
+                "type": "image",
+                "url": viz.image, 
+                "coordinates": viz.coordinates
+            },
+            "layer": {
+                "id": "image",
+                "type": "raster",
+                "source": "image-{}".format(viz_index)
+            },
+            "belowLayer": viz.below_layer
+        }
+
+
     def process_layers(self):
 
         data_layers = []
@@ -1001,14 +1083,25 @@ class VizCollection(MapViz):
             if isinstance(viz, CircleViz):
                 data_layers.append(self.add_circle_layer(viz, i))
 
+            elif isinstance(viz, GraduatedCircleViz):
+                data_layers.append(self.add_graduated_circle_viz(viz, i))
+
             elif isinstance(viz, HeatmapViz):
                 data_layers = [self.add_heatmap_layer(viz, i)] + data_layers
 
-            elif isinstance(viz, LinestringViz):
-                data_layers.append(self.add_linestring_layer(viz, i))
+            elif isinstance(viz, ClusteredCircleViz):
+                data_layers.append(self.add_clustered_circle_viz(viz, i))
 
             elif isinstance(viz, ChoroplethViz):
                 data_layers.append(self.add_choropleth_layer(viz, i))
 
+            elif isinstance(viz, ImageViz):
+                data_layers.append(self.add_image_layer(viz, viz_index))
+
+            elif isinstance(viz, RasterTilesViz):
+                pass
+
+            elif isinstance(viz, LinestringViz):
+                data_layers.append(self.add_linestring_layer(viz, i))
 
         return json.dumps(data_layers, ensure_ascii=False)
