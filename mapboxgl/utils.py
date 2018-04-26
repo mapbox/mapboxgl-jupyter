@@ -9,22 +9,19 @@ from matplotlib.image import imsave
 from colour import Color as Colour
 
 
-def row_to_geojson(row, lon, lat):
+def row_to_geojson(row, lon, lat, precision):
     """Convert a pandas dataframe row to a geojson format object.  Converts all datetimes to epoch seconds.
     """
 
     # Let pandas handle json serialization
     row_json = json.loads(row.to_json(date_format='epoch', date_unit='s'))
-    return geojson.Feature(geometry=geojson.Point((row_json[lon], row_json[lat])),
+    return geojson.Feature(geometry=geojson.Point((round(row_json[lon],precision), round(row_json[lat], precision))),
                            properties={key: row_json[key] for key in row_json.keys() if key not in [lon, lat]})
 
 
-def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, filename=None):
+def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filename=None):
     """Serialize a Pandas dataframe to a geojson format Python dictionary
     """
-    if precision:
-        df[lon] = df[lon].round(precision)
-        df[lat] = df[lat].round(precision)
 
     if not properties:
         # if no properties are selected, use all properties in dataframe
@@ -40,7 +37,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, fil
                 'properties cannot be the geometry longitude or latitude column')
 
     if filename:
-        with open(filename, 'w+') as f:
+        with open(filename, 'w') as f:
             # Overwrite file if it already exists
             pass
 
@@ -50,9 +47,9 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=None, fil
             f.write('{"type": "FeatureCollection", "features": [\n')
             for idx, row in df[[lon, lat] + properties].iterrows():
                 if idx == 0:
-                    f.write(geojson.dumps(row_to_geojson(row, lon, lat)) + '\n')
+                    f.write(geojson.dumps(row_to_geojson(row, lon, lat, precision)) + '\n')
                 else:
-                    f.write(',' + geojson.dumps(row_to_geojson(row, lon, lat)) + '\n')
+                    f.write(',' + geojson.dumps(row_to_geojson(row, lon, lat, precision)) + '\n')
             f.write(']}')
 
             return {
