@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+<!-- update legend item key style -->
+{% block extra_css %}
+    <style type='text/css'>
+        .legend div span { border-radius: 20%; height: 4px; margin-bottom: 3px; }
+    </style>
+{% endblock extra_css %}
+
+{% block legend %}
+
+    var legend = document.getElementById('legend');
+
+    {% if colorStops and colorProperty and widthProperty %}
+        {% if colorProperty != widthProperty %}
+            calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}");
+        {% else %}
+            calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+        {% endif %}
+    {% elif colorStops and colorProperty %}
+        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+    {% else %}
+        document.getElementById('legend').style.visibility='hidden';
+    {% endif %}
+
+{% endblock legend %}
+
+{% block map %}
+
+    map.on('style.load', function() {
+        
+        {% block linestring %}
+
+        // Add geojson data source
+        map.addSource("data", {
+            "type": "geojson",
+            "data": {{ geojson_data }},
+            "buffer": 1,
+            "maxzoom": 14
+        });
+
+        // Add data layer
+        map.addLayer({
+            "id": "linestring",
+            "source": "data",
+            "type": "line",
+            "layout": {
+                "line-join": "round",
+                "line-cap": "round"
+            },
+            "paint": {
+                {% if lineDashArray %}
+                    "line-dasharray": {{ lineDashArray }},
+                {% endif %}
+                {% if colorProperty %}
+                    "line-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+                {% else %}
+                    "line-color": "{{ defaultColor }}",
+                {% endif %}
+                {% if widthProperty %}
+                    "line-width": generatePropertyExpression("{{ widthType }}", "{{ widthProperty }}", {{ widthStops }}, "{{ defaultWidth }}"),
+                {% else %}
+                    "line-width": {{ defaultWidth }},
+                {% endif %}
+                "line-opacity": {{ opacity }}
+            }
+        }, "{{ belowLayer }}" );
+
+        // Add label layer
+        map.addLayer({
+            "id": "linestring-label",
+            "source": "data",
+            "type": "symbol",
+            "layout": {
+                {% if labelProperty %}
+                "text-field": "{{ labelProperty }}",
+                {% endif %}
+                "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
+                "text-offset": [0,-1]
+            },
+            "paint": {
+                "text-halo-color": "{{ labelHaloColor }}",
+                "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+                "text-color": "{{ labelColor }}"
+            }
+        }, "{{belowLayer}}" );
+
+        {% endblock linestring %}
+
+        // Create a popup
+        var popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+        
+        {% block linestring_popup %}
+
+        // Show the popup on mouseover
+        map.on('mousemove', 'linestring', function(e) {
+            map.getCanvas().style.cursor = 'pointer';
+            
+            let f = e.features[0];
+            let popup_html = '<div>';
+
+            for (key in f.properties) {
+                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+            }
+
+            popup_html += '</div>'
+            popup.setLngLat(e.lngLat)
+                .setHTML(popup_html)
+                .addTo(map);
+        });
+
+        {% endblock linestring_popup %}
+
+        map.on('mouseleave', 'linestring', function() {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+        
+        // Fly to on click
+        map.on('click', 'linestring', function(e) {
+            map.flyTo({
+                center: e.lngLat,
+                zoom: map.getZoom() + 1
+            });
+        });
+
+    });
+
+{% endblock map %}

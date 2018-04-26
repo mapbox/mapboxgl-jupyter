@@ -1,6 +1,7 @@
 import os
 import json
 import base64
+import random
 
 from mock import patch
 
@@ -21,6 +22,12 @@ def data():
 @pytest.fixture()
 def polygon_data():
     with open('tests/polygons.geojson') as fh:
+        return json.loads(fh.read())
+
+
+@pytest.fixture()
+def linestring_data():
+    with open('tests/linestrings.geojson') as fh:
         return json.loads(fh.read())
 
 
@@ -51,6 +58,14 @@ def test_secret_key_ChoroplethViz(polygon_data):
         ChoroplethViz(polygon_data, access_token=secret)
 
 
+def test_secret_key_LinestringViz(linestring_data):
+    """Secret key raises a token error
+    """
+    secret = 'sk.abc123'
+    with pytest.raises(TokenError):
+        LinestringViz(linestring_data, access_token=secret)
+
+
 def test_token_env_CircleViz(monkeypatch, data):
     """Viz can get token from environment if not specified
     """
@@ -77,6 +92,14 @@ def test_token_env_ChoroplethViz(monkeypatch, polygon_data):
     assert TOKEN in viz.create_html()
 
 
+def test_token_env_LinestringViz(monkeypatch, linestring_data):
+    """Viz can get token from environment if not specified
+    """
+    monkeypatch.setenv('MAPBOX_ACCESS_TOKEN', TOKEN)
+    viz = LinestringViz(linestring_data, color_property="sample")
+    assert TOKEN in viz.create_html()
+
+
 def test_html_color(data):
     viz = CircleViz(data,
                     color_property="Avg Medicare Payments",
@@ -95,6 +118,14 @@ def test_html_GraduatedCricleViz(data):
 def test_html_ChoroplethViz(polygon_data):
     viz = ChoroplethViz(polygon_data,
                         color_property="density",
+                        color_stops=[[0.0, "red"], [50.0, "gold"], [1000.0, "blue"]],
+                        access_token=TOKEN)
+    assert "<html>" in viz.create_html()
+
+
+def test_html_LinestringViz(linestring_data):
+    viz = LinestringViz(linestring_data,
+                        color_property="sample",
                         color_stops=[[0.0, "red"], [50.0, "gold"], [1000.0, "blue"]],
                         access_token=TOKEN)
     assert "<html>" in viz.create_html()
@@ -215,6 +246,40 @@ def test_display_vector_extruded_ChoroplethViz(display):
                         color_stops=create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd'),
                         height_property='density',
                         height_stops=create_numeric_stops([0, 50, 100, 500, 1500, 10000], 0, 1000000),
+                        access_token=TOKEN
+                       )
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_LinestringViz(display, linestring_data):
+    """Assert that show calls the mocked display function
+    """
+    viz = LinestringViz(linestring_data,
+                        color_property="sample",
+                        color_stops=[[0.0, "red"], [50.0, "gold"], [1000.0, "blue"]],
+                        access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_vector_LinestringViz(display):
+    """Assert that show calls the mocked display function when using data-join technique
+    for LinestringViz.
+    """
+    data = [{"elevation": x, "weight": random.randint(0,100)} for x in range(0, 21000, 10)]
+
+    viz = LinestringViz(data, 
+                        vector_url='mapbox://mapbox.mapbox-terrain-v2',
+                        vector_layer_name='contour',
+                        vector_join_property='ele',
+                        data_join_property='elevation',
+                        color_property="elevation",
+                        color_stops=create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd'),
+                        line_width_property='weight',
+                        line_width_stops=create_numeric_stops([0, 25, 50, 75, 100], 1, 6),
                         access_token=TOKEN
                        )
     viz.show()

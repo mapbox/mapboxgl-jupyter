@@ -459,3 +459,73 @@ viz.show()
 
 
 [Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/rastertile-viz-types-example.ipynb)
+
+
+## class LinestringViz
+
+The `LinestringViz` object handles the creation of a vector or GeoJSON-based Linestring visualization and inherits from the `MapViz` class.
+
+### Params
+**LinestringViz**(_data, vector_url=None, vector_layer_name=None, vector_join_property=None, data_join_property=None, label_property=None, label_size=8, label_color='#131516', label_halo_color='white', label_halo_width=1, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_stroke='solid', line_width_property=None, line_width_stops=None, line_width_default=1, line_width_function_type='interpolate', *args, **kwargs_)
+
+
+Parameter | Description | Example
+--|--|--
+data | can be either GeoJSON (containing polygon features) or JSON for data-join technique with vector polygons |
+vector_url | optional property to define vector linestring source | "mapbox://mapbox.mapbox-terrain-v2"
+vector_layer_name | property to define target layer of vector source if using vector linestring source | "contour"
+vector_join_property | property to aid in determining color for styling vector lines | "ele"
+data_join_property | property of json data to use as link to vector features | "elevation"
+label_property | property to use for marker label | "elevation"
+label_size | size of label text | 8
+label_color | color of label text | '#131516'
+label_halo_color | color of label text halo | 'white'
+label_halo_width | width of label text halo | 1
+color_property | property to determine line color | "elevation"
+color_stops | property to determine line color | [[0, "red"], [0.5, "blue"], [1, "green"]]
+color_default | property to determine default line color if match lookup fails | "#F0F0F0"
+color_function_type | property to determine type of expression used by Mapbox to assign color | "interpolate"
+line_stroke | property to determine line stroke (one of solid (-), dashed (--), dotted (:), dash dot (-.)) | "solid" or "-"
+line_width_property | feature property for determining line width | "elevation"
+line_width_stops | property to determine line width | [[0, 1], [50000, 2], [150000, 3]]
+line_width_default | property to determine default line width if match lookup fails | 1.0
+line_width_function_type | property to determine `type` used by Mapbox to assign line width | "interpolate"
+
+[MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+
+### Usage
+```python
+import random
+import os
+
+from mapboxgl.viz import LinestringViz
+from mapboxgl.utils import create_color_stops
+
+# Must be a public token, starting with `pk`
+token = os.getenv('MAPBOX_ACCESS_TOKEN')
+
+# JSON join-data object
+data = [{"elevation": x, "weight": random.randint(0,100)} for x in range(0, 21000, 10)]
+
+viz = LinestringViz(data, 
+                    vector_url='mapbox://mapbox.mapbox-terrain-v2',
+                    vector_layer_name='contour',
+                    vector_join_property='ele',
+                    data_join_property='elevation',
+                    color_property='elevation',
+                    color_stops=create_color_stops([0, 25, 50, 75, 100], colors='YlOrRd'),
+                    line_stroke='-',
+                    line_width_default=2,
+                    opacity=0.8,
+                    center=(-122.48, 37.83),
+                    zoom=16,
+                    below_layer='waterway-label'
+                   )
+viz.show()
+```
+
+![LinestringViz](https://user-images.githubusercontent.com/13527707/39278071-02b6b2fc-48a6-11e8-8492-ae1f991b4b9e.png)
+
+
+[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/linestring-viz.ipynb)
+

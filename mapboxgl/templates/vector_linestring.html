@@ -1,0 +1,123 @@
+{% extends "linestring.html" %}
+
+{% block linestring %}
+
+    // extract JSON property used for data-driven styling to add to popup
+    {% if joinData %}
+
+        let joinData = {{ joinData }};
+        var popUpKeys = {},
+            lineWidthPopUpKeys = {};
+
+        // Create filter for layers from join data
+        let layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
+        
+        joinData.forEach(function(row, index) {
+
+            {% if colorProperty %}
+                popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
+            {% endif %}
+
+            {% if widthProperty %}
+                {% if colorProperty != widthProperty %}
+                    lineWidthPopUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ widthProperty }}"];
+                {% endif %}
+            {% endif %}
+
+            layerFilter.push(row["{{ dataJoinProperty }}"]);
+        });
+
+    {% endif %}
+
+    // Add vector data source
+    map.addSource("vector-data", {
+        type: "vector",
+        url: "{{ vectorUrl }}",
+    });
+
+    // Add data layer from the vector tile source with data-driven style
+    map.addLayer({
+        "id": "linestring",
+        "source": "vector-data",
+        "source-layer": "{{ vectorLayer }}",
+        "type": "line",
+        "layout": {
+            "line-join": "round",
+            "line-cap": "round"
+        },
+        "paint": {
+            {% if lineDashArray %}
+                "line-dasharray": {{ lineDashArray }},
+            {% endif %}
+            "line-color": {
+                "type": "categorical",
+                "property": "{{ vectorJoinDataProperty }}", 
+                "stops": {{ vectorColorStops }}, 
+                "default": "{{ defaultColor }}"
+            }, 
+            "line-width": {
+                "type": "categorical",
+                "property": "{{ vectorJoinDataProperty }}", 
+                "stops": {{ vectorWidthStops }}, 
+                "default": {{ defaultWidth }}
+            },
+
+            "line-opacity": {{ opacity }}
+        },
+        filter: layerFilter
+    }, "{{ belowLayer }}" );
+
+    // Add label layer
+    map.addLayer({
+        "id": "linestring-label",
+        "source": "vector-data",
+        "source-layer": "{{ vectorLayer }}",
+        "type": "symbol",
+        "layout": {
+            {% if labelProperty %}
+            "text-field": "{{ labelProperty }}",
+            {% endif %}
+            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
+            "text-offset": [0,-1]
+        },
+        "paint": {
+            "text-halo-color": "{{ labelHaloColor }}",
+            "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+            "text-color": "{{ labelColor }}"
+        },
+        filter: layerFilter
+    }, "{{belowLayer}}" );
+
+{% endblock linestring %}
+
+{% block linestring_popup %}
+
+    // Show the popup on mouseover
+    map.on('mousemove', 'linestring', function(e) {
+        map.getCanvas().style.cursor = 'pointer';
+        
+        let f = e.features[0];
+        let popup_html = '<div>';
+
+        for (key in f.properties) {
+            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+        }
+
+        // Add property from joined data to vector's feature popup
+        {% if colorProperty %}
+            popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+        {% endif %}
+
+        {% if widthProperty %}
+            {% if colorProperty != widthProperty %}
+                popup_html += '<li><b> ' + "{{ widthProperty }}".toUpperCase() + '</b>: ' + lineWidthPopUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+            {% endif %}
+        {% endif %}
+
+        popup_html += '</div>'
+        popup.setLngLat(e.lngLat)
+            .setHTML(popup_html)
+            .addTo(map);
+    });
+
+{% endblock linestring_popup %}

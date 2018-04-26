@@ -250,6 +250,68 @@ def color_map(lookup, color_stops, default_color='rgb(122,122,122)'):
     return default_color
 
 
+def numeric_map(lookup, numeric_stops, default=0.0):
+    """Return a number value interpolated from given numeric_stops
+    """
+    # if no numeric_stops, use default
+    if len(numeric_stops) == 0:
+        return default
+    
+    # dictionary to lookup value from match-type numeric_stops
+    match_map = dict((x, y) for (x, y) in numeric_stops)
+
+    # if lookup matches stop exactly, return corresponding stop (first priority)
+    # (includes non-numeric numeric_stop "keys" for finding value by match)
+    if lookup in match_map.keys():
+        return match_map.get(lookup)
+
+    # if lookup value numeric, map value by interpolating from scale
+    if isinstance(lookup, (int, float, complex)):
+
+        # try ordering stops 
+        try:
+            stops, values = zip(*sorted(numeric_stops))
+        
+        # if not all stops are numeric, attempt looking up as if categorical stops
+        except TypeError:
+            return match_map.get(lookup, default)
+
+        # for interpolation, all stops must be numeric
+        if not all(isinstance(x, (int, float, complex)) for x in stops):
+            return default
+
+        # check if lookup value in stops bounds
+        if float(lookup) <= stops[0]:
+            return values[0]
+        
+        elif float(lookup) >= stops[-1]:
+            return values[-1]
+        
+        # check if lookup value matches any stop value
+        elif float(lookup) in stops:
+            return values[stops.index(lookup)]
+        
+        # interpolation required
+        else:
+
+            # identify bounding stop values
+            lower = max([stops[0]] + [x for x in stops if x < lookup])
+            upper = min([stops[-1]] + [x for x in stops if x > lookup])
+            
+            # values from bounding stops
+            lower_value = values[stops.index(lower)]
+            upper_value = values[stops.index(upper)]
+            
+            # compute linear "relative distance" from lower bound to upper bound
+            distance = (lookup - lower) / (upper - lower)
+
+            # return interpolated value
+            return lower_value + distance * (upper_value - lower_value)
+
+    # default value catch-all
+    return default
+
+
 def img_encode(arr, **kwargs):
     """Encode ndarray to base64 string image data
     

@@ -8,7 +8,7 @@ import numpy
 from mapboxgl.errors import TokenError
 from mapboxgl.utils import color_map, height_map
 from mapboxgl import templates
-from mapboxgl.utils import img_encode
+from mapboxgl.utils import img_encode, numeric_map
 
 
 GL_JS_VERSION = 'v0.44.1'
@@ -604,3 +604,171 @@ class RasterTilesViz(MapViz):
             tiles_minzoom=self.tiles_minzoom,
             tiles_maxzoom=self.tiles_maxzoom,
             tiles_bounds=self.tiles_bounds if self.tiles_bounds else 'undefined'))
+
+
+class LinestringViz(MapViz):
+    """Create a linestring viz"""
+
+    def __init__(self,
+                 data,
+                 vector_url=None,
+                 vector_layer_name=None,
+                 vector_join_property=None,
+                 data_join_property=None,
+                 label_property=None,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
+                 color_property=None,
+                 color_stops=None,
+                 color_default='grey',
+                 color_function_type='interpolate',
+                 line_stroke='solid',
+                 line_width_property=None,
+                 line_width_stops=None,
+                 line_width_default=1,
+                 line_width_function_type='interpolate',
+                 *args,
+                 **kwargs):
+        """Construct a Mapviz object
+
+        :param data: can be either GeoJSON (containing polygon features) or JSON for data-join technique with vector polygons
+        :param vector_url: optional property to define vector linestring source
+        :param vector_layer_name: property to define target layer of vector source
+        :param vector_join_property: property to aid in determining color for styling vector lines
+        :param data_join_property: property to join json data to vector features
+        :param label_property: property to use for marker label
+        :param label_size: size of label text
+        :param label_color: color of label text
+        :param label_halo_color: color of label text halo
+        :param label_halo_width: width of label text halo
+        :param color_property: property to determine line color
+        :param color_stops: property to determine line color
+        :param color_default: property to determine default line color if match lookup fails
+        :param color_function_type: property to determine `type` used by Mapbox to assign color
+        :param line_stroke: property to determine line stroke (solid, dashed, dotted, dash dot)
+        :param line_width_property: property to determine line width
+        :param line_width_stops: property to determine line width
+        :param line_width_default: property to determine default line width if match lookup fails
+        :param line_width_function_type: property to determine `type` used by Mapbox to assign line width
+
+        """
+        super(LinestringViz, self).__init__(data, *args, **kwargs)
+        
+        self.vector_url = vector_url
+        self.vector_layer_name = vector_layer_name
+        self.vector_join_property = vector_join_property
+        self.data_join_property = data_join_property
+
+        if self.vector_url is not None and self.vector_layer_name is not None:
+            self.template = 'vector_linestring'
+            self.vector_source = True
+        else:
+            self.vector_source = False
+            self.template = 'linestring'
+
+        self.label_property = label_property
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
+        self.color_property = color_property
+        self.color_stops = color_stops
+        self.color_default = color_default
+        self.color_function_type = color_function_type
+        self.line_stroke = line_stroke
+        self.line_width_property = line_width_property
+        self.line_width_stops = line_width_stops
+        self.line_width_default = line_width_default
+        self.line_width_function_type = line_width_function_type
+
+    def generate_vector_color_map(self):
+        """Generate color stops array for use with match expression in mapbox template"""
+        vector_stops = []
+        for row in self.data:
+
+            # map color to JSON feature using color_property
+            color = color_map(row[self.color_property], self.color_stops, self.color_default)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], color])
+
+        return vector_stops
+
+    def generate_vector_width_map(self):
+        """Generate width stops array for use with match expression in mapbox template"""
+        vector_stops = []
+        
+        if self.line_width_function_type == 'match':
+            match_width = self.line_width_stops
+
+        for row in self.data:
+
+            # map width to JSON feature using width_property
+            width = numeric_map(row[self.line_width_property], self.line_width_stops, self.line_width_default)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], width])
+
+        return vector_stops
+
+    def add_unique_template_variables(self, options):
+        """Update map template variables specific to linestring visual"""
+
+        # set line stroke dash interval based on line_stroke property
+        if self.line_stroke in ["dashed", "--"]:
+            self.line_dash_array = [6, 4]
+        elif self.line_stroke in ["dotted", ":"]:
+            self.line_dash_array = [0.5, 4]
+        elif self.line_stroke in ["dash dot", "-."]:
+            self.line_dash_array = [6, 4, 0.5, 4]
+        elif self.line_stroke in ["solid", "-"]:
+            self.line_dash_array = [1, 0]
+        else:
+            # default to solid line
+            self.line_dash_array = [1, 0]
+
+        # common variables for vector and geojson-based linestring maps
+        options.update(dict(
+            colorStops=self.color_stops,
+            colorProperty=self.color_property,
+            colorType=self.color_function_type,
+            defaultColor=self.color_default,
+            lineColor=self.color_default,
+            lineDashArray=self.line_dash_array,
+            lineStroke=self.line_stroke,
+            widthStops=self.line_width_stops,
+            widthProperty=self.line_width_property,
+            widthType=self.line_width_function_type,
+            defaultWidth=self.line_width_default,
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
+        ))
+
+        # vector-based linestring map variables
+        if self.vector_source:
+            options.update(dict(
+                vectorUrl=self.vector_url,
+                vectorLayer=self.vector_layer_name,
+                vectorJoinDataProperty=self.vector_join_property,
+                vectorColorStops=[[0,self.color_default]],
+                vectorWidthStops=[[0,self.line_width_default]],
+                joinData=json.dumps(self.data, ensure_ascii=False),
+                dataJoinProperty=self.data_join_property,
+            ))
+
+            if self.color_property:
+                options.update(dict(vectorColorStops=self.generate_vector_color_map()))
+        
+            if self.line_width_property:
+                options.update(dict(vectorWidthStops=self.generate_vector_width_map()))
+
+        # geojson-based linestring map variables
+        else:
+            options.update(dict(
+                geojson_data=json.dumps(self.data, ensure_ascii=False),
+            ))
+
