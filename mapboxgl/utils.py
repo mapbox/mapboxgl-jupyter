@@ -60,7 +60,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
     else:
         features = []
         df[[lon, lat] + properties].apply(lambda x: features.append(
-            row_to_geojson(x, lon, lat)), axis=1)
+            row_to_geojson(x, lon, lat, precision)), axis=1)
         return geojson.FeatureCollection(features)
 
 
