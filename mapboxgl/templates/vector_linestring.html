@@ -77,7 +77,7 @@
             {% if labelProperty %}
             "text-field": "{{ labelProperty }}",
             {% endif %}
-            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
+            "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
             "text-offset": [0,-1]
         },
         "paint": {
