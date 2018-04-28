@@ -25,6 +25,11 @@ class MapViz(object):
                  div_id='map',
                  height='500px',
                  style='mapbox://styles/mapbox/light-v9?optimize=true',
+                 label_property=None,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
                  width='100%',
                  zoom=0,
                  min_zoom=0,
@@ -37,6 +42,11 @@ class MapViz(object):
         :param access_token: Mapbox GL JS access token.
         :param center: map center point
         :param style: url to mapbox style or stylesheet as a Python dictionary in JSON format
+        :param label_property: property to use for marker label
+        :param label_size: size of label text
+        :param label_color: color of label text
+        :param label_halo_color: color of label text halo
+        :param label_halo_width: width of label text halo
         :param div_id: The HTML div id of the map container in the viz
         :param width: The CSS width of the HTML div id in % or pixels.
         :param height: The CSS height of the HTML map div in % or pixels.
@@ -63,7 +73,11 @@ class MapViz(object):
         self.zoom = zoom
         self.below_layer = below_layer
         self.opacity = opacity
-        self.label_property = None
+        self.label_property = label_property
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
         self.min_zoom = min_zoom
         self.max_zoom = max_zoom
         self.pitch = pitch
@@ -109,8 +123,13 @@ class MapViz(object):
             opacity=self.opacity,
             minzoom=self.min_zoom,
             maxzoom=self.max_zoom,
-            pitch=self.pitch, 
-            bearing=self.bearing)
+            pitch=self.pitch,
+            bearing=self.bearing,
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
+        )
 
         if self.label_property is None:
             options.update(labelProperty=None)
@@ -127,11 +146,6 @@ class CircleViz(MapViz):
 
     def __init__(self,
                  data,
-                 label_property=None,
-                 label_size=8,
-                 label_color='#131516',
-                 label_halo_color='white',
-                 label_halo_width=1,
                  radius=1,
                  color_property=None,
                  color_stops=None,
@@ -143,11 +157,6 @@ class CircleViz(MapViz):
                  **kwargs):
         """Construct a Mapviz object
 
-        :param label_property: property to use for marker label
-        :param label_size: size of label text
-        :param label_color: color of label text
-        :param label_halo_color: color of label text halo
-        :param label_halo_width: width of label text halo
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
         :param color_default: property to determine default circle color if match lookup fails
@@ -160,11 +169,6 @@ class CircleViz(MapViz):
         super(CircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'circle'
-        self.label_property = label_property
-        self.label_color = label_color
-        self.label_size = label_size
-        self.label_halo_color = label_halo_color
-        self.label_halo_width = label_halo_width
         self.color_property = color_property
         self.color_stops = color_stops
         self.radius = radius
@@ -184,10 +188,6 @@ class CircleViz(MapViz):
             strokeColor=self.stroke_color,
             radius=self.radius,
             defaultColor=self.color_default,
-            labelColor=self.label_color,
-            labelSize=self.label_size,
-            labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width
         ))
 
 
@@ -196,11 +196,6 @@ class GraduatedCircleViz(MapViz):
 
     def __init__(self,
                  data,
-                 label_property=None,
-                 label_size=8,
-                 label_color='#131516',
-                 label_halo_color='white',
-                 label_halo_width=1,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -215,7 +210,6 @@ class GraduatedCircleViz(MapViz):
                  **kwargs):
         """Construct a Mapviz object
 
-        :param label_property: property to use for marker label
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
         :param color_default: property to determine default circle color if match lookup fails
@@ -231,11 +225,6 @@ class GraduatedCircleViz(MapViz):
         super(GraduatedCircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'graduated_circle'
-        self.label_property = label_property
-        self.label_color = label_color
-        self.label_size = label_size
-        self.label_halo_color = label_halo_color
-        self.label_halo_width = label_halo_width
         self.color_property = color_property
         self.color_stops = color_stops
         self.radius_property = radius_property
@@ -260,10 +249,6 @@ class GraduatedCircleViz(MapViz):
             radiusStops=self.radius_stops,
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
-            labelColor=self.label_color,
-            labelSize=self.label_size,
-            labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width
         ))
 
 
@@ -315,10 +300,6 @@ class ClusteredCircleViz(MapViz):
 
     def __init__(self,
                  data,
-                 label_size=8,
-                 label_color='#131516',
-                 label_halo_color='white',
-                 label_halo_width=1,
                  color_stops=None,
                  radius_stops=None,
                  cluster_radius=30,
@@ -344,10 +325,6 @@ class ClusteredCircleViz(MapViz):
         super(ClusteredCircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'clustered_circle'
-        self.label_color = label_color
-        self.label_size = label_size
-        self.label_halo_color = label_halo_color
-        self.label_halo_width = label_halo_width
         self.color_stops = color_stops
         self.radius_stops = radius_stops
         self.clusterRadius = cluster_radius
@@ -369,10 +346,6 @@ class ClusteredCircleViz(MapViz):
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
             radiusDefault=self.radius_default,
-            labelColor=self.label_color,
-            labelSize=self.label_size,
-            labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width
         ))
 
 
@@ -385,7 +358,6 @@ class ChoroplethViz(MapViz):
                  vector_layer_name=None,
                  vector_join_property=None,
                  data_join_property=None, # vector only
-                 label_property=None,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -406,7 +378,6 @@ class ChoroplethViz(MapViz):
         :param vector_layer_name: property to define target layer of vector source
         :param vector_join_property: property to aid in determining color for styling vector polygons
         :param data_join_property: property to join json data to vector features
-        :param label_property: property to use for marker label
         :param color_property: property to determine polygon color
         :param color_stops: property to determine polygon color
         :param color_default: property to determine default polygon color if match lookup fails
@@ -433,7 +404,6 @@ class ChoroplethViz(MapViz):
             self.vector_source = False
             self.template = 'choropleth'
 
-        self.label_property = label_property
         self.color_property = color_property
         self.color_stops = color_stops
         self.color_default = color_default
@@ -615,11 +585,6 @@ class LinestringViz(MapViz):
                  vector_layer_name=None,
                  vector_join_property=None,
                  data_join_property=None,
-                 label_property=None,
-                 label_size=8,
-                 label_color='#131516',
-                 label_halo_color='white',
-                 label_halo_width=1,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -638,11 +603,6 @@ class LinestringViz(MapViz):
         :param vector_layer_name: property to define target layer of vector source
         :param vector_join_property: property to aid in determining color for styling vector lines
         :param data_join_property: property to join json data to vector features
-        :param label_property: property to use for marker label
-        :param label_size: size of label text
-        :param label_color: color of label text
-        :param label_halo_color: color of label text halo
-        :param label_halo_width: width of label text halo
         :param color_property: property to determine line color
         :param color_stops: property to determine line color
         :param color_default: property to determine default line color if match lookup fails
@@ -668,11 +628,6 @@ class LinestringViz(MapViz):
             self.vector_source = False
             self.template = 'linestring'
 
-        self.label_property = label_property
-        self.label_color = label_color
-        self.label_size = label_size
-        self.label_halo_color = label_halo_color
-        self.label_halo_width = label_halo_width
         self.color_property = color_property
         self.color_stops = color_stops
         self.color_default = color_default
@@ -742,10 +697,6 @@ class LinestringViz(MapViz):
             widthProperty=self.line_width_property,
             widthType=self.line_width_function_type,
             defaultWidth=self.line_width_default,
-            labelColor=self.label_color,
-            labelSize=self.label_size,
-            labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width
         ))
 
         # vector-based linestring map variables
