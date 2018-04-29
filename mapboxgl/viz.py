@@ -14,6 +14,49 @@ from mapboxgl.utils import img_encode, numeric_map
 GL_JS_VERSION = 'v0.42.2'
 
 
+class VectorMixin(object):
+
+    def generate_vector_color_map(self):
+        """Generate color stops array for use with match expression in mapbox template"""
+        vector_stops = []
+
+        if self.color_function_type == 'match':
+            return self.color_stops
+
+        for row in self.data:
+
+            # map color to JSON feature using color_property
+            color = color_map(row[self.color_property], self.color_stops, self.color_default)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], color])
+
+        return vector_stops
+
+
+    def generate_vector_numeric_map(self, numeric_property):
+        """Generate stops array for use with match expression in mapbox template"""
+        vector_stops = []
+        
+        function_type = getattr(self, '{}_function_type'.format(numeric_property))
+        lookup_property = getattr(self, '{}_property'.format(numeric_property))
+        numeric_stops = getattr(self, '{}_stops'.format(numeric_property))
+        default = getattr(self, '{}_default'.format(numeric_property))
+
+        if function_type == 'match':
+            match_width = numeric_stops
+
+        for row in self.data:
+
+            # map value to JSON feature using the numeric property
+            value = numeric_map(row[lookup_property], numeric_stops, default)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], value])
+
+        return vector_stops 
+
+
 class MapViz(object):
 
     def __init__(self,
@@ -349,7 +392,7 @@ class ClusteredCircleViz(MapViz):
         ))
 
 
-class ChoroplethViz(MapViz):
+class ChoroplethViz(VectorMixin, MapViz):
     """Create a choropleth viz"""
 
     def __init__(self,
@@ -357,7 +400,7 @@ class ChoroplethViz(MapViz):
                  vector_url=None,
                  vector_layer_name=None,
                  vector_join_property=None,
-                 data_join_property=None, # vector only
+                 data_join_property=None,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -416,36 +459,6 @@ class ChoroplethViz(MapViz):
         self.height_default = height_default
         self.height_function_type = height_function_type
 
-    def generate_vector_color_map(self):
-        """Generate color stops array for use with match expression in mapbox template"""
-        vector_stops = []
-        for row in self.data:
-
-            # map color to JSON feature using color_property
-            color = color_map(row[self.color_property], self.color_stops, self.color_default)
-            
-            # link to vector feature using data_join_property (from JSON object)
-            vector_stops.append([row[self.data_join_property], color])
-
-        return vector_stops
-
-    def generate_vector_height_map(self):
-        """Generate height stops array for use with match expression in mapbox template"""
-        vector_stops = []
-        
-        if self.height_function_type == 'match':
-            match_height = self.height_stops
-
-        for row in self.data:
-
-            # map height to JSON feature using height_property
-            height = height_map(row[self.height_property], self.height_stops, self.height_default)
-            
-            # link to vector feature using data_join_property (from JSON object)
-            vector_stops.append([row[self.data_join_property], height])
-
-        return vector_stops
-
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
 
@@ -497,7 +510,7 @@ class ChoroplethViz(MapViz):
             ))
             if self.extrude:
                 options.update(dict(
-                    vectorHeightStops=self.generate_vector_height_map(),
+                    vectorHeightStops=self.generate_vector_numeric_map('height'),
                 ))
 
         # geojson-based choropleth map variables
@@ -576,7 +589,7 @@ class RasterTilesViz(MapViz):
             tiles_bounds=self.tiles_bounds if self.tiles_bounds else 'undefined'))
 
 
-class LinestringViz(MapViz):
+class LinestringViz(VectorMixin, MapViz):
     """Create a linestring viz"""
 
     def __init__(self,
@@ -638,36 +651,6 @@ class LinestringViz(MapViz):
         self.line_width_default = line_width_default
         self.line_width_function_type = line_width_function_type
 
-    def generate_vector_color_map(self):
-        """Generate color stops array for use with match expression in mapbox template"""
-        vector_stops = []
-        for row in self.data:
-
-            # map color to JSON feature using color_property
-            color = color_map(row[self.color_property], self.color_stops, self.color_default)
-            
-            # link to vector feature using data_join_property (from JSON object)
-            vector_stops.append([row[self.data_join_property], color])
-
-        return vector_stops
-
-    def generate_vector_width_map(self):
-        """Generate width stops array for use with match expression in mapbox template"""
-        vector_stops = []
-        
-        if self.line_width_function_type == 'match':
-            match_width = self.line_width_stops
-
-        for row in self.data:
-
-            # map width to JSON feature using width_property
-            width = numeric_map(row[self.line_width_property], self.line_width_stops, self.line_width_default)
-            
-            # link to vector feature using data_join_property (from JSON object)
-            vector_stops.append([row[self.data_join_property], width])
-
-        return vector_stops
-
     def add_unique_template_variables(self, options):
         """Update map template variables specific to linestring visual"""
 
@@ -715,7 +698,7 @@ class LinestringViz(MapViz):
                 options.update(dict(vectorColorStops=self.generate_vector_color_map()))
         
             if self.line_width_property:
-                options.update(dict(vectorWidthStops=self.generate_vector_width_map()))
+                options.update(dict(vectorWidthStops=self.generate_vector_numeric_map('line_width')))
 
         # geojson-based linestring map variables
         else:
