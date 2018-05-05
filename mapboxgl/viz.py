@@ -184,11 +184,17 @@ class MapViz(object):
         return templates.format(self.template, **options)
 
 
-class CircleViz(MapViz):
+class CircleViz(VectorMixin, MapViz):
     """Create a circle map"""
 
     def __init__(self,
                  data,
+
+                 vector_url=None,
+                 vector_layer_name=None,
+                 vector_join_property=None,
+                 data_join_property=None,
+
                  radius=1,
                  color_property=None,
                  color_stops=None,
@@ -211,7 +217,18 @@ class CircleViz(MapViz):
         """
         super(CircleViz, self).__init__(data, *args, **kwargs)
 
-        self.template = 'circle'
+        self.vector_url = vector_url
+        self.vector_layer_name = vector_layer_name
+        self.vector_join_property = vector_join_property
+        self.data_join_property = data_join_property
+
+        if self.vector_url is not None and self.vector_layer_name is not None:
+            self.template = 'vector_circle'
+            self.vector_source = True
+        else:
+            self.vector_source = False
+            self.template = 'circle'
+
         self.color_property = color_property
         self.color_stops = color_stops
         self.radius = radius
@@ -232,9 +249,21 @@ class CircleViz(MapViz):
             radius=self.radius,
             defaultColor=self.color_default,
         ))
+        if self.vector_source:
+            options.update(dict(
+                vectorUrl=self.vector_url,
+                vectorLayer=self.vector_layer_name,
+                vectorColorStops=[[0,self.color_default]],
+                vectorJoinDataProperty=self.vector_join_property,
+                joinData=json.dumps(self.data, ensure_ascii=False),
+                dataJoinProperty=self.data_join_property,
+            ))
+
+            # if self.color_stops:
+            #     options.update(vectorColorStops=self.generate_vector_color_map())
 
 
-class GraduatedCircleViz(MapViz):
+class GraduatedCircleViz(VectorMixin, MapViz):
     """Create a graduated circle map"""
 
     def __init__(self,
@@ -267,7 +296,18 @@ class GraduatedCircleViz(MapViz):
         """
         super(GraduatedCircleViz, self).__init__(data, *args, **kwargs)
 
-        self.template = 'graduated_circle'
+        self.vector_url = vector_url
+        self.vector_layer_name = vector_layer_name
+        self.vector_join_property = vector_join_property
+        self.data_join_property = data_join_property
+
+        if self.vector_url is not None and self.vector_layer_name is not None:
+            self.template = 'vector_graduated_circle'
+            self.vector_source = True
+        else:
+            self.vector_source = False
+            self.template = 'graduated_circle'
+
         self.color_property = color_property
         self.color_stops = color_stops
         self.radius_property = radius_property
@@ -293,13 +333,28 @@ class GraduatedCircleViz(MapViz):
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
         ))
+        if self.vector_source:
+            options.update(dict(
+                vectorUrl=self.vector_url,
+                vectorLayer=self.vector_layer_name,
+                vectorColorStops=self.generate_vector_color_map(),
+                vectorJoinDataProperty=self.vector_join_property,
+                joinData=json.dumps(self.data, ensure_ascii=False),
+                dataJoinProperty=self.data_join_property,
+            ))
 
 
-class HeatmapViz(MapViz):
+class HeatmapViz(VectorMixin, MapViz):
     """Create a heatmap viz"""
 
     def __init__(self,
                  data,
+
+                 vector_url=None,
+                 vector_layer_name=None,
+                 vector_join_property=None,
+                 data_join_property=None,
+
                  weight_property=None,
                  weight_stops=None,
                  color_stops=None,
@@ -318,7 +373,18 @@ class HeatmapViz(MapViz):
         """
         super(HeatmapViz, self).__init__(data, *args, **kwargs)
 
-        self.template = 'heatmap'
+        self.vector_url = vector_url
+        self.vector_layer_name = vector_layer_name
+        self.vector_join_property = vector_join_property
+        self.data_join_property = data_join_property
+
+        if self.vector_url is not None and self.vector_layer_name is not None:
+            self.template = 'vector_heatmap'
+            self.vector_source = True
+        else:
+            self.vector_source = False
+            self.template = 'heatmap'
+
         self.weight_property = weight_property
         self.weight_stops = weight_stops
         if color_stops:
@@ -338,11 +404,17 @@ class HeatmapViz(MapViz):
         ))
 
 
-class ClusteredCircleViz(MapViz):
+class ClusteredCircleViz(VectorMixin, MapViz):
     """Create a clustered circle map"""
 
     def __init__(self,
                  data,
+
+                 vector_url=None,
+                 vector_layer_name=None,
+                 vector_join_property=None,
+                 data_join_property=None,
+
                  color_stops=None,
                  radius_stops=None,
                  cluster_radius=30,
@@ -367,7 +439,18 @@ class ClusteredCircleViz(MapViz):
         """
         super(ClusteredCircleViz, self).__init__(data, *args, **kwargs)
 
-        self.template = 'clustered_circle'
+        self.vector_url = vector_url
+        self.vector_layer_name = vector_layer_name
+        self.vector_join_property = vector_join_property
+        self.data_join_property = data_join_property
+
+        if self.vector_url is not None and self.vector_layer_name is not None:
+            self.template = 'vector_clustered_circle'
+            self.vector_source = True
+        else:
+            self.vector_source = False
+            self.template = 'clustered_circle'
+
         self.color_stops = color_stops
         self.radius_stops = radius_stops
         self.clusterRadius = cluster_radius
@@ -390,6 +473,15 @@ class ClusteredCircleViz(MapViz):
             strokeColor=self.stroke_color,
             radiusDefault=self.radius_default,
         ))
+        if self.vector_source:
+            options.update(dict(
+                vectorUrl=self.vector_url,
+                vectorLayer=self.vector_layer_name,
+                vectorColorStops=self.generate_vector_color_map(),
+                vectorJoinDataProperty=self.vector_join_property,
+                joinData=json.dumps(self.data, ensure_ascii=False),
+                dataJoinProperty=self.data_join_property,
+            ))
 
 
 class ChoroplethViz(VectorMixin, MapViz):

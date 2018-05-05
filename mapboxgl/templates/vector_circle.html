@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block legend %}
+
+    {% if colorStops and colorProperty %}
+        calcCircleColorLegend({{ colorStops }} , "{{ colorProperty }}");
+    {% else %}
+        document.getElementById('legend').style.visibility='hidden'
+    {% endif %}
+    
+{% endblock legend %}
+
+{% block map %}
+
+    map.on('style.load', function() {
+
+        // extract JSON property used for data-driven styling to add to popup
+        {% if joinData %}
+
+            let joinData = {{ joinData }};
+            var popUpKeys = {},
+                heightPopUpKeys = {};
+
+            // Create filter for layers from join data
+            let layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
+            
+            joinData.forEach(function(row, index) {
+                popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
+                layerFilter.push(row["{{ dataJoinProperty }}"]);
+            });
+
+        {% endif %}
+
+
+        // Add vector data source
+        map.addSource("vector-data", {
+            type: "vector",
+            url: "{{ vectorUrl }}",
+        });
+
+        map.addLayer({
+            "id": "label",
+            "source": "vector-data",
+            "source-layer": "{{ vectorLayer }}",
+            "type": "symbol",
+            "maxzoom": {{ maxzoom }},
+            "minzoom": {{ minzoom }},
+            "layout": {
+                {% if labelProperty %}
+                    "text-field": "{{ labelProperty }}",
+                {% endif %}
+                "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
+                "text-offset": [0,-1]
+            },
+            "paint": {
+                "text-halo-color": "{{ labelHaloColor }}",
+                "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+                "text-color": "{{ labelColor }}"
+            },
+            filter: layerFilter
+        }, "{{belowLayer}}" )
+        
+        map.addLayer({
+            "id": "circle",
+            "source": "vector-data",
+            "source-layer": "{{ vectorLayer }}",
+            "type": "circle",
+            "maxzoom": {{ maxzoom }},
+            "minzoom": {{ minzoom }},
+            "paint": {
+                {% if colorProperty %}
+                    "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+                    {% else %}
+                    "circle-color": "{{ defaultColor }}",
+                {% endif %}
+                "circle-radius" : generatePropertyExpression('interpolate', 'zoom', [[0,{{ radius }}], [22,10 * {{ radius }}]]),
+                "circle-stroke-color": "{{ strokeColor }}",
+                "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
+                "circle-opacity" : {{ opacity }},
+                "circle-stroke-opacity" : {{ opacity }}
+            },
+            filter: layerFilter
+        }, "label");
+        
+        // Create a popup
+        var popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+        
+        // Show the popup on mouseover
+        map.on('mousemove', 'circle', function(e) {
+            map.getCanvas().style.cursor = 'pointer';
+            
+            let f = e.features[0];
+            let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+                ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
+
+            for (key in f.properties) {
+                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+            }
+
+            // Add property from joined data to vector's feature popup
+            popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+
+            popup_html += '</div>'
+            popup.setLngLat(e.features[0].geometry.coordinates)
+                .setHTML(popup_html)
+                .addTo(map);
+        });
+
+        map.on('mouseleave', 'circle', function() {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+        
+        // Fly to on click
+        map.on('click', 'circle', function(e) {
+            map.easeTo({
+                center: e.features[0].geometry.coordinates,
+                zoom: map.getZoom() + 1
+            });
+        });
+    });
+
+{% endblock map %}
