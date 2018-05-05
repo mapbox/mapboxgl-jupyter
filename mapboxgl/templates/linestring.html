@@ -9,14 +9,16 @@
 
 {% block legend %}
 
-    {% if colorStops and colorProperty and widthProperty %}
-        {% if colorProperty != widthProperty %}
-            calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}");
-        {% else %}
+    {% if showLegend %}
+        {% if colorStops and colorProperty and widthProperty %}
+            {% if colorProperty != widthProperty %}
+                calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}");
+            {% else %}
+                calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+            {% endif %}
+        {% elif colorStops and colorProperty %}
             calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
         {% endif %}
-    {% elif colorStops and colorProperty %}
-        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
     {% endif %}
 
 {% endblock legend %}

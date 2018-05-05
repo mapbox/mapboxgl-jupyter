@@ -2,10 +2,12 @@
 
 {% block legend %}
 
-    {% if colorStops and colorProperty %}
-        calcCircleColorLegend({{ colorStops }} , "{{ colorProperty }}");
+    {% if showLegend %}
+        {% if colorStops and colorProperty %}
+            calcCircleColorLegend({{ colorStops }} , "{{ colorProperty }}");
+        {% endif %}
     {% endif %}
-    
+        
 {% endblock legend %}
 
 {% block map %}

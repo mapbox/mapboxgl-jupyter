@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
 {% block legend %}
-
-    {% if colorStops and colorProperty and radiusProperty %}
-        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+    
+    {% if showLegend %}
+        {% if colorStops and colorProperty and radiusProperty %}
+            calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+        {% endif %}
     {% endif %}
 
 {% endblock legend %}

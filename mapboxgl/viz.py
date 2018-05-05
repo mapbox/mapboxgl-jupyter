@@ -30,7 +30,8 @@ class MapViz(object):
                  min_zoom=0,
                  max_zoom=24,
                  pitch=0,
-                 bearing=0):
+                 bearing=0,
+                 legend=True):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -44,6 +45,7 @@ class MapViz(object):
         :param opacity: opacity of map data layer
         :param pitch: starting pitch (in degrees) for map
         :param bearing: starting bearing (in degrees) for map
+        :param legend: boolean for whether to show legend on map
 
         """
         if access_token is None:
@@ -68,6 +70,7 @@ class MapViz(object):
         self.max_zoom = max_zoom
         self.pitch = pitch
         self.bearing = bearing
+        self.legend = legend
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -110,7 +113,8 @@ class MapViz(object):
             minzoom=self.min_zoom,
             maxzoom=self.max_zoom,
             pitch=self.pitch, 
-            bearing=self.bearing)
+            bearing=self.bearing,
+            showLegend=self.legend)
 
         if self.label_property is None:
             options.update(labelProperty=None)
@@ -277,6 +281,7 @@ class HeatmapViz(MapViz):
                  color_stops=None,
                  radius_stops=None,
                  intensity_stops=None,
+                 legend=False,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -286,7 +291,7 @@ class HeatmapViz(MapViz):
         :param color_stops: stops to determine heatmap color.  EX. [[0, "red"], [0.5, "blue"], [1, "green"]]
         :param radius_stops: stops to determine heatmap radius based on zoom.  EX: [[0, 1], [12, 30]]
         :param intensity_stops: stops to determine the heatmap intensity based on zoom. EX: [[0, 0.1], [20, 5]]
-
+        :param legend: default setting is to hide heatmap legend
         """
         super(HeatmapViz, self).__init__(data, *args, **kwargs)
 
@@ -543,6 +548,7 @@ class ImageViz(MapViz):
     def __init__(self,
                  image,
                  coordinates,
+                 legend=False,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -550,7 +556,8 @@ class ImageViz(MapViz):
         :param coordinates: property to determine image coordinates (UL, UR, LR, LL).
             EX. [[-80.425, 46.437], [-71.516, 46.437], [-71.516, 37.936], [-80.425, 37.936]]
         :param image: url, local path or a numpy ndarray
-        
+        :param legend: default setting is to hide heatmap legend
+
         """
         super(ImageViz, self).__init__(None, *args, **kwargs)
 
@@ -577,6 +584,7 @@ class RasterTilesViz(MapViz):
                  tiles_bounds=None,
                  tiles_minzoom=0,
                  tiles_maxzoom=22,
+                 legend=False,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -586,6 +594,8 @@ class RasterTilesViz(MapViz):
         :param tiles_bounds: property to determine the tiles endpoint bounds
         :param tiles_minzoom: property to determine the tiles endpoint min zoom
         :param tiles_max: property to determine the tiles endpoint max zoom
+        :param legend: default setting is to hide heatmap legend
+
         """
         super(RasterTilesViz, self).__init__(None, *args, **kwargs)
 
