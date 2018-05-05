@@ -21,7 +21,7 @@
 The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visualizations. You can use this class to set default values for all visualizations rather than calling them directly from the other visualization objects.
 
 ### Params
-**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0_)
+**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, legend=True_)
 
 Parameter | Description
 --|--
@@ -36,6 +36,7 @@ zoom | starting zoom level for map
 opacity | opacity of map data layer
 pitch | starting pitch (in degrees) for map
 bearing | starting bearing (in degrees) for map
+legend | controls visibility of map legend | True
 
 ### Methods
 **as_iframe**(_self, html_data_)  
@@ -258,7 +259,7 @@ viz.show()
 The `HeatmapViz` object handles the creation of a heat map and is built on top of the `MapViz` class.
 
 ### Params
-**HeatmapViz**(_data, weight_property=None, weight_stops=None, color_stops=None, radius_stops=None, intensity_stops=None, \*args, \*\*kwargs_)
+**HeatmapViz**(_data, weight_property=None, weight_stops=None, color_stops=None, radius_stops=None, intensity_stops=None, legend=False, \*args, \*\*kwargs_)
 
 Parameter | Description | Example
 --|--|--
@@ -268,6 +269,7 @@ weight_stops | stops to determine heatmap weight. | [[10, 0], [100, 1]]
 color_stops | stops to determine heatmap color. | [[0, "red"], [0.5, "blue"], [1, "green"]]
 radius_stops | stops to determine heatmap radius based on zoom. | [[0, 1], [12, 30]]
 intensity_stops | stops to determine the heatmap intensity based on zoom. EX: [[0, 0.1], [20, 5]]
+legend | defaults to no legend for HeatmapViz | False
 
 [View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
@@ -381,12 +383,13 @@ viz.show()
 The `ImageViz` object handles the creation of a simple image visualization on map and is built on top of the `MapViz` class.
 
 ### Params
-**ImageViz**(image, coordinates, \*args, \*\*kwargs_)
+**ImageViz**(image, coordinates, legend=False, \*args, \*\*kwargs_)
 
 Parameter | Description | Example
 --|--|--
 image | image url, path or numpy ndarray | "./my_image.png"
 coordinates | property to image coordinates (UL, UR, LR, LL) | [[-80.425, 46.437], [-71.516, 46.437], [-71.516, 37.936], [-80.425, 37.936]]
+legend | no legend for ImageViz | False
 
 [MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
 
@@ -421,7 +424,7 @@ viz.show()
 The `RasterTilesViz` object handles the creation of a simple raster tiles visualization on map and is built on top of the `MapViz` class.
 
 ### Params
-**RasterTilesViz**(tiles\_url, \*args, \*\*kwargs_)
+**RasterTilesViz**(tiles\_url, legend=False, \*args, \*\*kwargs_)
 
 Parameter | Description | Example
 --|--|--
@@ -430,6 +433,7 @@ tiles_size | mapbox-gl tiles size | 256
 tiles_bounds | tiles endpoint bounds | [124.97480681619507, 10.876763902260592, 124.99391704636035, 10.888369402219947]
 tiles_minzoom | tiles endpoint min zoom | 0
 tiles_maxzoom | tiles endpoint max zoom | 22
+legend | no legend for RasterTilesViz | False
 
 
 
