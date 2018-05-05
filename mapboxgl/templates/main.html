@@ -11,27 +11,33 @@
       href='https://api.tiles.mapbox.com/mapbox-gl-js/{{ gl_js_version }}/mapbox-gl.css' rel='stylesheet' />
 <style type='text/css'>
     body { margin:0; padding:0; }
-    .map { position:absolute; top:0; bottom:0; width:100%; }
+    .map { position: absolute; top:0; bottom:0; width:100%; }
     .legend {
         background-color: white;
-        color: black;
+        color: #6e6e6e;
         border-radius: 3px;
         bottom: 50px;
-        width: 100px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
         font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-        padding: 12px;
+        padding: 0px;
         position: absolute;
         right: 10px;
         z-index: 1;
+        min-width: 100px;
     }
-    .legend h4 { margin: 0 0 10px; }
+    .legend-header { 
+        background: #eee; 
+        border-radius: 3px 3px 0 0;
+    }
     .legend-title {
-        margin: 6px;
-        padding: 6px;
+        padding: 6px 12px 6px 12px;
+        text-shadow: 0 0 2px #FFF;
+        text-transform: capitalize;
+        text-align: center;
         font-weight: bold !important;
         font-size: 14px;
         font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        max-width: 160px;
     }
     .legend div span {
         border-radius: 50%;
@@ -40,6 +46,18 @@
         margin-right: 5px;
         width: 10px;
     }
+    .legend .legend-item { 
+        white-space: nowrap;
+    }
+    .legend .legend-content {
+        margin: 6px 12px 6px 12px;
+        width: 100%;
+        overflow: hidden;
+    }
+    .legend .legend-key, .legend .legend-value {
+        display: inline-block;
+    }
+
 </style>
 {% block extra_css %}{% endblock extra_css %}
 </head>
@@ -50,30 +68,40 @@
 <script type='text/javascript'>
 
 function calcCircleColorLegend(myColorStops, title) {
+
     // create legend
     var legend = document.createElement('div');
     legend.className = 'legend';
     legend.id = 'legend';
-
     document.body.appendChild(legend);
 
-    //Calculate a legend element on a Mapbox GL Style Spec property function stops array
-    var mytitle = document.createElement('div');
+    // add legend header and content elements
+    var mytitle = document.createElement('div'),
+        legendContent = document.createElement('div'),
+        legendHeader = document.createElement('div');
     mytitle.textContent = title;
     mytitle.className = 'legend-title'
-    legend.appendChild(mytitle);
+    legendHeader.className = 'legend-header'
+    legendContent.className = 'legend-content'
+    legendHeader.appendChild(mytitle);
+    legend.appendChild(legendHeader);
+    legend.appendChild(legendContent);
 
+    // calculate a legend entries on a Mapbox GL Style Spec property function stops array
     for (p = 0; p < myColorStops.length; p++) {
         if (!!document.getElementById('legend-points-value-' + p)) {
             //update the legend if it already exists
             document.getElementById('legend-points-value-' + p).textContent = myColorStops[p][0];
             document.getElementById('legend-points-id-' + p).style.backgroundColor = myColorStops[p][1];
         } else {
-            //create the legend if it doesn't yet exist
+            // create the legend if it doesn't yet exist
             var item = document.createElement('div');
+            item.className = 'legend-item';
+
             var key = document.createElement('span');
             key.className = 'legend-key';
-            var value = document.createElement('span');
+            var value = document.createElement('div');
+            value.className = 'legend-value';
 
             key.id = 'legend-points-id-' + p;
             key.style.backgroundColor = myColorStops[p][1];
@@ -81,7 +109,7 @@ function calcCircleColorLegend(myColorStops, title) {
 
             item.appendChild(key);
             item.appendChild(value);
-            legend.appendChild(item);
+            legendContent.appendChild(item);
             
             data = document.getElementById('legend-points-value-' + p)
             data.textContent = myColorStops[p][0];
