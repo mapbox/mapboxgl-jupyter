@@ -9,8 +9,6 @@
 
 {% block legend %}
 
-    var legend = document.getElementById('legend');
-
     {% if colorStops and colorProperty and widthProperty %}
         {% if colorProperty != widthProperty %}
             calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}");
@@ -19,8 +17,6 @@
         {% endif %}
     {% elif colorStops and colorProperty %}
         calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
-    {% else %}
-        document.getElementById('legend').style.visibility='hidden';
     {% endif %}
 
 {% endblock legend %}

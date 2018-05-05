@@ -46,16 +46,21 @@
 <body>
 
 <div id='map' class='map'></div>
-<div id='legend' class='legend'></div>
 
 <script type='text/javascript'>
 
 function calcCircleColorLegend(myColorStops, title) {
+    // create legend
+    var legend = document.createElement('div');
+    legend.className = 'legend';
+    legend.id = 'legend';
+
+    document.body.appendChild(legend);
+
     //Calculate a legend element on a Mapbox GL Style Spec property function stops array
     var mytitle = document.createElement('div');
     mytitle.textContent = title;
     mytitle.className = 'legend-title'
-    var legend = document.getElementById('legend');
     legend.appendChild(mytitle);
 
     for (p = 0; p < myColorStops.length; p++) {

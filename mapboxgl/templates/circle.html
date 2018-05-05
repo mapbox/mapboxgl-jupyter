@@ -4,8 +4,6 @@
 
     {% if colorStops and colorProperty %}
         calcCircleColorLegend({{ colorStops }} , "{{ colorProperty }}");
-    {% else %}
-        document.getElementById('legend').style.visibility='hidden'
     {% endif %}
     
 {% endblock legend %}

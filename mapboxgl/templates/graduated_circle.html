@@ -4,8 +4,6 @@
 
     {% if colorStops and colorProperty and radiusProperty %}
         calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
-    {% else %}
-        document.getElementById('legend').style.visibility='hidden'
     {% endif %}
 
 {% endblock legend %}
