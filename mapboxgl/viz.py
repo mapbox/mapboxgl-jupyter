@@ -31,7 +31,8 @@ class MapViz(object):
                  max_zoom=24,
                  pitch=0,
                  bearing=0,
-                 legend=True):
+                 legend=True,
+                 legend_layout='vertical'):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -46,6 +47,7 @@ class MapViz(object):
         :param pitch: starting pitch (in degrees) for map
         :param bearing: starting bearing (in degrees) for map
         :param legend: boolean for whether to show legend on map
+        :param legend_layout: determines if horizontal or vertical legend used
 
         """
         if access_token is None:
@@ -71,6 +73,7 @@ class MapViz(object):
         self.pitch = pitch
         self.bearing = bearing
         self.legend = legend
+        self.legend_layout = legend_layout
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -114,7 +117,8 @@ class MapViz(object):
             maxzoom=self.max_zoom,
             pitch=self.pitch, 
             bearing=self.bearing,
-            showLegend=self.legend)
+            showLegend=self.legend,
+            legendLayout=self.legend_layout)
 
         if self.label_property is None:
             options.update(labelProperty=None)

@@ -25,11 +25,11 @@
         z-index: 1;
         min-width: 100px;
     }
-    .legend-header { 
+    .legend.vertical .legend-header { 
         background: #eee; 
         border-radius: 3px 3px 0 0;
     }
-    .legend-title {
+    .legend.vertical .legend-title {
         padding: 6px 12px 6px 12px;
         text-shadow: 0 0 2px #FFF;
         text-transform: capitalize;
@@ -39,26 +39,76 @@
         font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
         max-width: 160px;
     }
-    .legend div span {
+    .legend.vertical div span {
         border-radius: 50%;
         display: inline-block;
         height: 10px;
         margin-right: 5px;
         width: 10px;
     }
-    .legend .legend-item { 
+    .legend.vertical .legend-item { 
         white-space: nowrap;
     }
-    .legend .legend-content {
+    .legend.vertical .legend-content {
         margin: 6px 12px 6px 12px;
         width: 100%;
         overflow: hidden;
     }
-    .legend .legend-key, .legend .legend-value {
+    .legend.vertical .legend-key, .legend .legend-value {
         display: inline-block;
     }
-
+    .legend-item { list-style: none; }
+    ul { padding: 0px; }
+    .legend.horizontal .legend-title {
+        padding: 6px 12px 6px 12px;
+        text-shadow: 0 0 2px #FFF;
+        text-transform: capitalize;
+        text-align: left;
+        font-weight: bold !important;
+        font-size: 14px;
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        max-width: 160px;
+    }
+    .legend.horizontal .legend-content {
+        margin: 6px 12px 6px 12px;
+        overflow: hidden;
+    }
+    .legend.horizontal div span {
+        border-radius: 0%;
+        height: 10px;
+        margin-right: 0px;
+        width: 30px;
+    }
+    .legend.horizontal .legend-title {
+        text-align: left;
+        margin: 0px;
+        font-weight: bold;
+        font-size: 90%;
+    }
+    .legend.horizontal ul {
+        margin: 0;
+        padding: 0;
+        float: left;
+        list-style: none;
+    }
+    .legend.horizontal ul li, .legend.horizontal ul li div {
+        display: block;
+        float: left;
+        width: 30px;
+        margin-bottom: 0px;
+        text-align: center;
+        font-size: 80%;
+        list-style: none;
+        height: 30px;
+    }
+    .legend.horizontal ul li span {
+        display: block;
+        float: left;
+        width: 40px;
+    }
 </style>
+
+
 {% block extra_css %}{% endblock extra_css %}
 </head>
 <body>
@@ -71,13 +121,13 @@ function calcCircleColorLegend(myColorStops, title) {
 
     // create legend
     var legend = document.createElement('div');
-    legend.className = 'legend';
+    legend.className = 'legend {{ legendLayout }}';
     legend.id = 'legend';
     document.body.appendChild(legend);
 
     // add legend header and content elements
     var mytitle = document.createElement('div'),
-        legendContent = document.createElement('div'),
+        legendContent = document.createElement('ul'),
         legendHeader = document.createElement('div');
     mytitle.textContent = title;
     mytitle.className = 'legend-title'
@@ -95,6 +145,7 @@ function calcCircleColorLegend(myColorStops, title) {
             document.getElementById('legend-points-id-' + p).style.backgroundColor = myColorStops[p][1];
         } else {
             // create the legend if it doesn't yet exist
+            var entry = document.createElement('li');
             var item = document.createElement('div');
             item.className = 'legend-item';
 
@@ -109,7 +160,8 @@ function calcCircleColorLegend(myColorStops, title) {
 
             item.appendChild(key);
             item.appendChild(value);
-            legendContent.appendChild(item);
+            entry.appendChild(item);
+            legendContent.appendChild(entry);
             
             data = document.getElementById('legend-points-value-' + p)
             data.textContent = myColorStops[p][0];

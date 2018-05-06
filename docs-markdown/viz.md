@@ -21,7 +21,7 @@
 The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visualizations. You can use this class to set default values for all visualizations rather than calling them directly from the other visualization objects.
 
 ### Params
-**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, legend=True_)
+**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, legend=True, legend_layout='vertical'_)
 
 Parameter | Description
 --|--
@@ -37,6 +37,7 @@ opacity | opacity of map data layer
 pitch | starting pitch (in degrees) for map
 bearing | starting bearing (in degrees) for map
 legend | controls visibility of map legend | True
+legend_layout | controls orientation of map legend | 'horizontal'
 
 ### Methods
 **as_iframe**(_self, html_data_)  
