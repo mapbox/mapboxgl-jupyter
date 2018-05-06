@@ -16,7 +16,7 @@
         background-color: white;
         color: #6e6e6e;
         border-radius: 3px;
-        bottom: 50px;
+        bottom: 10px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
         font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
         padding: 0px;
@@ -51,7 +51,6 @@
     }
     .legend.vertical .legend-content {
         margin: 6px 12px 6px 12px;
-        width: 100%;
         overflow: hidden;
     }
     .legend.vertical .legend-key, .legend .legend-value {
@@ -59,6 +58,11 @@
     }
     .legend-item { list-style: none; }
     ul { padding: 0px; }
+
+    .legend.horizontal {
+        bottom: 10px;
+    }
+
     .legend.horizontal .legend-title {
         padding: 6px 12px 6px 12px;
         text-shadow: 0 0 2px #FFF;
@@ -91,7 +95,8 @@
         float: left;
         list-style: none;
     }
-    .legend.horizontal ul li, .legend.horizontal ul li div {
+    .legend.horizontal ul li, 
+    .legend.horizontal ul li div {
         display: block;
         float: left;
         width: 30px;
@@ -106,6 +111,7 @@
         float: left;
         width: 40px;
     }
+    /*.mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact { margin-right: 180px; }*/
 </style>
 
 
@@ -167,6 +173,13 @@ function calcCircleColorLegend(myColorStops, title) {
             data.textContent = myColorStops[p][0];
         }
     }
+
+    // update right-margin for compact Mapbox attribution based on calculated legend width
+    var attribMargin = legend.offsetWidth + 15;
+    // alert(attribMargin);
+    // alert();
+    document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight =  attribMargin.toString() + 'px';
+
 }
 
 function generateInterpolateExpression(propertyValue, stops) {
