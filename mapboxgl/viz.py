@@ -32,7 +32,8 @@ class MapViz(object):
                  pitch=0,
                  bearing=0,
                  legend=True,
-                 legend_layout='vertical'):
+                 legend_layout='vertical',
+                 legend_style='discrete'):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -48,7 +49,7 @@ class MapViz(object):
         :param bearing: starting bearing (in degrees) for map
         :param legend: boolean for whether to show legend on map
         :param legend_layout: determines if horizontal or vertical legend used
-
+        :param legend_style: default setting is discrete entries
         """
         if access_token is None:
             access_token = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
@@ -74,6 +75,7 @@ class MapViz(object):
         self.bearing = bearing
         self.legend = legend
         self.legend_layout = legend_layout
+        self.legend_style = legend_style
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -118,7 +120,8 @@ class MapViz(object):
             pitch=self.pitch, 
             bearing=self.bearing,
             showLegend=self.legend,
-            legendLayout=self.legend_layout)
+            legendLayout=self.legend_layout,
+            legendStyle=self.legend_style)
 
         if self.label_property is None:
             options.update(labelProperty=None)
@@ -285,7 +288,8 @@ class HeatmapViz(MapViz):
                  color_stops=None,
                  radius_stops=None,
                  intensity_stops=None,
-                 legend=False,
+                 legend_layout='horizontal',
+                 legend_style='gradient',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -295,7 +299,8 @@ class HeatmapViz(MapViz):
         :param color_stops: stops to determine heatmap color.  EX. [[0, "red"], [0.5, "blue"], [1, "green"]]
         :param radius_stops: stops to determine heatmap radius based on zoom.  EX: [[0, 1], [12, 30]]
         :param intensity_stops: stops to determine the heatmap intensity based on zoom. EX: [[0, 0.1], [20, 5]]
-        :param legend: default setting is to hide heatmap legend
+        :param legend_layout: default setting is horizontal for heatmap legend
+        :param legend_style: default setting is gradient for heatmap legend
         """
         super(HeatmapViz, self).__init__(data, *args, **kwargs)
 
@@ -307,6 +312,8 @@ class HeatmapViz(MapViz):
             self.color_stops = [[0.00001, 'rgba(0,0,0,0)']] + color_stops
         self.radius_stops = radius_stops
         self.intensity_stops = intensity_stops
+        self.legend_layout = legend_layout
+        self.legend_style = legend_style
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
@@ -315,7 +322,7 @@ class HeatmapViz(MapViz):
             radiusStops=self.radius_stops,
             weightProperty=self.weight_property,
             weightStops=self.weight_stops,
-            intensityStops=self.intensity_stops
+            intensityStops=self.intensity_stops,
         ))
 
 

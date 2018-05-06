@@ -8,7 +8,9 @@
 <script type='text/javascript'
         src='https://api.tiles.mapbox.com/mapbox-gl-js/{{ gl_js_version }}/mapbox-gl.js'></script>
 <link type='text/css'
-      href='https://api.tiles.mapbox.com/mapbox-gl-js/{{ gl_js_version }}/mapbox-gl.css' rel='stylesheet' />
+      href='https://api.tiles.mapbox.com/mapbox-gl-js/{{ gl_js_version }}/mapbox-gl.css' 
+      rel='stylesheet' />
+
 <style type='text/css'>
     body { margin:0; padding:0; }
     .map { position: absolute; top:0; bottom:0; width:100%; }
@@ -25,10 +27,8 @@
         z-index: 1;
         min-width: 100px;
     }
-    .legend.vertical .legend-header { 
-        background: #eee; 
-        border-radius: 3px 3px 0 0;
-    }
+    .legend .legend-header {  border-radius: 3px 3px 0 0; }
+    .legend.vertical .legend-header {  background: #eee; }
     .legend.vertical .legend-title {
         padding: 6px 12px 6px 12px;
         text-shadow: 0 0 2px #FFF;
@@ -46,23 +46,15 @@
         margin-right: 5px;
         width: 10px;
     }
-    .legend.vertical .legend-item { 
-        white-space: nowrap;
-    }
+    .legend.vertical .legend-item { white-space: nowrap; }
     .legend.vertical .legend-content {
         margin: 6px 12px 6px 12px;
         overflow: hidden;
     }
-    .legend.vertical .legend-key, .legend .legend-value {
-        display: inline-block;
-    }
+    .legend.vertical .legend-key, .legend .legend-value { display: inline-block; }
     .legend-item { list-style: none; }
     ul { padding: 0px; }
-
-    .legend.horizontal {
-        bottom: 10px;
-    }
-
+    .legend.horizontal { bottom: 10px; }
     .legend.horizontal .legend-title {
         padding: 6px 12px 6px 12px;
         text-shadow: 0 0 2px #FFF;
@@ -111,10 +103,21 @@
         float: left;
         width: 40px;
     }
-    /*.mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact { margin-right: 180px; }*/
+    .legend.horizontal .gradient-bar {
+        width: 88%;
+        height: 10px;
+        margin: 6px 12px 6px 12px;
+        z-index: 9000;
+    }
+    .legend.vertical .gradient-bar {
+        width: 10px;
+        min-height: 50px;
+        margin: 6px 12px 6px 12px;
+        z-index: 9000;
+        position: absolute;
+        bottom: 4px;
+    }
 </style>
-
-
 {% block extra_css %}{% endblock extra_css %}
 </head>
 <body>
@@ -122,6 +125,8 @@
 <div id='map' class='map'></div>
 
 <script type='text/javascript'>
+
+var legendHeader;
 
 function calcCircleColorLegend(myColorStops, title) {
 
@@ -133,8 +138,8 @@ function calcCircleColorLegend(myColorStops, title) {
 
     // add legend header and content elements
     var mytitle = document.createElement('div'),
-        legendContent = document.createElement('ul'),
-        legendHeader = document.createElement('div');
+        legendContent = document.createElement('ul');
+    legendHeader = document.createElement('div');
     mytitle.textContent = title;
     mytitle.className = 'legend-title'
     legendHeader.className = 'legend-header'
@@ -142,6 +147,13 @@ function calcCircleColorLegend(myColorStops, title) {
     legendHeader.appendChild(mytitle);
     legend.appendChild(legendHeader);
     legend.appendChild(legendContent);
+
+    if ('{{ legendStyle }}' === 'gradient') {
+        var gradientText = 'linear-gradient(to right, ';
+        var gradient = document.createElement('div');
+        gradient.className = 'gradient-bar';
+        legend.appendChild(gradient);
+    }
 
     // calculate a legend entries on a Mapbox GL Style Spec property function stops array
     for (p = 0; p < myColorStops.length; p++) {
@@ -171,16 +183,44 @@ function calcCircleColorLegend(myColorStops, title) {
             
             data = document.getElementById('legend-points-value-' + p)
             data.textContent = myColorStops[p][0];
+
+            // add color stop to gradient list
+            if ('{{ legendStyle }}' === 'gradient') {
+                if (p < myColorStops.length - 1) {
+                    gradientText = gradientText + myColorStops[p][1] + ', ';
+                }
+                else {
+                    gradientText = gradientText + myColorStops[p][1] + ')';
+                }
+                if ('{{ legendLayout }}' === 'vertical') {
+                    gradientText = gradientText.replace('to right', 'to bottom');
+                }
+            }
+        }
+    }
+
+    if ('{{ legendStyle }}' === 'gradient') {
+        // convert to gradient scale appearance
+
+        gradient.style.background = gradientText;
+
+        // hide legend keys generated above
+        var keys = document.getElementsByClassName('legend-key');
+        for (var i=0; i < keys.length; i++) {
+            keys[i].style.visibility = 'hidden';
+        }
+
+        if ('{{ legendLayout }}' === 'vertical') {
+            gradient.style.height = (legendContent.offsetHeight - 6) + 'px';
         }
     }
 
     // update right-margin for compact Mapbox attribution based on calculated legend width
     var attribMargin = legend.offsetWidth + 15;
-    // alert(attribMargin);
-    // alert();
     document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight =  attribMargin.toString() + 'px';
 
 }
+
 
 function generateInterpolateExpression(propertyValue, stops) {
     var expression;
@@ -225,13 +265,10 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
     return expression
 }
 
-
 </script>
 
 <!-- main map creation code, extended by mapboxgl/templates/{{ viz }}.html -->
-<script type="text/javascript">
-{% block javascript %}{% endblock %}
-</script>
+<script type="text/javascript">{% block javascript %}{% endblock %}</script>
 
 </body>
 </html>
