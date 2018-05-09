@@ -17,6 +17,8 @@ Location Data Visualization library for Jupyter Notebooks
 .. image:: https://badge.fury.io/py/mapboxgl.svg
    :target: https://badge.fury.io/py/mapboxgl
    :alt: PyPI version
+   
+Documentation at https://mapbox-mapboxgl-jupyter.readthedocs-hosted.com/en/latest/
 
 Create `Mapbox GL JS <https://www.mapbox.com/mapbox-gl-js/api/>`__ data
 visualizations natively in Jupyter Notebooks with Python and Pandas. *mapboxgl*
