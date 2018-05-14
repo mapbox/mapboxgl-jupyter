@@ -50,10 +50,7 @@ Installation
 Documentation
 =============
 
-Checkout the documentation for `mapboxgl visuals
-<https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md>`__
-and `mapboxgl utilities
-<https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/utils.md>`__.
+Documentation is on Read The Docs at https://mapbox-mapboxgl-jupyter.readthedocs-hosted.com/en/latest/.
 
 Usage
 =====
