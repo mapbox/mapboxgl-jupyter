@@ -21,7 +21,7 @@
 The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visualizations. You can use this class to set default values for all visualizations rather than calling them directly from the other visualization objects.
 
 ### Params
-**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, legend=True, legend_layout='vertical'_)
+**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, legend=True, legend_layout='vertical', legend_style='discrete', legend_fill='white', legend_header_fill='#eee', legend_text_color='#6e6e6e'_)
 
 Parameter | Description
 --|--
@@ -38,6 +38,10 @@ pitch | starting pitch (in degrees) for map
 bearing | starting bearing (in degrees) for map
 legend | controls visibility of map legend | True
 legend_layout | controls orientation of map legend | 'horizontal'
+legend_style | determines appearance of legend keys | 'discrete' or 'gradient'
+legend_fill | string background color for legend | 'white'
+legend_header_fill | string background color for legend header (in vertical layout) | '#eee'
+legend_text_color | string color for legend text | '#6e6e6e'
 
 ### Methods
 **as_iframe**(_self, html_data_)  
