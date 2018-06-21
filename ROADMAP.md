@@ -7,11 +7,9 @@ please start an Issue on github with more details.
 ## Working on Next
 
 - [ ] Multiple visual layers in one map
-- [ ] Linestring map
-- [ ] Great Arc map from source-to-destination point
-- [ ] 3D extrusion map
-- [ ] Hover/Highlight effects on mousemove
+- [ ] Hover/Highlight/select styles on mousemove and selection on click
 - [ ] PNG/JPG image export of map and data to file
+- [ ] Great Arc map layers from source-to-destination point
 
 ## Down-the-road
 
@@ -42,3 +40,7 @@ please start an Issue on github with more details.
     * Added in 0.6.0
 - [x] Add choropleth / fill visualization type
     * Added in 0.6.0
+- [x] 3D extrusion map
+    * Added in 0.7.0
+- [x] Linestring map
+    * Added in 0.7.0

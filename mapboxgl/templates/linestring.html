@@ -56,7 +56,7 @@
                     "line-color": "{{ defaultColor }}",
                 {% endif %}
                 {% if widthProperty %}
-                    "line-width": generatePropertyExpression("{{ widthType }}", "{{ widthProperty }}", {{ widthStops }}, "{{ defaultWidth }}"),
+                    "line-width": generatePropertyExpression("{{ widthType }}", "{{ widthProperty }}", {{ widthStops }}, {{ defaultWidth }}),
                 {% else %}
                     "line-width": {{ defaultWidth }},
                 {% endif %}
