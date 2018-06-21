@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block legend %}
+
+    document.getElementById('legend').style.visibility = 'hidden';
+
+{% endblock legend %}
+
+{% block map %}
+
+    map.on('style.load', function() {
+
+      map.addSource("image", {
+         "type": "image",
+         "url": "{{ image }}", // url or base64 encoded image
+         "coordinates": {{ coordinates }}
+      });
+
+      map.addLayer({
+        "id": 'image',
+        "type": "raster",
+        "source": "image"
+      }, "{{belowLayer}}");
+
+    });
+
+{% endblock map %}

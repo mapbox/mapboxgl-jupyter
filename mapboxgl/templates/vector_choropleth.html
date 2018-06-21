@@ -1,0 +1,152 @@
+{% extends "choropleth.html" %}
+
+{% block choropleth %}
+
+    // extract JSON property used for data-driven styling to add to popup
+    {% if joinData %}
+
+        let joinData = {{ joinData }};
+        var popUpKeys = {},
+            heightPopUpKeys = {};
+
+        // Create filter for layers from join data
+        let layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
+        
+        joinData.forEach(function(row, index) {
+            popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
+            
+            {% if extrudeChoropleth %}
+                {% if colorProperty != heightProperty %}
+                    heightPopUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ heightProperty }}"];
+                {% endif %}
+            {% endif %}
+
+            layerFilter.push(row["{{ dataJoinProperty }}"]);
+        });
+
+    {% endif %}
+
+    // Add vector data source
+    map.addSource("vector-data", {
+        type: "vector",
+        url: "{{ vectorUrl }}",
+    });
+
+    // Add layer from the vector tile source with data-driven style
+    map.addLayer({
+        "id": "choropleth-fill",
+        "type": "fill",
+        "source": "vector-data",
+        "source-layer": "{{ vectorLayer }}",
+        "paint": {
+            "fill-color": {
+                "type": "categorical",
+                "property": "{{ vectorJoinDataProperty }}", 
+                "stops": {{ vectorColorStops }}, 
+                "default": "{{ defaultColor }}"
+            }, 
+            "fill-opacity": {{ opacity }}
+        },
+        filter: layerFilter
+    }, "{{ belowLayer }}");
+
+    // Add border layer
+    map.addLayer({
+        "id": "choropleth-line",
+        "source": "vector-data",
+        "source-layer": "{{ vectorLayer }}",
+        "type": "line",
+        "layout": {
+            "line-join": "round",
+            "line-cap": "round"
+        },
+        "paint": {
+            {% if lineDashArray %}
+                "line-dasharray": {{ lineDashArray }},
+            {% endif %}
+            "line-color": "{{ lineColor }}",
+            "line-width": {{ lineWidth }},
+            "line-opacity": {{ opacity }}
+        },
+        filter: layerFilter
+    }, "{{ belowLayer }}" );
+
+    // Add label layer
+    map.addLayer({
+        "id": "choropleth-label",
+        "source": "vector-data",
+        "source-layer": "{{ vectorLayer }}",
+        "type": "symbol",
+        "layout": {
+            {% if labelProperty %}
+            "text-field": "{{ labelProperty }}",
+            {% endif %}
+            "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
+            "text-offset": [0,-1]
+        },
+        "paint": {
+            "text-halo-color": "white",
+            "text-halo-width": 1
+        },
+        filter: layerFilter
+    }, "{{ belowLayer }}" );
+
+    // Optional extrusion layer
+    {% if extrudeChoropleth %}
+    
+        map.addLayer({
+            id: "choropleth-extrusion",
+            type: "fill-extrusion",            
+            "source": "vector-data",
+            "source-layer": "{{ vectorLayer }}",
+            paint: {
+                "fill-extrusion-opacity": {{ opacity }},
+                "fill-extrusion-color": {
+                    "type": "categorical",
+                    "property": "{{ vectorJoinDataProperty }}", 
+                    "stops": {{ vectorColorStops }}, 
+                    "default": "{{ defaultColor }}"
+                },
+                "fill-extrusion-height": {
+                    "type": "categorical",
+                    "property": "{{ vectorJoinDataProperty }}", 
+                    "stops": {{ vectorHeightStops }}, 
+                    "default": {{ defaultHeight }}
+                }
+            },
+            filter: layerFilter
+        }, "{{ belowLayer }}");
+
+    {% endif %}
+
+{% endblock choropleth %}
+
+{% block choropleth_popup %}
+
+    // Show the popup on mouseover
+    map.on('mousemove', 'choropleth-fill', function(e) {
+        map.getCanvas().style.cursor = 'pointer';
+        
+        let f = e.features[0];
+        let popup_html = '<div>';
+
+        for (key in f.properties) {
+            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+        }
+
+        // Add property from joined data to vector's feature popup
+        popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+        
+        {% if extrudeChoropleth %}
+            {% if colorProperty != heightProperty %}
+                popup_html += '<li><b> ' + "{{ heightProperty }}".toUpperCase() + '</b>: ' + heightPopUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+            {% endif %}
+        {% endif %}
+
+        popup_html += '</div>'
+        popup.setLngLat(e.lngLat)
+            .setHTML(popup_html)
+            .addTo(map);
+    });
+
+{% endblock choropleth_popup %}

@@ -1,44 +1,42 @@
 {% extends "main.html" %}
 
 {% block javascript %}
-var legend = document.getElementById('legend');
-legend.remove();
 
-mapboxgl.accessToken = '{{ accessToken }}';
+    mapboxgl.accessToken = '{{ accessToken }}';
 
-var map = new mapboxgl.Map({
-    container: 'map',
-    style: '{{ styleUrl }}', 
-    center: {{ center }},
-    zoom: {{ zoom }},
-    transformRequest: (url, resourceType)=> {
-        return {
-           url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
-         }
-    }
-});
-
-map.addControl(new mapboxgl.NavigationControl());
-
-map.on('style.load', function() {
-    
-    // Add data source
-    map.addSource("data", {
-        "type": "geojson",
-        "data": {{ geojson_data }},
-        "buffer": 1,
-        "maxzoom": 14
-    });
-    
-    // Add data layer
-    map.addLayer({
-        "id": "circle",
-        "source": "data",
-        "type": "circle",
-        "maxzoom": {{ maxzoom }},
-        "minzoom": {{ minzoom }},
-        "paint": {"circle-radius": 1}
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: {{ style }},
+        center: {{ center }},
+        zoom: {{ zoom }},
+        pitch: {{ pitch }},
+        bearing: {{ bearing }},
+        transformRequest: (url, resourceType) => {
+                    if ( url.slice(0,22) == 'https://api.mapbox.com' || 
+                        url.slice(0,26) == 'https://a.tiles.mapbox.com' || 
+                        url.slice(0,26) == 'https://b.tiles.mapbox.com' ||
+                        url.slice(0,26) == 'https://c.tiles.mapbox.com' ||
+                        url.slice(0,26) == 'https://d.tiles.mapbox.com') {
+                        //Add Mapboxgl-Jupyter Plugin identifier for Mapbox API traffic
+                        return {
+                           url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
+                         }
+                     }
+                     else {
+                         //Do not transform URL for non Mapbox GET requests
+                         return {url: url}
+                     }
+                }
     });
 
-});
+    {% block navigation %}
+
+        map.addControl(new mapboxgl.NavigationControl());
+
+    {% endblock navigation %}
+
+    {% block legend %}{% endblock legend %}
+
+    {% block map %}{% endblock map %}
+
 {% endblock %}

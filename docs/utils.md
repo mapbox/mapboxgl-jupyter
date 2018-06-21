@@ -92,6 +92,20 @@ Parameter | Description
 --|--
 breaks | List of float values
 
+
+## create_numeric_stops
+Convert a Python list of a data domain (such as `[0, 1, 5, 100, 10000]`) into a generic numeric ramp between a minimum and maximum value, as in for a heatmap, choropleth 3-D extrusions, etc.
+
+### Params
+**create_numeric_stops**(_breaks, min_value, max_value_)
+
+Parameter | Description
+--|--
+breaks | List of float values
+min_value | Minimum ramp value
+max_value | Maximum ramp value
+
+
 ## create_color_stops
 Convert a Python list of a data domain (such as `[0, 1, 5, 100, 10000]`) into color ramp stops.  Color ramps can be from colorBrewer, or a custom list of color values.
 
@@ -133,4 +147,73 @@ df = pd.read_csv(data_url)
 # Generate a new data domain breaks and a new color palette from colorBrewer2
 color_breaks = [0,10,100,1000,10000]
 color_stops = create_color_stops(color_breaks, colors='YlOrRd')
+```
+
+## rgb_tuple_from_str
+Convert color represented as a string in format 'rgb(RRR,GGG,BBB)', 'rgba(RRR,GGG,BBB,alpha)', '#RRGGBB' or limited English color name (eg 'red') to tuple of integers from 0 to 255, (RRR, GGG, BBB).
+
+### Params
+**rgb_tuple_from_str**(_rgb_string_)
+
+Parameter | Description
+--|--
+rgb_string | color represented as string in form 'rgb(RRR,GGG,BBB)', 'rgba(RRR,GGG,BBB,alpha)', '#RRGGBB', or limited HTML color names (eg 'red')
+
+### Usage
+```python
+from mapboxgl.utils import rgb_tuple_from_str
+
+# convert color string to tuple of integers
+rgb_tuple_from_str('rgb(255,143,17')
+```
+
+## color_map
+Convert color represented as a string in format 'rgb(RRR,GGG,BBB)' to tuple of integers from 0 to 255, (RRR, GGG, BBB).
+
+### Params
+**color_map**(_lookup, color_stops, default_color='rgb(122,122,122)'_)
+
+Parameter | Description
+--|--
+lookup | value is numeric for interpolated colors or string for categorical color stops
+color_stops | color ramp stops generated from `create_color_stops`, or custom list of numeric or categorical stops with paired colors
+default_color | representation of color as hex, RGB, or RGBA strings
+
+### Usage
+```python
+from mapboxgl.utils import create_color_stops, color_map
+
+# interpolate color for numeric color_stops
+color_stops = create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd')
+color = color_map(73, color_stops)
+
+# categorical look up
+match_color_stops = [
+    ['Massachusetts', 'rgb(46,204,113)'],
+    ['Utah', 'rgb(231,76,60)'],
+    ['California', 'rgb(142,68,173)'],
+]
+color = color_map('California', match_color_stops, default_color='grey)')
+```
+
+
+## height_map
+Return a height value (in meters) interpolated from given height_stops; for use with vector-based visualizations using fill-extrusion layers.
+
+### Params
+**height_map**(_lookup, height_stops, default_height=10.0_)
+
+Parameter | Description
+--|--
+lookup | value is numeric for interpolated heights or string for categorical height stops
+height_stops | height ramp stops generated from `create_numeric_stops`, or custom list of numeric or categorical stops with paired heights
+default_height | height, in meters, for display of 3-D extrusion on map
+
+### Usage
+```python
+from mapboxgl.utils import create_numeric_stops, height_map
+
+# interpolate height
+height_stops = create_numeric_stops([0, 50, 100, 500, 1500], 0, 150000)
+height = height_map(117, height_stops)
 ```

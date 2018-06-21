@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+<!-- update legend item key style -->
+{% block extra_css %}
+    <style type='text/css'>
+        .legend div span { border-radius: 20%; }
+    </style>
+{% endblock extra_css %}
+
+{% block legend %}
+
+    var legend = document.getElementById('legend');
+    
+    {% if extrudeChoropleth %}
+        {% if colorStops and colorProperty and heightProperty %}
+            {% if colorProperty != heightProperty and extrudeChoropleth %}
+                calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ heightProperty }}");
+            {% else %}
+                calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+            {% endif %}
+        {% endif %}
+    {% else %}
+        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+    {% endif %}
+
+{% endblock legend %}
+
+{% block map %}
+
+    map.on('style.load', function() {
+        
+        {% block choropleth %}
+
+        // Add geojson data source
+        map.addSource("data", {
+            "type": "geojson",
+            "data": {{ geojson_data }},
+            "buffer": 1,
+            "maxzoom": 14
+        });
+
+        // Add data layer
+        map.addLayer({
+            "id": "choropleth-fill",
+            "source": "data",
+            "type": "fill",
+            "paint": {
+                "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+                "fill-opacity": {{ opacity }}
+            }
+        }, "{{ belowLayer }}" );
+
+        // Add border layer
+        map.addLayer({
+            "id": "choropleth-line",
+            "source": "data",
+            "type": "line",
+            "layout": {
+                "line-join": "round",
+                "line-cap": "round"
+            },
+            "paint": {
+                {% if lineDashArray %}
+                "line-dasharray": {{ lineDashArray }},
+                {% endif %}
+                "line-color": "{{ lineColor }}",
+                "line-width": {{ lineWidth }},
+                "line-opacity": {{ opacity }}
+            }
+        }, "{{ belowLayer }}" );
+
+        // Add label layer
+        map.addLayer({
+            "id": "choropleth-label",
+            "source": "data",
+            "type": "symbol",
+            "layout": {
+                {% if labelProperty %}
+                "text-field": "{{ labelProperty }}",
+                {% endif %}
+                "text-size" : generateInterpolateExpression('zoom', [[0,8],[22,16]] ),
+                "text-offset": [0,-1]
+            },
+            "paint": {
+                "text-halo-color": "white",
+                "text-halo-width": 1
+            }
+        }, "{{ belowLayer }}" );
+
+        // Optional extrusion layer
+        {% if extrudeChoropleth %}
+
+            map.addLayer({
+                id: "choropleth-extrusion",
+                type: "fill-extrusion",            
+                source: "data",
+                paint: {
+                    "fill-extrusion-opacity": {{ opacity }},
+                    "fill-extrusion-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+                    "fill-extrusion-height": generatePropertyExpression("{{ heightType }}", "{{ heightProperty }}", {{ heightStops }}, {{ defaultHeight }}),
+                }
+            }, "{{ belowLayer }}");
+
+        {% endif %}
+
+
+        {% endblock choropleth %}
+
+        // Create a popup
+        var popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+        
+        {% block choropleth_popup %}
+
+        // Show the popup on mouseover
+        map.on('mousemove', 'choropleth-fill', function(e) {
+            map.getCanvas().style.cursor = 'pointer';
+            
+            let f = e.features[0];
+            let popup_html = '<div>';
+
+            for (key in f.properties) {
+                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+            }
+
+            popup_html += '</div>'
+            popup.setLngLat(e.lngLat)
+                .setHTML(popup_html)
+                .addTo(map);
+        });
+
+        {% endblock choropleth_popup %}
+
+        map.on('mouseleave', 'choropleth-fill', function() {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+        
+        // Fly to on click
+        map.on('click', 'choropleth-fill', function(e) {
+            map.flyTo({
+                center: e.lngLat,
+                zoom: map.getZoom() + 1
+            });
+        });
+
+    });
+
+{% endblock map %}
