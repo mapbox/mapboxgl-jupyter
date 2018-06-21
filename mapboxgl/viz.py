@@ -33,7 +33,10 @@ class MapViz(object):
                  bearing=0,
                  legend=True,
                  legend_layout='vertical',
-                 legend_style='discrete'):
+                 legend_style='discrete',
+                 legend_fill='white',
+                 legend_header_fill='#eee',
+                 legend_text_color='#6e6e6e'):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -50,6 +53,9 @@ class MapViz(object):
         :param legend: boolean for whether to show legend on map
         :param legend_layout: determines if horizontal or vertical legend used
         :param legend_style: default setting is discrete entries
+        :param legend_fill: string background color for legend, default is white
+        :param legend_header_fill: string background color for legend header (in vertical layout), default is #eee
+        :param legend_text_color: string color for legend text default is #6e6e6e
         """
         if access_token is None:
             access_token = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
@@ -76,6 +82,9 @@ class MapViz(object):
         self.legend = legend
         self.legend_layout = legend_layout
         self.legend_style = legend_style
+        self.legend_fill = legend_fill
+        self.legend_header_fill = legend_header_fill
+        self.legend_text_color = legend_text_color
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -121,7 +130,10 @@ class MapViz(object):
             bearing=self.bearing,
             showLegend=self.legend,
             legendLayout=self.legend_layout,
-            legendStyle=self.legend_style)
+            legendStyle=self.legend_style,
+            legendFill=self.legend_fill,
+            legendHeaderFill=self.legend_header_fill,
+            legendTextColor=self.legend_text_color)
 
         if self.label_property is None:
             options.update(labelProperty=None)

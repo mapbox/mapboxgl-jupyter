@@ -15,8 +15,8 @@
     body { margin:0; padding:0; }
     .map { position: absolute; top:0; bottom:0; width:100%; }
     .legend {
-        background-color: white;
-        color: #6e6e6e;
+        background-color: {{ legendFill }};
+        color: {{ legendTextColor }};
         border-radius: 3px;
         bottom: 10px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
@@ -28,7 +28,7 @@
         min-width: 100px;
     }
     .legend .legend-header {  border-radius: 3px 3px 0 0; }
-    .legend.vertical .legend-header {  background: #eee; }
+    .legend.vertical .legend-header {  background: {{ legendHeaderFill }}; }
     .legend.vertical .legend-title {
         padding: 6px 12px 6px 12px;
         text-shadow: 0 0 2px #FFF;
