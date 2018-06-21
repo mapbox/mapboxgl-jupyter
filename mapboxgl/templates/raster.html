@@ -39,8 +39,6 @@ map.on('style.load', function() {
     }
     if ({{ tiles_bounds }} !== undefined) params.bounds = {{ tiles_bounds }};
 
-    console.log(params);
-
     map.addSource("raster-tiles", params);
 
     map.addLayer({
