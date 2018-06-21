@@ -4,7 +4,7 @@
     
     {% if showLegend %}
         {% if colorStops and colorProperty and radiusProperty %}
-            calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+            calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
         {% endif %}
     {% endif %}
 
