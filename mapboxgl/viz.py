@@ -36,7 +36,8 @@ class MapViz(object):
                  legend_style='discrete',
                  legend_fill='white',
                  legend_header_fill='#eee',
-                 legend_text_color='#6e6e6e'):
+                 legend_text_color='#6e6e6e',
+                 legend_key_shape='default'):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -56,6 +57,8 @@ class MapViz(object):
         :param legend_fill: string background color for legend, default is white
         :param legend_header_fill: string background color for legend header (in vertical layout), default is #eee
         :param legend_text_color: string color for legend text default is #6e6e6e
+        :param legend_key_shape: shape of the legend item keys, default varies by viz type; one of default, contiguous_bar, square, rounded_square, circle, line
+
         """
         if access_token is None:
             access_token = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
@@ -85,6 +88,7 @@ class MapViz(object):
         self.legend_fill = legend_fill
         self.legend_header_fill = legend_header_fill
         self.legend_text_color = legend_text_color
+        self.legend_key_shape = legend_key_shape
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -133,7 +137,8 @@ class MapViz(object):
             legendStyle=self.legend_style,
             legendFill=self.legend_fill,
             legendHeaderFill=self.legend_header_fill,
-            legendTextColor=self.legend_text_color)
+            legendTextColor=self.legend_text_color,
+            legendKeyShape=self.legend_key_shape)
 
         if self.label_property is None:
             options.update(labelProperty=None)
@@ -162,6 +167,7 @@ class CircleViz(MapViz):
                  color_function_type='interpolate',
                  stroke_color='grey',
                  stroke_width=0.1,
+                 legend_key_shape='circle',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -195,6 +201,7 @@ class CircleViz(MapViz):
         self.stroke_width = stroke_width
         self.color_function_type = color_function_type
         self.color_default = color_default
+        self.legend_key_shape = legend_key_shape
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to circle visual"""
@@ -210,7 +217,7 @@ class CircleViz(MapViz):
             labelColor=self.label_color,
             labelSize=self.label_size,
             labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width
+            labelHaloWidth=self.label_halo_width,
         ))
 
 
@@ -234,6 +241,7 @@ class GraduatedCircleViz(MapViz):
                  radius_stops=None,
                  radius_default=2,
                  radius_function_type='interpolate',
+                 legend_key_shape='circle',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -269,6 +277,7 @@ class GraduatedCircleViz(MapViz):
         self.radius_default = radius_default
         self.stroke_color = stroke_color
         self.stroke_width = stroke_width
+        self.legend_key_shape = legend_key_shape
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to graduated circle visual"""
@@ -300,8 +309,6 @@ class HeatmapViz(MapViz):
                  color_stops=None,
                  radius_stops=None,
                  intensity_stops=None,
-                 legend_layout='horizontal',
-                 legend_style='gradient',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -311,8 +318,7 @@ class HeatmapViz(MapViz):
         :param color_stops: stops to determine heatmap color.  EX. [[0, "red"], [0.5, "blue"], [1, "green"]]
         :param radius_stops: stops to determine heatmap radius based on zoom.  EX: [[0, 1], [12, 30]]
         :param intensity_stops: stops to determine the heatmap intensity based on zoom. EX: [[0, 0.1], [20, 5]]
-        :param legend_layout: default setting is horizontal for heatmap legend
-        :param legend_style: default setting is gradient for heatmap legend
+        
         """
         super(HeatmapViz, self).__init__(data, *args, **kwargs)
 
@@ -324,8 +330,6 @@ class HeatmapViz(MapViz):
             self.color_stops = [[0.00001, 'rgba(0,0,0,0)']] + color_stops
         self.radius_stops = radius_stops
         self.intensity_stops = intensity_stops
-        self.legend_layout = legend_layout
-        self.legend_style = legend_style
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
@@ -355,6 +359,7 @@ class ClusteredCircleViz(MapViz):
                  color_default='black',
                  stroke_color='grey',
                  stroke_width=0.1,
+                 legend_key_shape='circle',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -385,6 +390,7 @@ class ClusteredCircleViz(MapViz):
         self.stroke_color = stroke_color
         self.stroke_width = stroke_width
         self.color_default = color_default
+        self.legend_key_shape = legend_key_shape
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to a clustered circle visual"""
@@ -425,6 +431,7 @@ class ChoroplethViz(MapViz):
                  height_stops=None,
                  height_default=0.0,
                  height_function_type='interpolate',
+                 legend_key_shape='rounded_square',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -446,6 +453,7 @@ class ChoroplethViz(MapViz):
         :param height_stops: property for determining 3D extrusion height
         :param height_default: default height for 3D extruded polygons
         :param height_function_type: roperty to determine `type` used by Mapbox to assign height
+        
         """
         super(ChoroplethViz, self).__init__(data, *args, **kwargs)
         
@@ -473,6 +481,7 @@ class ChoroplethViz(MapViz):
         self.height_stops = height_stops
         self.height_default = height_default
         self.height_function_type = height_function_type
+        self.legend_key_shape = legend_key_shape
 
     def generate_vector_color_map(self):
         """Generate color stops array for use with match expression in mapbox template"""
@@ -662,6 +671,7 @@ class LinestringViz(MapViz):
                  line_width_stops=None,
                  line_width_default=1,
                  line_width_function_type='interpolate',
+                 legend_key_shape='line',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -715,6 +725,7 @@ class LinestringViz(MapViz):
         self.line_width_stops = line_width_stops
         self.line_width_default = line_width_default
         self.line_width_function_type = line_width_function_type
+        self.legend_key_shape = legend_key_shape
 
     def generate_vector_color_map(self):
         """Generate color stops array for use with match expression in mapbox template"""

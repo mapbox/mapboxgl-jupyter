@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+<!-- update legend item key style -->
+{% block extra_css %}
+<style>
+    .legend-key { border: solid {{ strokeColor }} {{ strokeWidth }}px; }
+</style>
+{% endblock extra_css %}
+
 {% block legend %}
     
     {% if showLegend %}
