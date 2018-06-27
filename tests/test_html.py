@@ -203,15 +203,15 @@ def test_display_vector_ChoroplethViz(display):
     """Assert that show calls the mocked display function when using data-join technique
     for ChoroplethViz.
     """
-    data = [{"id": "06", "name": "California", "density": 241.7}, 
-            {"id": "11", "name": "District of Columbia", "density": 10065}, 
-            {"id": "25", "name": "Massachusetts", "density": 840.2}, 
-            {"id": "30", "name": "Montana", "density": 6.858}, 
-            {"id": "36", "name": "New York", "density": 412.3}, 
-            {"id": "49", "name": "Utah", "density": 34.3}, 
+    data = [{"id": "06", "name": "California", "density": 241.7},
+            {"id": "11", "name": "District of Columbia", "density": 10065},
+            {"id": "25", "name": "Massachusetts", "density": 840.2},
+            {"id": "30", "name": "Montana", "density": 6.858},
+            {"id": "36", "name": "New York", "density": 412.3},
+            {"id": "49", "name": "Utah", "density": 34.3},
             {"id": "72", "name": "Puerto Rico", "density": 1082}]
 
-    viz = ChoroplethViz(data, 
+    viz = ChoroplethViz(data,
                         vector_url='mapbox://mapbox.us_census_states_2015',
                         vector_layer_name='states',
                         vector_join_property='STATEFP',
@@ -229,15 +229,15 @@ def test_display_vector_extruded_ChoroplethViz(display):
     """Assert that show calls the mocked display function when using data-join technique
     for ChoroplethViz.
     """
-    data = [{"id": "06", "name": "California", "density": 241.7}, 
-            {"id": "11", "name": "District of Columbia", "density": 10065}, 
-            {"id": "25", "name": "Massachusetts", "density": 840.2}, 
-            {"id": "30", "name": "Montana", "density": 6.858}, 
-            {"id": "36", "name": "New York", "density": 412.3}, 
-            {"id": "49", "name": "Utah", "density": 34.3}, 
+    data = [{"id": "06", "name": "California", "density": 241.7},
+            {"id": "11", "name": "District of Columbia", "density": 10065},
+            {"id": "25", "name": "Massachusetts", "density": 840.2},
+            {"id": "30", "name": "Montana", "density": 6.858},
+            {"id": "36", "name": "New York", "density": 412.3},
+            {"id": "49", "name": "Utah", "density": 34.3},
             {"id": "72", "name": "Puerto Rico", "density": 1082}]
 
-    viz = ChoroplethViz(data, 
+    viz = ChoroplethViz(data,
                         vector_url='mapbox://mapbox.us_census_states_2015',
                         vector_layer_name='states',
                         vector_join_property='STATEFP',
@@ -271,7 +271,7 @@ def test_display_vector_LinestringViz(display):
     """
     data = [{"elevation": x, "weight": random.randint(0,100)} for x in range(0, 21000, 10)]
 
-    viz = LinestringViz(data, 
+    viz = LinestringViz(data,
                         vector_url='mapbox://mapbox.mapbox-terrain-v2',
                         vector_layer_name='contour',
                         vector_join_property='ele',
