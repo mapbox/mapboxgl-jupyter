@@ -40,10 +40,109 @@
         margin-right: 5px;
         width: 10px;
     }
+
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+
+    /* Modal Body */
+    .modal-body {padding: 2px 16px;}
+    .modal-header {padding: 2px 16px;}
+
+
+    /* Modal Content */
+    .modal-content {
+        position: relative;
+        background-color: #fefefe;
+        margin: auto;
+        padding: 0;
+        border: 1px solid #888;
+        width: 100%;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+        animation-name: animatetop;
+        animation-duration: 0.4s
+    }
+
+    /* Add Animation */
+    @keyframes animatetop {
+        from {top: -300px; opacity: 0}
+        to {top: 0; opacity: 1}
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .ansi-red-intense-fg {
+        color: #B22B31;
+    }
+
+    .ansi-bold {
+        font-weight: bold;
+    }
+
+    .ansi-green-intense-fg {
+        color: #007427;
+    }
+
+    .ansi-cyan-fg {
+        color: #60C6C8;
+    }
+
+    .ansi-blue-intense-fg {
+        color: #0065CA;
+    }
+
+    .ansi-yellow-intense-fg {
+        color: #B27D12;
+    }
+
+    pre {
+        white-space: pre-wrap;       /* Since CSS 2.1 */
+        white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+        white-space: -pre-wrap;      /* Opera 4-6 */
+        white-space: -o-pre-wrap;    /* Opera 7 */
+        word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    }
+
 </style>
 {% block extra_css %}{% endblock extra_css %}
 </head>
 <body>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close">&times;</span>
+    </div>
+    <div class="modal-body" id="errorModalContent">
+    </div>
+  </div>
+
+</div>
 
 <div id='map' class='map'></div>
 <div id='legend' class='legend'></div>
@@ -128,7 +227,56 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
 }
 
 
+function formatJavascriptStack(stack) {
+    var lines = stack.split("\n");
+    var formattedStack = "";
+    for (var i = 0; i < lines.length; i++) {
+        var trace = lines[i].split("@");
+        if (trace.length > 1) {
+            trace[0] = trace[0].replace("\]\<\/", "\]").replace("\<\/", ":");
+            var lineTemplate = `<span class='ansi-green-intense-fg ansi-bold'>${trace[1]}</span>`
+            if (trace[0] != "") {
+                lineTemplate +=  ` in <span class='ansi-cyan-fg'>${trace[0]}</span>\n`;
+                formattedStack +=  lineTemplate;
+            }
+        }
+    }
+    return formattedStack;
+}
+
+
+function formatJavascriptError(errorName, errorObj) {
+    var formattedStack = formatJavascriptStack(errorObj.stack);
+    var formattedError = `<pre>
+<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-intense-fg ansi-bold">${errorName}</span>                              Traceback (most recent call last)
+${formattedStack}
+<span class="ansi-red-intense-fg ansi-bold">${errorName}</span>: ${errorObj.message}</pre>`;
+    return formattedError;
+}
+
+window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
+    if (errorObj.fileName == 'https://api.tiles.mapbox.com/mapbox-gl-js/{{ gl_js_version }}/mapbox-gl.js') {
+
+
+        var modal = document.getElementById("myModal");
+        modal.style.display = "block";
+        var modalContent = document.getElementById("errorModalContent");
+        modalContent.innerHTML = formatJavascriptError("Mapbox Error", errorObj);
+
+        var span = document.getElementsByClassName("close")[0];
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+    }
+}
+
+
 </script>
+
+
+
 
 <!-- main map creation code, extended by mapboxgl/templates/{{ viz }}.html -->
 <script type="text/javascript">
