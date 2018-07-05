@@ -33,11 +33,15 @@ class MapViz(object):
                  bearing=0,
                  legend=True,
                  legend_layout='vertical',
-                 legend_style='discrete',
+                 legend_gradient=False,
+                 legend_style='',
                  legend_fill='white',
-                 legend_header_fill='#eee',
+                 legend_header_fill='white',
                  legend_text_color='#6e6e6e',
-                 legend_key_shape='default'):
+                 legend_text_numeric_precision=None,
+                 legend_title_halo_color='white',
+                 legend_key_shape='square',
+                 legend_key_borders_on=True):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -53,11 +57,15 @@ class MapViz(object):
         :param bearing: starting bearing (in degrees) for map
         :param legend: boolean for whether to show legend on map
         :param legend_layout: determines if horizontal or vertical legend used
-        :param legend_style: default setting is discrete entries
+        :param legend_style: reserved for future custom CSS loader
+        :param legend_gradient: boolean to determine if legend keys are discrete or gradient
         :param legend_fill: string background color for legend, default is white
         :param legend_header_fill: string background color for legend header (in vertical layout), default is #eee
         :param legend_text_color: string color for legend text default is #6e6e6e
-        :param legend_key_shape: shape of the legend item keys, default varies by viz type; one of default, contiguous_bar, square, rounded_square, circle, line
+        :param legend_text_numeric_precision: decimal precision for numeric legend values
+        :param legend_title_halo_color: color of legend title text halo
+        :param legend_key_shape: shape of the legend item keys, default varies by viz type; one of square, contiguous_bar, rounded-square, circle, line
+        :param legend_key_borders_on: boolean for whether to show/hide legend key borders
 
         """
         if access_token is None:
@@ -85,10 +93,14 @@ class MapViz(object):
         self.legend = legend
         self.legend_layout = legend_layout
         self.legend_style = legend_style
+        self.legend_gradient = legend_gradient
         self.legend_fill = legend_fill
         self.legend_header_fill = legend_header_fill
         self.legend_text_color = legend_text_color
+        self.legend_text_numeric_precision = legend_text_numeric_precision
+        self.legend_title_halo_color = legend_title_halo_color
         self.legend_key_shape = legend_key_shape
+        self.legend_key_borders_on = legend_key_borders_on
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -134,11 +146,15 @@ class MapViz(object):
             bearing=self.bearing,
             showLegend=self.legend,
             legendLayout=self.legend_layout,
-            legendStyle=self.legend_style,
+            legendStyle=self.legend_style, # reserve name for custom CSS?
+            legendGradient=json.dumps(self.legend_gradient),
             legendFill=self.legend_fill,
             legendHeaderFill=self.legend_header_fill,
             legendTextColor=self.legend_text_color,
-            legendKeyShape=self.legend_key_shape)
+            legendNumericPrecision=json.dumps(self.legend_text_numeric_precision),
+            legendTitleHaloColor=self.legend_title_halo_color,
+            legendKeyShape=self.legend_key_shape,
+            legendKeyBordersOn=json.dumps(self.legend_key_borders_on))
 
         if self.label_property is None:
             options.update(labelProperty=None)
@@ -431,7 +447,7 @@ class ChoroplethViz(MapViz):
                  height_stops=None,
                  height_default=0.0,
                  height_function_type='interpolate',
-                 legend_key_shape='rounded_square',
+                 legend_key_shape='rounded-square',
                  *args,
                  **kwargs):
         """Construct a Mapviz object

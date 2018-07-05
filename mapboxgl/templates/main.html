@@ -21,17 +21,19 @@
         bottom: 10px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
         font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-        padding: 0px;
+        padding: 0;
         position: absolute;
         right: 10px;
         z-index: 1;
         min-width: 100px;
     }
-    .legend .legend-header {  border-radius: 3px 3px 0 0; }
-    .legend .legend-header {  background: {{ legendHeaderFill }}; }
+   .legend.horizontal {bottom: 10px; text-align: left;}
+
+    /* legend header */
+    .legend .legend-header { border-radius: 3px 3px 0 0; background: {{ legendHeaderFill }}; }
     .legend .legend-title {
         padding: 6px 12px 6px 12px;
-        text-shadow: 0 0 2px #FFF;
+        text-shadow: 0 0 2px {{ legendTitleHaloColor }};
         text-transform: capitalize;
         text-align: center;
         font-weight: bold !important;
@@ -39,107 +41,36 @@
         font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
         max-width: 160px;
     }
-    .legend.vertical div span {
-        display: inline-block;
-        height: 10px;
-        margin-right: 5px;
-        margin-left: 1px;
-        width: 10px;
-    }
-    .legend.vertical .legend-item { white-space: nowrap; }
-    .legend.vertical .legend-content {
-        margin: 6px 12px 6px 12px;
-        overflow: hidden;
-    }
-    .legend.vertical .legend-key, .legend .legend-value { display: inline-block; }
-    .legend-item { list-style: none; }
-    ul { padding: 0px; }
-    .legend.horizontal { bottom: 10px; }
-    .legend.horizontal .legend-title {
-        text-align: left;
-    }
-    .legend.horizontal .legend-content {
-        margin: 6px 12px 6px 12px;
-        overflow: hidden;
-    }
-    .legend.horizontal div span {
-        border-radius: 0%;
-        height: 10px;
-        margin-right: 0px;
-        margin-top: 1px;
-        width: 30px;
-    }
-    .legend.horizontal .legend-title {
-        text-align: left;
-        margin: 0px;
-        font-weight: bold;
-        font-size: 0.9em;
-    }
-    .legend.horizontal ul {
-        margin: 0;
-        padding: 0;
-        float: left;
-        list-style: none;
-    }
-    .legend.horizontal ul li, 
-    .legend.horizontal ul li div {
-        display: block;
-        float: left;
-        width: 30px;
-        margin-bottom: 0px;
-        text-align: center;
-        font-size: 0.9em;
-        list-style: none;
-        height: 30px;
-    }
-    .legend.horizontal ul li span {
-        display: block;
-        float: left;
-        width: 40px;
-    }
-    .legend.horizontal .gradient-bar {
-        width: 88%;
-        height: 10px;
-        margin: 6px 12px 6px 12px;
-        z-index: 9000;
-    }
-    .legend.vertical .gradient-bar {
-        width: 10px;
-        min-height: 50px;
-        margin: 6px 12px 6px 12px;
-        z-index: 9000;
-        position: absolute;
-        bottom: 4px;
-    }
+    .legend-title {padding: 6px 12px 6px 12px; text-shadow: 0 0 2px #FFF; text-transform: capitalize; text-align: center; max-width: 160px; font-size: 0.9em; font-weight: bold;}
+    .legend.horizontal .legend-title {text-align: left;}
 
-    {% if legendKeyShape == 'circle' %}
-        .legend-key {
-            border-radius: 50% !important;
-        }
-        .legend.horizontal ul li div span.legend-key {
-            border-radius: 50% !important;
-            width: 10px !important;
-        }
-    {% elif legendKeyShape == 'rounded_square' %}
-        .legend.horizontal ul li div span.legend-key {
-            border-radius: 20% !important;
-            width: 10px !important;
-        }
-        .legend.vertical ul div span {
-            border-radius: 20% !important; 
-        }
-    {% elif legendKeyShape == 'square' %}
-        .legend.horizontal ul li div span.legend-key {
-            width: 10px !important;
-        }
-    {% elif legendKeyShape == 'line' %}
-        .legend-key { border-radius: 10% !important; width: 20px !important; height: 3px !important; margin-bottom: 3px !important; }
-    {% elif legendKeyShape == 'contiguous_square' %}
-        .legend-key { margin: 0px 5px 0px 0px !important;}
-        .legend.vertical ul div span { height: 15px !important; width: 15px !important; }
-        .legend.vertical .legend-item { height: 15px !important; margin: 0px !important; vertical-align: middle !important; }
-        .legend-value { height: 15px !important; line-height: 10px !important;  vertical-align: middle !important; }
-    {% endif %}
+    /* legend items */
+    .legend-content {margin: 6px 12px 6px 12px; overflow: hidden; padding: 0; float: left; list-style: none; font-size: 0.8em;}
+    .legend.vertical .legend-item {white-space: nowrap;}
+    .legend-value {display: inline-block; line-height: 18px; vertical-align: top;}
+    .legend.horizontal ul.legend-content li.legend-item .legend-value,
+    .legend.horizontal ul.legend-content li.legend-item {display: inline-block; float: left; width: 30px; margin-bottom: 0; text-align: center; height: 30px;}
+
+    /* legend key styles */
+    .legend-key {display: inline-block; height: 10px;}
+    .legend-key.default, .legend-key.square {border-radius: 0;}
+    .legend-key.circle {border-radius: 50%;}
+    .legend-key.rounded-square {border-radius: 20%;}
+    .legend.vertical .legend-key {width: 10px; margin-right: 5px; margin-left: 1px;}
+    .legend.horizontal .legend-key {width: 30px; margin-right: 0; margin-top: 1px; float: left;}
+    .legend.horizontal .legend-key.square, .legend.horizontal .legend-key.rounded-square, .legend.horizontal .legend-key.circle {margin-left: 10px; width: 10px;}
+    .legend.horizontal .legend-key.line {margin-left: 5px;}
+    .legend.horizontal .legend-key.line, .legend.vertical .legend-key.line {border-radius: 10%; width: 20px; height: 3px; margin-bottom: 2px;}
+
+    /* gradient bar alignment */
+    .gradient-bar {margin: 6px 12px 6px 12px;}
+    .legend.horizontal .gradient-bar {width: 88%; height: 10px;}
+    .legend.vertical .gradient-bar {width: 10px; min-height: 50px; position: absolute; bottom: 4px;}
+
+    /* contiguous vertical bars (discrete) */
+    .legend.vertical.contig .legend-key {height: 15px; width: 10px;}
+    .legend.vertical.contig li.legend-item {height: 15px;}
+    .legend.vertical.contig {padding-bottom: 6px;}
 
 </style>
 {% block extra_css %}{% endblock extra_css %}
@@ -156,7 +87,13 @@ function calcColorLegend(myColorStops, title) {
 
     // create legend
     var legend = document.createElement('div');
-    legend.className = 'legend {{ legendLayout }}';
+    if ('{{ legendKeyShape }}' === 'contiguous-bar') {
+        legend.className = 'legend {{ legendLayout }} contig';
+    }
+    else {
+        legend.className = 'legend {{ legendLayout }}';
+    }
+
     legend.id = 'legend';
     document.body.appendChild(legend);
 
@@ -172,7 +109,7 @@ function calcColorLegend(myColorStops, title) {
     legend.appendChild(legendHeader);
     legend.appendChild(legendContent);
 
-    if ('{{ legendStyle }}' === 'gradient') {
+    if ({{ legendGradient|safe }} === true) {
         var gradientText = 'linear-gradient(to right, ';
         var gradient = document.createElement('div');
         gradient.className = 'gradient-bar';
@@ -185,31 +122,37 @@ function calcColorLegend(myColorStops, title) {
             //update the legend if it already exists
             document.getElementById('legend-points-value-' + p).textContent = myColorStops[p][0];
             document.getElementById('legend-points-id-' + p).style.backgroundColor = myColorStops[p][1];
-        } else {
+        }
+        else {
             // create the legend if it doesn't yet exist
-            var entry = document.createElement('li');
-            var item = document.createElement('div');
+            var item = document.createElement('li');
             item.className = 'legend-item';
 
             var key = document.createElement('span');
-            key.className = 'legend-key';
-            var value = document.createElement('div');
-            value.className = 'legend-value';
-
+            key.className = 'legend-key {{ legendKeyShape }}';
             key.id = 'legend-points-id-' + p;
-            key.style.backgroundColor = myColorStops[p][1];
+            key.style.backgroundColor = myColorStops[p][1];   
+
+            var value = document.createElement('span');
+            value.className = 'legend-value';
             value.id = 'legend-points-value-' + p;
 
             item.appendChild(key);
             item.appendChild(value);
-            entry.appendChild(item);
-            legendContent.appendChild(entry);
+            legendContent.appendChild(item);
             
             data = document.getElementById('legend-points-value-' + p)
-            data.textContent = myColorStops[p][0];
+
+            // round number values in legend if precision defined
+            if ((typeof(myColorStops[p][0]) == 'number') && (typeof({{ legendNumericPrecision }}) == 'number')) {
+                data.textContent = myColorStops[p][0].toFixed({{ legendNumericPrecision }});
+            }
+            else {
+                data.textContent = myColorStops[p][0];
+            }
 
             // add color stop to gradient list
-            if ('{{ legendStyle }}' === 'gradient') {
+            if ({{ legendGradient|safe }} === true) {
                 if (p < myColorStops.length - 1) {
                     gradientText = gradientText + myColorStops[p][1] + ', ';
                 }
@@ -223,9 +166,8 @@ function calcColorLegend(myColorStops, title) {
         }
     }
 
-    if ('{{ legendStyle }}' === 'gradient') {
+    if ({{ legendGradient|safe }} === true) {
         // convert to gradient scale appearance
-
         gradient.style.background = gradientText;
 
         // hide legend keys generated above
@@ -236,6 +178,22 @@ function calcColorLegend(myColorStops, title) {
 
         if ('{{ legendLayout }}' === 'vertical') {
             gradient.style.height = (legendContent.offsetHeight - 6) + 'px';
+        }
+    }
+
+    // add class for styling bordered legend keys
+    if ({{ legendKeyBordersOn|safe }}) {
+        var keys = document.getElementsByClassName('legend-key');
+        for (var i=0; i < keys.length; i++) {
+            if (keys[i]) {
+                keys[i].classList.add('bordered');
+            }
+        }
+        var gradientBars = document.getElementsByClassName('gradient-bar');
+        for (var i=0; i < keys.length; i++) {
+            if (gradientBars[i]) {
+                gradientBars[i].classList.add('bordered');
+            }
         }
     }
 
