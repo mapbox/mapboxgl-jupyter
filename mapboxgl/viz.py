@@ -11,7 +11,7 @@ from mapboxgl import templates
 from mapboxgl.utils import img_encode, numeric_map
 
 
-GL_JS_VERSION = 'v0.42.2'
+GL_JS_VERSION = 'v0.47.0'
 
 
 class MapViz(object):
