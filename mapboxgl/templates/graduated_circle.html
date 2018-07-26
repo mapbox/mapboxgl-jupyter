@@ -1,11 +1,18 @@
 {% extends "base.html" %}
 
-{% block legend %}
+<!-- update legend item key style -->
+{% block extra_css %}
+<style>
+    .gradient-bar.bordered, .legend-key.bordered { border: solid {{ strokeColor }} {{ strokeWidth }}px; }
+</style>
+{% endblock extra_css %}
 
-    {% if colorStops and colorProperty and radiusProperty %}
-        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
-    {% else %}
-        document.getElementById('legend').style.visibility='hidden'
+{% block legend %}
+    
+    {% if showLegend %}
+        {% if colorStops and colorProperty and radiusProperty %}
+            calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+        {% endif %}
     {% endif %}
 
 {% endblock legend %}
