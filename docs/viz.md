@@ -368,7 +368,7 @@ from mapboxgl.utils import *
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
 
 # Create Choropleth with GeoJSON Source
-viz = ChoroplethViz('us-states.geojson', 
+viz = ChoroplethViz('us-states.geojson',
                      color_property='density',
                      color_stops=create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd'),
                      color_function_type='interpolate',
@@ -475,6 +475,41 @@ viz.show()
 [Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/rastertile-viz-types-example.ipynb)
 
 
+#### Bring your own raster
+Using [`rio-glui`](https://github.com/mapbox/rio-glui) python module, you can create a local tiles server to explore your own file.
+
+Note: Your raster file has to be a cloud optimized geotiff (see [cogeo.org](http://www.cogeo.org) or [rio-cogeo](https://github.com/mapbox/rio-cogeo)).
+
+```python
+
+from rio_glui.server import TileServer
+from rio_glui.raster import RasterTiles
+from mapboxgl.viz import RasterTilesViz
+
+file = 'myfile.tif'
+
+# Create raster tile object
+# More info: https://github.com/mapbox/rio-glui/blob/master/rio_glui/raster.py#L16-L44
+raster = RasterTiles(file, indexes=(2,1,3))
+
+# Create local tile server
+# More info: https://github.com/mapbox/rio-glui/blob/master/rio_glui/server.py#L21-L56
+ts = TileServer(raster)
+
+# Start tile server
+ts.start()
+
+# Initialize RasterTiles Viz by passing our local tile server url `ts.get_tiles_url`
+viz = RasterTilesViz(ts.get_tiles_url(),
+                     tiles_bounds=ts.get_bounds(),
+                     center=ts.get_center(),
+                     height='1000px',
+                     zoom=13)
+viz.show()
+```
+
+
+
 ## class LinestringViz
 
 The `LinestringViz` object handles the creation of a vector or GeoJSON-based Linestring visualization and inherits from the `MapViz` class.
@@ -521,7 +556,7 @@ token = os.getenv('MAPBOX_ACCESS_TOKEN')
 # JSON join-data object
 data = [{"elevation": x, "weight": random.randint(0,100)} for x in range(0, 21000, 10)]
 
-viz = LinestringViz(data, 
+viz = LinestringViz(data,
                     vector_url='mapbox://mapbox.mapbox-terrain-v2',
                     vector_layer_name='contour',
                     vector_join_property='ele',
@@ -542,4 +577,3 @@ viz.show()
 
 
 [Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/linestring-viz.ipynb)
-
