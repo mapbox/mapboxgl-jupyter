@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 
-{% block legend %}
-
-    document.getElementById('legend').style.visibility = 'hidden';
-
-{% endblock legend %}
+{% block legend %}{% endblock legend %}
 
 {% block map %}
 
@@ -13,7 +9,7 @@
       map.addSource("image", {
          "type": "image",
          "url": "{{ image }}", // url or base64 encoded image
-         "coordinates': {{ coordinates }}
+         "coordinates": {{ coordinates }}
       });
 
       map.addLayer({

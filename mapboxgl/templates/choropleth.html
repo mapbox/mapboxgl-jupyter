@@ -3,24 +3,24 @@
 <!-- update legend item key style -->
 {% block extra_css %}
     <style type='text/css'>
-        .legend div span { border-radius: 20%; }
+        .gradient.bordered, .legend-key.bordered { border: solid {{ lineColor }} {{ lineWidth }}px; }
     </style>
 {% endblock extra_css %}
 
 {% block legend %}
-
-    var legend = document.getElementById('legend');
     
-    {% if extrudeChoropleth %}
-        {% if colorStops and colorProperty and heightProperty %}
-            {% if colorProperty != heightProperty and extrudeChoropleth %}
-                calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ heightProperty }}");
-            {% else %}
-                calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+    {% if showLegend %}
+        {% if extrudeChoropleth %}
+            {% if colorStops and colorProperty and heightProperty %}
+                {% if colorProperty != heightProperty and extrudeChoropleth %}
+                    calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ heightProperty }}");
+                {% else %}
+                    calcColorLegend({{ colorStops }}, "{{ colorProperty }}");
+                {% endif %}
             {% endif %}
+        {% else %}
+            calcColorLegend({{ colorStops }}, "{{ colorProperty }}");
         {% endif %}
-    {% else %}
-        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
     {% endif %}
 
 {% endblock legend %}
