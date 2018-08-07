@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block legend %}{% endblock legend %}
+
+{% block map %}
+
+    map.on('style.load', function() {
+
+        // Add vector data source
+        map.addSource("vector-data", {
+            type: "vector",
+            url: "{{ vectorUrl }}",
+        });
+
+        // Add vector data layer
+        map.addLayer({
+            "id": "circle",
+            "source": "vector-data",
+            "source-layer": "{{ vectorLayer }}",
+            "type": "circle",
+            "maxzoom": {{ maxzoom }},
+            "minzoom": {{ minzoom }},
+            "paint": { "circle-radius": 1 }
+        });
+
+    });
+
+{% endblock map %}

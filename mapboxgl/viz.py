@@ -20,9 +20,6 @@ class VectorMixin(object):
         """Generate color stops array for use with match expression in mapbox template"""
         vector_stops = []
 
-        if self.color_function_type == 'match':
-            return self.color_stops
-
         for row in self.data:
 
             # map color to JSON feature using color_property
@@ -54,13 +51,27 @@ class VectorMixin(object):
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], value])
 
-        return vector_stops 
+        return vector_stops
+
+    def check_vector_template(self):
+
+        if self.vector_url is not None and self.vector_layer_name is not None:
+            self.template = 'vector_' + self.template
+            self.vector_source = True
+        else:
+            self.vector_source = False
 
 
 class MapViz(object):
 
     def __init__(self,
                  data,
+
+                 vector_url=None,
+                 vector_layer_name=None,
+                 vector_join_property=None,
+                 data_join_property=None,
+
                  access_token=None,
                  center=(0, 0),
                  below_layer='',
@@ -93,6 +104,12 @@ class MapViz(object):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
+
+        :param vector_url: optional property to define vector data source
+        :param vector_layer_name: property to define target layer of vector source
+        :param vector_join_property: property to aid in determining color for styling vector layer
+        :param data_join_property: property to join json data to vector features
+
         :param access_token: Mapbox GL JS access token.
         :param center: map center point
         :param style: url to mapbox style or stylesheet as a Python dictionary in JSON format
@@ -128,8 +145,19 @@ class MapViz(object):
                              'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
                              'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
         self.access_token = access_token
-        self.template = 'map'
+        self.template = 'vector_map'
         self.data = data
+        
+        self.vector_url = vector_url
+        self.vector_layer_name = vector_layer_name
+        self.vector_join_property = vector_join_property
+        self.data_join_property = data_join_property
+
+        if self.vector_url is not None and self.vector_layer_name is not None:
+            self.vector_source = True
+        else:
+            self.vector_source = False
+
         self.div_id = div_id
         self.width = width
         self.height = height
@@ -213,10 +241,25 @@ class MapViz(object):
             legendKeyShape=self.legend_key_shape,
             legendKeyBordersOn=json.dumps(self.legend_key_borders_on))
 
+        if self.vector_source:
+            options.update(dict(
+                vectorUrl=self.vector_url,
+                vectorLayer=self.vector_layer_name,
+                vectorJoinDataProperty=self.vector_join_property,
+                joinData=json.dumps(self.data, ensure_ascii=False),
+                dataJoinProperty=self.data_join_property,
+            ))
+
         if self.label_property is None:
             options.update(labelProperty=None)
         else:
             options.update(labelProperty='{' + self.label_property + '}')
+    
+        options.update(dict(
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width))
 
         self.add_unique_template_variables(options)
 
@@ -228,12 +271,6 @@ class CircleViz(VectorMixin, MapViz):
 
     def __init__(self,
                  data,
-
-                 vector_url=None,
-                 vector_layer_name=None,
-                 vector_join_property=None,
-                 data_join_property=None,
-
                  radius=1,
                  color_property=None,
                  color_stops=None,
@@ -257,17 +294,8 @@ class CircleViz(VectorMixin, MapViz):
         """
         super(CircleViz, self).__init__(data, *args, **kwargs)
 
-        self.vector_url = vector_url
-        self.vector_layer_name = vector_layer_name
-        self.vector_join_property = vector_join_property
-        self.data_join_property = data_join_property
-
-        if self.vector_url is not None and self.vector_layer_name is not None:
-            self.template = 'vector_circle'
-            self.vector_source = True
-        else:
-            self.vector_source = False
-            self.template = 'circle'
+        self.template = 'circle'
+        self.check_vector_template()
 
         self.color_property = color_property
         self.color_stops = color_stops
@@ -289,23 +317,17 @@ class CircleViz(VectorMixin, MapViz):
             strokeColor=self.stroke_color,
             radius=self.radius,
             defaultColor=self.color_default,
-            labelColor=self.label_color,
-            labelSize=self.label_size,
-            labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width,
         ))
+        
         if self.vector_source:
             options.update(dict(
                 vectorUrl=self.vector_url,
                 vectorLayer=self.vector_layer_name,
-                vectorColorStops=[[0,self.color_default]],
+                vectorColorStops=self.generate_vector_color_map(),
                 vectorJoinDataProperty=self.vector_join_property,
                 joinData=json.dumps(self.data, ensure_ascii=False),
                 dataJoinProperty=self.data_join_property,
             ))
-
-            # if self.color_stops:
-            #     options.update(vectorColorStops=self.generate_vector_color_map())
 
 
 class GraduatedCircleViz(VectorMixin, MapViz):
