@@ -145,7 +145,7 @@ class MapViz(object):
                              'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
                              'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
         self.access_token = access_token
-        self.template = 'vector_map'
+
         self.data = data
         
         self.vector_url = vector_url
@@ -153,10 +153,8 @@ class MapViz(object):
         self.vector_join_property = vector_join_property
         self.data_join_property = data_join_property
 
-        if self.vector_url is not None and self.vector_layer_name is not None:
-            self.vector_source = True
-        else:
-            self.vector_source = False
+        self.template = 'map'
+        self.check_vector_template()
 
         self.div_id = div_id
         self.width = width
@@ -318,16 +316,9 @@ class CircleViz(VectorMixin, MapViz):
             radius=self.radius,
             defaultColor=self.color_default,
         ))
-        
+
         if self.vector_source:
-            options.update(dict(
-                vectorUrl=self.vector_url,
-                vectorLayer=self.vector_layer_name,
-                vectorColorStops=self.generate_vector_color_map(),
-                vectorJoinDataProperty=self.vector_join_property,
-                joinData=json.dumps(self.data, ensure_ascii=False),
-                dataJoinProperty=self.data_join_property,
-            ))
+            options.update(vectorColorStops=self.generate_vector_color_map())
 
 
 class GraduatedCircleViz(VectorMixin, MapViz):
@@ -364,17 +355,8 @@ class GraduatedCircleViz(VectorMixin, MapViz):
         """
         super(GraduatedCircleViz, self).__init__(data, *args, **kwargs)
 
-        self.vector_url = vector_url
-        self.vector_layer_name = vector_layer_name
-        self.vector_join_property = vector_join_property
-        self.data_join_property = data_join_property
-
-        if self.vector_url is not None and self.vector_layer_name is not None:
-            self.template = 'vector_graduated_circle'
-            self.vector_source = True
-        else:
-            self.vector_source = False
-            self.template = 'graduated_circle'
+        self.template = 'graduated_circle'
+        self.check_vector_template()
 
         self.color_property = color_property
         self.color_stops = color_stops
@@ -404,13 +386,8 @@ class GraduatedCircleViz(VectorMixin, MapViz):
         ))
         if self.vector_source:
             options.update(dict(
-                vectorUrl=self.vector_url,
-                vectorLayer=self.vector_layer_name,
                 vectorColorStops=self.generate_vector_color_map(),
-                vectorJoinDataProperty=self.vector_join_property,
-                joinData=json.dumps(self.data, ensure_ascii=False),
-                dataJoinProperty=self.data_join_property,
-            ))
+                vectorRadiusStops=self.generate_vector_numeric_map('radius')))
 
 
 class HeatmapViz(VectorMixin, MapViz):
@@ -478,12 +455,6 @@ class ClusteredCircleViz(VectorMixin, MapViz):
 
     def __init__(self,
                  data,
-
-                 vector_url=None,
-                 vector_layer_name=None,
-                 vector_join_property=None,
-                 data_join_property=None,
-
                  color_stops=None,
                  radius_stops=None,
                  cluster_radius=30,
@@ -509,17 +480,8 @@ class ClusteredCircleViz(VectorMixin, MapViz):
         """
         super(ClusteredCircleViz, self).__init__(data, *args, **kwargs)
 
-        self.vector_url = vector_url
-        self.vector_layer_name = vector_layer_name
-        self.vector_join_property = vector_join_property
-        self.data_join_property = data_join_property
-
-        if self.vector_url is not None and self.vector_layer_name is not None:
-            self.template = 'vector_clustered_circle'
-            self.vector_source = True
-        else:
-            self.vector_source = False
-            self.template = 'clustered_circle'
+        self.template = 'clustered_circle'
+        self.check_vector_template()
 
         self.color_stops = color_stops
         self.radius_stops = radius_stops
@@ -546,13 +508,8 @@ class ClusteredCircleViz(VectorMixin, MapViz):
         ))
         if self.vector_source:
             options.update(dict(
-                vectorUrl=self.vector_url,
-                vectorLayer=self.vector_layer_name,
                 vectorColorStops=self.generate_vector_color_map(),
-                vectorJoinDataProperty=self.vector_join_property,
-                joinData=json.dumps(self.data, ensure_ascii=False),
-                dataJoinProperty=self.data_join_property,
-            ))
+                vectorRadiusStops=self.generate_vector_numeric_map('radius')))
 
 
 class ChoroplethViz(VectorMixin, MapViz):
@@ -560,10 +517,6 @@ class ChoroplethViz(VectorMixin, MapViz):
 
     def __init__(self,
                  data,
-                 vector_url=None,
-                 vector_layer_name=None,
-                 vector_join_property=None,
-                 data_join_property=None,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -600,17 +553,8 @@ class ChoroplethViz(VectorMixin, MapViz):
         """
         super(ChoroplethViz, self).__init__(data, *args, **kwargs)
         
-        self.vector_url = vector_url
-        self.vector_layer_name = vector_layer_name
-        self.vector_join_property = vector_join_property
-        self.data_join_property = data_join_property
-
-        if self.vector_url is not None and self.vector_layer_name is not None:
-            self.template = 'vector_choropleth'
-            self.vector_source = True
-        else:
-            self.vector_source = False
-            self.template = 'choropleth'
+        self.template = 'choropleth'
+        self.check_vector_template()
 
         self.color_property = color_property
         self.color_stops = color_stops
@@ -666,24 +610,14 @@ class ChoroplethViz(VectorMixin, MapViz):
 
         # vector-based choropleth map variables
         if self.vector_source:
-            options.update(dict(
-                vectorUrl=self.vector_url,
-                vectorLayer=self.vector_layer_name,
-                vectorColorStops=self.generate_vector_color_map(),
-                vectorJoinDataProperty=self.vector_join_property,
-                joinData=json.dumps(self.data, ensure_ascii=False),
-                dataJoinProperty=self.data_join_property,
-            ))
+            options.update(vectorColorStops=self.generate_vector_color_map())
+            
             if self.extrude:
-                options.update(dict(
-                    vectorHeightStops=self.generate_vector_numeric_map('height'),
-                ))
+                options.update(vectorHeightStops=self.generate_vector_numeric_map('height'))
 
         # geojson-based choropleth map variables
         else:
-            options.update(dict(
-                geojson_data=json.dumps(self.data, ensure_ascii=False),
-            ))
+            options.update(geojson_data=json.dumps(self.data, ensure_ascii=False))
 
 
 class ImageViz(MapViz):
@@ -801,17 +735,8 @@ class LinestringViz(VectorMixin, MapViz):
         """
         super(LinestringViz, self).__init__(data, *args, **kwargs)
         
-        self.vector_url = vector_url
-        self.vector_layer_name = vector_layer_name
-        self.vector_join_property = vector_join_property
-        self.data_join_property = data_join_property
-
-        if self.vector_url is not None and self.vector_layer_name is not None:
-            self.template = 'vector_linestring'
-            self.vector_source = True
-        else:
-            self.vector_source = False
-            self.template = 'linestring'
+        self.template = 'linestring'
+        self.check_vector_template()
 
         self.color_property = color_property
         self.color_stops = color_stops
@@ -858,24 +783,17 @@ class LinestringViz(VectorMixin, MapViz):
         # vector-based linestring map variables
         if self.vector_source:
             options.update(dict(
-                vectorUrl=self.vector_url,
-                vectorLayer=self.vector_layer_name,
-                vectorJoinDataProperty=self.vector_join_property,
-                vectorColorStops=[[0,self.color_default]],
-                vectorWidthStops=[[0,self.line_width_default]],
-                joinData=json.dumps(self.data, ensure_ascii=False),
-                dataJoinProperty=self.data_join_property,
+                vectorColorStops=[[0, self.color_default]],
+                vectorWidthStops=[[0, self.line_width_default]],
             ))
 
             if self.color_property:
-                options.update(dict(vectorColorStops=self.generate_vector_color_map()))
+                options.update(vectorColorStops=self.generate_vector_color_map())
         
             if self.line_width_property:
-                options.update(dict(vectorWidthStops=self.generate_vector_numeric_map('line_width')))
+                options.update(vectorWidthStops=self.generate_vector_numeric_map('line_width'))
 
         # geojson-based linestring map variables
         else:
-            options.update(dict(
-                geojson_data=json.dumps(self.data, ensure_ascii=False),
-            ))
+            options.update(geojson_data=json.dumps(self.data, ensure_ascii=False))
 
