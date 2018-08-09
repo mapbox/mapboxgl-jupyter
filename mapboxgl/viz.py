@@ -74,12 +74,10 @@ class MapViz(object):
 
     def __init__(self,
                  data,
-
                  vector_url=None,
                  vector_layer_name=None,
                  vector_join_property=None,
                  data_join_property=None,
-
                  access_token=None,
                  center=(0, 0),
                  below_layer='',
@@ -112,12 +110,10 @@ class MapViz(object):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
-
         :param vector_url: optional property to define vector data source
         :param vector_layer_name: property to define target layer of vector source
         :param vector_join_property: property to aid in determining color for styling vector layer
         :param data_join_property: property to join json data to vector features
-
         :param access_token: Mapbox GL JS access token.
         :param center: map center point
         :param style: url to mapbox style or stylesheet as a Python dictionary in JSON format
@@ -403,12 +399,6 @@ class HeatmapViz(VectorMixin, MapViz):
 
     def __init__(self,
                  data,
-
-                 vector_url=None,
-                 vector_layer_name=None,
-                 vector_join_property=None,
-                 data_join_property=None,
-
                  weight_property=None,
                  weight_stops=None,
                  color_stops=None,
@@ -427,17 +417,8 @@ class HeatmapViz(VectorMixin, MapViz):
         """
         super(HeatmapViz, self).__init__(data, *args, **kwargs)
 
-        self.vector_url = vector_url
-        self.vector_layer_name = vector_layer_name
-        self.vector_join_property = vector_join_property
-        self.data_join_property = data_join_property
-
-        if self.vector_url is not None and self.vector_layer_name is not None:
-            self.template = 'vector_heatmap'
-            self.vector_source = True
-        else:
-            self.vector_source = False
-            self.template = 'heatmap'
+        self.template = 'heatmap'
+        self.check_vector_template()
 
         self.weight_property = weight_property
         self.weight_stops = weight_stops
@@ -456,10 +437,34 @@ class HeatmapViz(VectorMixin, MapViz):
             weightStops=self.weight_stops,
             intensityStops=self.intensity_stops,
         ))
+        if self.vector_source:
+            options.update(dict(
+                vectorWeightStops=self.generate_vector_numeric_map('weight')))
+
+    def generate_vector_numeric_map(self, numeric_property):
+        """Generate stops array for use with match expression in mapbox template"""
+        vector_stops = []
+        
+        lookup_property = getattr(self, '{}_property'.format(numeric_property))
+        numeric_stops = getattr(self, '{}_stops'.format(numeric_property))
+
+        # if join data specified as filename or URL, parse JSON to list of Python dicts
+        if type(self.data) == str:
+            self.data = geojson_file_to_dict(self.data)
+
+        for row in self.data:
+
+            # map value to JSON feature using the numeric property
+            value = numeric_map(row[lookup_property], numeric_stops, 0)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], value])
+
+        return vector_stops
 
 
-class ClusteredCircleViz(VectorMixin, MapViz):
-    """Create a clustered circle map"""
+class ClusteredCircleViz(MapViz):
+    """Create a clustered circle map (geojson only)"""
 
     def __init__(self,
                  data,
@@ -474,7 +479,7 @@ class ClusteredCircleViz(VectorMixin, MapViz):
                  legend_key_shape='circle',
                  *args,
                  **kwargs):
-        """Construct a Mapviz object
+        """Construct a Mapviz object 
 
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
@@ -489,8 +494,6 @@ class ClusteredCircleViz(VectorMixin, MapViz):
         super(ClusteredCircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'clustered_circle'
-        self.check_vector_template()
-
         self.color_stops = color_stops
         self.radius_stops = radius_stops
         self.clusterRadius = cluster_radius
@@ -514,10 +517,6 @@ class ClusteredCircleViz(VectorMixin, MapViz):
             strokeColor=self.stroke_color,
             radiusDefault=self.radius_default,
         ))
-        if self.vector_source:
-            options.update(dict(
-                vectorColorStops=self.generate_vector_color_map(),
-                vectorRadiusStops=self.generate_vector_numeric_map('radius')))
 
 
 class ChoroplethViz(VectorMixin, MapViz):
@@ -707,10 +706,6 @@ class LinestringViz(VectorMixin, MapViz):
 
     def __init__(self,
                  data,
-                 vector_url=None,
-                 vector_layer_name=None,
-                 vector_join_property=None,
-                 data_join_property=None,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
