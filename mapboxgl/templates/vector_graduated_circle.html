@@ -1,0 +1,123 @@
+{% extends "graduated_circle.html" %}
+
+{% block graduated_circle %}
+
+    // extract JSON property used for data-driven styling to add to popup
+    {% if joinData %}
+
+        let joinData = {{ joinData }};
+        var popUpKeys = {},
+            radiusPopUpKeys = {};
+
+        // Create filter for layers from join data
+        let layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
+        
+        joinData.forEach(function(row, index) {
+
+            {% if colorProperty %}
+                popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
+            {% endif %}
+
+            {% if radiusProperty %}
+                {% if colorProperty != radiusProperty %}
+                    radiusPopUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ radiusProperty }}"];
+                {% endif %}
+            {% endif %}
+
+            layerFilter.push(row["{{ dataJoinProperty }}"]);
+        });
+
+    {% endif %}
+
+    // Add vector data source
+    map.addSource("vector-data", {
+        type: "vector",
+        url: "{{ vectorUrl }}",
+    });
+
+    // Add label layer
+    map.addLayer({
+        "id": "circle-label",
+        "source": "vector-data",
+        "source-layer": "{{ vectorLayer }}",
+        "type": "symbol",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
+        "layout": {
+            {% if labelProperty %}
+            "text-field": "{{ labelProperty }}",
+            {% endif %}
+            "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
+            "text-offset": [0,-1]
+        },
+        "paint": {
+            "text-halo-color": "{{ labelHaloColor }}",
+            "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+            "text-color": "{{ labelColor }}"
+        },
+        filter: layerFilter
+    }, "{{belowLayer}}");    
+
+    // Add layer from the vector tile source with data-driven style
+    map.addLayer({
+        "id": "circle",
+        "source": "vector-data",
+        "source-layer": "{{ vectorLayer }}",
+        "type": "circle",
+        "maxzoom": {{ maxzoom }},
+        "minzoom": {{ minzoom }},
+        "paint": {
+            "circle-color": {
+                "type": "categorical",
+                "property": "{{ vectorJoinDataProperty }}", 
+                "stops": {{ vectorColorStops }}, 
+                "default": "{{ defaultColor }}"
+            }, 
+            "circle-radius": {
+                "type": "categorical",
+                "property": "{{ vectorJoinDataProperty }}", 
+                "stops": {{ vectorRadiusStops }}, 
+                "default": {{ defaultRadius }}
+            }, 
+            "circle-stroke-color": "{{ strokeColor }}",
+            "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
+            "circle-opacity" : {{ opacity }},
+            "circle-stroke-opacity" : {{ opacity }}
+        },
+        filter: layerFilter
+    }, "circle-label");
+
+{% endblock graduated_circle %}
+
+{% block graduated_circle_popup %}
+        
+    // Show the popup on mouseover
+    map.on('mousemove', 'circle', function(e) {
+        map.getCanvas().style.cursor = 'pointer';
+        let f = e.features[0];
+        let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+            ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
+
+        for (key in f.properties) {
+            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+        }
+
+        // Add color + radius properties from joined data to vector's feature popup
+        {% if colorProperty %}
+            popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+        {% endif %}
+
+        {% if radiusProperty %}
+            {% if colorProperty != radiusProperty %}
+                popup_html += '<li><b> ' + "{{ radiusProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+            {% endif %}
+        {% endif %}
+
+        popup_html += '</div>'
+
+        popup.setLngLat(e.features[0].geometry.coordinates)
+            .setHTML(popup_html)
+            .addTo(map);
+    });
+
+{% endblock graduated_circle_popup %}
