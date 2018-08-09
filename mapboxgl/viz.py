@@ -6,9 +6,8 @@ from IPython.core.display import HTML, display
 import numpy
 
 from mapboxgl.errors import TokenError
-from mapboxgl.utils import color_map, height_map
+from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_file_to_dict
 from mapboxgl import templates
-from mapboxgl.utils import img_encode, numeric_map
 
 
 GL_JS_VERSION = 'v0.47.0'
@@ -20,16 +19,24 @@ class VectorMixin(object):
         """Generate color stops array for use with match expression in mapbox template"""
         vector_stops = []
 
-        for row in self.data:
+        # data argument handling
+        if type(self.data) == str:
+            try:
+                self.data = json.loads(self.data)
+            except:
+                # if join data specified as filename, parse GeoJSON to list of Python dicts
+                with open(self.data, 'r') as f:
+                    self.data = geojson_file_to_dict(self.data)
 
+        for row in self.data:
+            
             # map color to JSON feature using color_property
             color = color_map(row[self.color_property], self.color_stops, self.color_default)
-            
+
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], color])
 
         return vector_stops
-
 
     def generate_vector_numeric_map(self, numeric_property):
         """Generate stops array for use with match expression in mapbox template"""
@@ -244,7 +251,7 @@ class MapViz(object):
                 vectorUrl=self.vector_url,
                 vectorLayer=self.vector_layer_name,
                 vectorJoinDataProperty=self.vector_join_property,
-                joinData=json.dumps(self.data, ensure_ascii=False),
+                joinData=json.dumps(geojson_file_to_dict(self.data), ensure_ascii=False),
                 dataJoinProperty=self.data_join_property,
             ))
 

@@ -64,6 +64,13 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
         return geojson.FeatureCollection(features)
 
 
+def geojson_file_to_dict(filename):
+    """Parse GeoJSON-formatted data in <filename> to list of Python dicts"""
+    with open(filename, 'r') as f:
+        features = json.load(f)['features']
+    return [feature['properties'] for feature in features]
+
+
 def scale_between(minval, maxval, numStops):
     """ Scale a min and max value to equal interval domain with
         numStops discrete values
