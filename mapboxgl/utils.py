@@ -7,6 +7,7 @@ from io import BytesIO
 import re
 from matplotlib.image import imsave
 from colour import Color as Colour
+import requests
 
 
 def row_to_geojson(row, lon, lat, precision):
@@ -64,10 +65,25 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
         return geojson.FeatureCollection(features)
 
 
-def geojson_file_to_dict(filename):
-    """Parse GeoJSON-formatted data in <filename> to list of Python dicts"""
-    with open(filename, 'r') as f:
-        features = json.load(f)['features']
+def geojson_file_to_dict(data):
+    """Parse GeoJSON-formatted information in <data> to list of Python dicts"""
+    
+    # return data formatted as list or dict
+    if type(data) in (list, dict):
+        return data
+
+    # read from data defined as local file address
+    try:
+        with open(data, 'r') as f:
+            features = json.load(f)['features']
+
+    # if data is defined as a URL, load JSON object from address
+    except FileNotFoundError:
+        features = requests.get(data).json()['features']
+
+    except:
+        raise SourceDataError('MapViz data must be valid GeoJSON or JSON.  Please check your <data> parameter.')
+
     return [feature['properties'] for feature in features]
 
 

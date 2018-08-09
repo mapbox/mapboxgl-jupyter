@@ -4,6 +4,7 @@ import os
 from IPython.core.display import HTML, display
 
 import numpy
+import requests
 
 from mapboxgl.errors import TokenError
 from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_file_to_dict
@@ -19,15 +20,11 @@ class VectorMixin(object):
         """Generate color stops array for use with match expression in mapbox template"""
         vector_stops = []
 
-        # data argument handling
+        # if join data specified as filename or URL, parse JSON to list of Python dicts
         if type(self.data) == str:
-            try:
-                self.data = json.loads(self.data)
-            except:
-                # if join data specified as filename, parse GeoJSON to list of Python dicts
-                with open(self.data, 'r') as f:
-                    self.data = geojson_file_to_dict(self.data)
+            self.data = geojson_file_to_dict(self.data)
 
+        # loop through features in self.data to create join-data map
         for row in self.data:
             
             # map color to JSON feature using color_property
@@ -49,6 +46,10 @@ class VectorMixin(object):
 
         if function_type == 'match':
             match_width = numeric_stops
+
+        # if join data specified as filename or URL, parse JSON to list of Python dicts
+        if type(self.data) == str:
+            self.data = geojson_file_to_dict(self.data)
 
         for row in self.data:
 
