@@ -21,7 +21,7 @@
 The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visualizations. You can use this class to set default values for all visualizations rather than calling them directly from the other visualization objects.
 
 ### Params
-**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, legend=True, legend_layout='vertical', legend_gradient=False, legend_style='', legend_fill='white', legend_header_fill='white', legend_text_color='#6e6e6e', legend_text_numeric_precision=None, legend_title_halo_color='white', legend_key_shape='square', legend_key_borders_on=True_)
+**MapViz**(_data, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, box_zoom_on=True, double_click_zoom_on=True, scroll_zoom_on=True, scroll_wheel_zoom_on=True, touch_zoom_on=True, legend=True, legend_layout='vertical', legend_gradient=False, legend_style='', legend_fill='white', legend_header_fill='white', legend_text_color='#6e6e6e', legend_text_numeric_precision=None, legend_title_halo_color='white', legend_key_shape='square', legend_key_borders_on=True_)
 
 Parameter | Description
 --|--
@@ -36,6 +36,11 @@ zoom | starting zoom level for map
 opacity | opacity of map data layer
 pitch | starting pitch (in degrees) for map
 bearing | starting bearing (in degrees) for map
+box_zoom_on | boolean indicating if map can be zoomed to a region by dragging a bounding box | True
+double_click_zoom_on | boolean indicating if map can be zoomed with double-click | True
+scroll_zoom_on | boolean indicating if map can be zoomed with the scroll wheel | True
+scroll_wheel_zoom_on | boolean indicating if map can be zoomed with the scroll wheel | True
+touch_zoom_on | boolean indicating if map can be zoomed with two-finger touch gestures | True
 legend | controls visibility of map legend | True
 legend_layout | controls orientation of map legend | 'horizontal'
 legend_style | reserved for future custom CSS loading | ''
@@ -368,7 +373,7 @@ from mapboxgl.utils import *
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
 
 # Create Choropleth with GeoJSON Source
-viz = ChoroplethViz('us-states.geojson', 
+viz = ChoroplethViz('us-states.geojson',
                      color_property='density',
                      color_stops=create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd'),
                      color_function_type='interpolate',
@@ -475,6 +480,41 @@ viz.show()
 [Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/rastertile-viz-types-example.ipynb)
 
 
+#### Bring your own raster
+Using [`rio-glui`](https://github.com/mapbox/rio-glui) python module, you can create a local tiles server to explore your own file.
+
+Note: Your raster file has to be a cloud optimized geotiff (see [cogeo.org](http://www.cogeo.org) or [rio-cogeo](https://github.com/mapbox/rio-cogeo)).
+
+```python
+
+from rio_glui.server import TileServer
+from rio_glui.raster import RasterTiles
+from mapboxgl.viz import RasterTilesViz
+
+file = 'myfile.tif'
+
+# Create raster tile object
+# More info: https://github.com/mapbox/rio-glui/blob/master/rio_glui/raster.py#L16-L44
+raster = RasterTiles(file, indexes=(2,1,3))
+
+# Create local tile server
+# More info: https://github.com/mapbox/rio-glui/blob/master/rio_glui/server.py#L21-L56
+ts = TileServer(raster)
+
+# Start tile server
+ts.start()
+
+# Initialize RasterTiles Viz by passing our local tile server url `ts.get_tiles_url`
+viz = RasterTilesViz(ts.get_tiles_url(),
+                     tiles_bounds=ts.get_bounds(),
+                     center=ts.get_center(),
+                     height='1000px',
+                     zoom=13)
+viz.show()
+```
+
+
+
 ## class LinestringViz
 
 The `LinestringViz` object handles the creation of a vector or GeoJSON-based Linestring visualization and inherits from the `MapViz` class.
@@ -521,7 +561,7 @@ token = os.getenv('MAPBOX_ACCESS_TOKEN')
 # JSON join-data object
 data = [{"elevation": x, "weight": random.randint(0,100)} for x in range(0, 21000, 10)]
 
-viz = LinestringViz(data, 
+viz = LinestringViz(data,
                     vector_url='mapbox://mapbox.mapbox-terrain-v2',
                     vector_layer_name='contour',
                     vector_join_property='ele',
@@ -542,4 +582,3 @@ viz.show()
 
 
 [Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/linestring-viz.ipynb)
-

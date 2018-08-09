@@ -12,6 +12,10 @@
         zoom: {{ zoom }},
         pitch: {{ pitch }},
         bearing: {{ bearing }},
+        scrollZoom: {{ scrollZoomOn|safe }},
+        touchZoom: {{ touchZoomOn|safe }},
+        doubleClickZoom: {{ doubleClickZoomOn|safe }},
+        boxZoom: {{ boxZoomOn|safe }},
         transformRequest: (url, resourceType) => {
                     if ( url.slice(0,22) == 'https://api.mapbox.com' || 
                         url.slice(0,26) == 'https://a.tiles.mapbox.com' || 

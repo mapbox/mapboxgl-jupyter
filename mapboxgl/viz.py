@@ -96,6 +96,10 @@ class MapViz(object):
                  max_zoom=24,
                  pitch=0,
                  bearing=0,
+                 box_zoom_on=True,
+                 double_click_zoom_on=True,
+                 scroll_zoom_on=True,
+                 touch_zoom_on=True,
                  legend=True,
                  legend_layout='vertical',
                  legend_gradient=False,
@@ -129,6 +133,10 @@ class MapViz(object):
         :param opacity: opacity of map data layer
         :param pitch: starting pitch (in degrees) for map
         :param bearing: starting bearing (in degrees) for map
+        :param box_zoom_on: boolean indicating if map can be zoomed to a region by dragging a bounding box
+        :param double_click_zoom_on: boolean indicating if map can be zoomed with double-click
+        :param scroll_zoom_on: boolean indicating if map can be zoomed with the scroll wheel
+        :param touch_zoom_on: boolean indicating if map can be zoomed with two-finger touch gestures
         :param legend: boolean for whether to show legend on map
         :param legend_layout: determines if horizontal or vertical legend used
         :param legend_style: reserved for future custom CSS loader
@@ -177,6 +185,10 @@ class MapViz(object):
         self.max_zoom = max_zoom
         self.pitch = pitch
         self.bearing = bearing
+        self.box_zoom_on = box_zoom_on
+        self.double_click_zoom_on = double_click_zoom_on
+        self.scroll_zoom_on = scroll_zoom_on
+        self.touch_zoom_on = touch_zoom_on
         self.legend = legend
         self.legend_layout = legend_layout
         self.legend_style = legend_style
@@ -231,6 +243,10 @@ class MapViz(object):
             maxzoom=self.max_zoom,
             pitch=self.pitch, 
             bearing=self.bearing,
+            boxZoomOn=json.dumps(self.box_zoom_on),
+            doubleClickZoomOn=json.dumps(self.double_click_zoom_on),
+            scrollZoomOn=json.dumps(self.scroll_zoom_on),
+            touchZoomOn=json.dumps(self.touch_zoom_on),
             showLegend=self.legend,
             legendLayout=self.legend_layout,
             legendStyle=self.legend_style, # reserve name for custom CSS?
