@@ -80,7 +80,7 @@ def geojson_to_dict(data):
             features = json.load(f)['features']
 
     # if data is defined as a URL, load JSON object from address
-    except FileNotFoundError:
+    except IOError:
         features = requests.get(data).json()['features']
 
     except:
