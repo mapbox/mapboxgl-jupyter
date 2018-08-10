@@ -1,13 +1,15 @@
-from .colors import color_ramps, common_html_colors
-from chroma import Color, Scale
-import geojson
-import json
-import base64
 from io import BytesIO
+import json
 import re
-from matplotlib.image import imsave
+import base64
+from chroma import Color, Scale
 from colour import Color as Colour
+import geojson
+from matplotlib.image import imsave
 import requests
+
+from .colors import color_ramps, common_html_colors
+from .errors import SourceDataError
 
 
 def row_to_geojson(row, lon, lat, precision):
@@ -65,7 +67,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
         return geojson.FeatureCollection(features)
 
 
-def geojson_file_to_dict(data):
+def geojson_to_dict(data):
     """Parse GeoJSON-formatted information in <data> to list of Python dicts"""
     
     # return data formatted as list or dict

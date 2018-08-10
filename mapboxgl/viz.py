@@ -7,7 +7,7 @@ import numpy
 import requests
 
 from mapboxgl.errors import TokenError
-from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_file_to_dict
+from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict
 from mapboxgl import templates
 
 
@@ -22,7 +22,7 @@ class VectorMixin(object):
 
         # if join data specified as filename or URL, parse JSON to list of Python dicts
         if type(self.data) == str:
-            self.data = geojson_file_to_dict(self.data)
+            self.data = geojson_to_dict(self.data)
 
         # loop through features in self.data to create join-data map
         for row in self.data:
@@ -49,7 +49,7 @@ class VectorMixin(object):
 
         # if join data specified as filename or URL, parse JSON to list of Python dicts
         if type(self.data) == str:
-            self.data = geojson_file_to_dict(self.data)
+            self.data = geojson_to_dict(self.data)
 
         for row in self.data:
 
@@ -166,7 +166,10 @@ class MapViz(object):
         self.data_join_property = data_join_property
 
         self.template = 'map'
-        self.check_vector_template()
+        try:
+            self.check_vector_template()
+        except AttributeError:
+            self.vector_source = False
 
         self.div_id = div_id
         self.width = width
@@ -264,7 +267,7 @@ class MapViz(object):
                 vectorUrl=self.vector_url,
                 vectorLayer=self.vector_layer_name,
                 vectorJoinDataProperty=self.vector_join_property,
-                joinData=json.dumps(geojson_file_to_dict(self.data), ensure_ascii=False),
+                joinData=json.dumps(geojson_to_dict(self.data), ensure_ascii=False),
                 dataJoinProperty=self.data_join_property,
             ))
 
@@ -466,7 +469,7 @@ class HeatmapViz(VectorMixin, MapViz):
 
         # if join data specified as filename or URL, parse JSON to list of Python dicts
         if type(self.data) == str:
-            self.data = geojson_file_to_dict(self.data)
+            self.data = geojson_to_dict(self.data)
 
         for row in self.data:
 
