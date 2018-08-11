@@ -78,6 +78,7 @@ class MapViz(object):
                  vector_layer_name=None,
                  vector_join_property=None,
                  data_join_property=None,
+                 disable_data_join=False,
                  access_token=None,
                  center=(0, 0),
                  below_layer='',
@@ -118,6 +119,8 @@ class MapViz(object):
         :param vector_layer_name: property to define target layer of vector source
         :param vector_join_property: property to aid in determining color for styling vector layer
         :param data_join_property: property to join json data to vector features
+        :param disable_data_join: property to switch off default data-join technique using vector layer and JSON join-data; 
+                                  also determines if a layer filter based on joined data is applied to features in vector layer
         :param access_token: Mapbox GL JS access token.
         :param center: map center point
         :param style: url to mapbox style or stylesheet as a Python dictionary in JSON format
@@ -164,6 +167,7 @@ class MapViz(object):
         self.vector_layer_name = vector_layer_name
         self.vector_join_property = vector_join_property
         self.data_join_property = data_join_property
+        self.disable_data_join = disable_data_join
 
         self.template = 'map'
         try:
@@ -267,9 +271,13 @@ class MapViz(object):
                 vectorUrl=self.vector_url,
                 vectorLayer=self.vector_layer_name,
                 vectorJoinDataProperty=self.vector_join_property,
-                joinData=json.dumps(geojson_to_dict(self.data), ensure_ascii=False),
+                joinData=json.dumps(False),
                 dataJoinProperty=self.data_join_property,
+                enableDataJoin=not self.disable_data_join
             ))
+            data = geojson_to_dict(self.data)
+            if bool(data):
+                options.update(joinData=json.dumps(data, ensure_ascii=False))
 
         if self.label_property is None:
             options.update(labelProperty=None)

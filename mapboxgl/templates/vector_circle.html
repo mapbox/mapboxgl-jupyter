@@ -3,19 +3,23 @@
 {% block circle %}
 
     // extract JSON property used for data-driven styling to add to popup
-    {% if joinData %}
+    {% if enableDataJoin %}
 
-        let joinData = {{ joinData }};
-        var popUpKeys = {};
+        {% if joinData %}
 
-        // Create filter for layers from join data
-        let layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
-        
-        joinData.forEach(function(row, index) {
-            popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
-            layerFilter.push(row["{{ dataJoinProperty }}"]);
-        });
+            let joinData = {{ joinData }};
+            var popUpKeys = {};
 
+            // Create filter for layers from join data
+            let layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
+            
+            joinData.forEach(function(row, index) {
+                popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
+                layerFilter.push(row["{{ dataJoinProperty }}"]);
+            });
+
+        {% endif %}
+    
     {% endif %}
 
     // Add vector data source
@@ -33,19 +37,29 @@
         "maxzoom": {{ maxzoom }},
         "minzoom": {{ minzoom }},
         "paint": {
-            "circle-color": {
-                "type": "categorical",
-                "property": "{{ vectorJoinDataProperty }}", 
-                "stops": {{ vectorColorStops }}, 
-                "default": "{{ defaultColor }}"
-            }, 
+            {% if enableDataJoin %}
+                "circle-color": {
+                    "type": "categorical",
+                    "property": "{{ vectorJoinDataProperty }}", 
+                    "stops": {{ vectorColorStops }}, 
+                    "default": "{{ defaultColor }}"
+                }, 
+            {% else %}
+                {% if colorProperty %}
+                    "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+                    {% else %}
+                    "circle-color": "{{ defaultColor }}",
+                {% endif %}
+            {% endif %}
             "circle-radius" : generatePropertyExpression('interpolate', 'zoom', [[0,{{ radius }}], [22,10 * {{ radius }}]]),
             "circle-stroke-color": "{{ strokeColor }}",
             "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
             "circle-opacity" : {{ opacity }},
             "circle-stroke-opacity" : {{ opacity }}
-        },
-        filter: layerFilter
+        }
+        {% if enableDataJoin %}
+        , filter: layerFilter
+        {% endif %}
     }, "{{ belowLayer }}" );
     
     // Add label layer
@@ -67,8 +81,10 @@
             "text-halo-color": "{{ labelHaloColor }}",
             "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
             "text-color": "{{ labelColor }}"
-        },
-        filter: layerFilter
+        }
+        {% if enableDataJoin %}
+        , filter: layerFilter
+        {% endif %}
     }, "{{belowLayer}}" );
 
 {% endblock circle %}
@@ -83,12 +99,16 @@
         let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
             ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
 
-        for (key in f.properties) {
-            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
-        }
+        {% if enableDataJoin %}
 
-        // Add property from joined data to vector's feature popup
-        popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+            for (key in f.properties) {
+                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+            }
+
+            // Add property from joined data to vector's feature popup
+            popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+
+        {% endif %}
 
         popup_html += '</div>'
         popup.setLngLat(e.features[0].geometry.coordinates)

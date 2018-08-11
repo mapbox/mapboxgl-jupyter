@@ -3,29 +3,33 @@
 {% block graduated_circle %}
 
     // extract JSON property used for data-driven styling to add to popup
-    {% if joinData %}
+    {% if enableDataJoin %}
 
-        let joinData = {{ joinData }};
-        var popUpKeys = {},
-            radiusPopUpKeys = {};
+        {% if joinData %}
 
-        // Create filter for layers from join data
-        let layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
-        
-        joinData.forEach(function(row, index) {
+            let joinData = {{ joinData }};
+            var popUpKeys = {},
+                radiusPopUpKeys = {};
 
-            {% if colorProperty %}
-                popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
-            {% endif %}
+            // Create filter for layers from join data
+            let layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
+            
+            joinData.forEach(function(row, index) {
 
-            {% if radiusProperty %}
-                {% if colorProperty != radiusProperty %}
-                    radiusPopUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ radiusProperty }}"];
+                {% if colorProperty %}
+                    popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
                 {% endif %}
-            {% endif %}
 
-            layerFilter.push(row["{{ dataJoinProperty }}"]);
-        });
+                {% if radiusProperty %}
+                    {% if colorProperty != radiusProperty %}
+                        radiusPopUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ radiusProperty }}"];
+                    {% endif %}
+                {% endif %}
+
+                layerFilter.push(row["{{ dataJoinProperty }}"]);
+            });
+
+        {% endif %}
 
     {% endif %}
 
@@ -54,9 +58,11 @@
             "text-halo-color": "{{ labelHaloColor }}",
             "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
             "text-color": "{{ labelColor }}"
-        },
-        filter: layerFilter
-    }, "{{belowLayer}}");    
+        }
+        {% if enableDataJoin %}
+        , filter: layerFilter
+        {% endif %}
+    }, "{{ belowLayer }}");    
 
     // Add layer from the vector tile source with data-driven style
     map.addLayer({
@@ -67,24 +73,39 @@
         "maxzoom": {{ maxzoom }},
         "minzoom": {{ minzoom }},
         "paint": {
-            "circle-color": {
-                "type": "categorical",
-                "property": "{{ vectorJoinDataProperty }}", 
-                "stops": {{ vectorColorStops }}, 
-                "default": "{{ defaultColor }}"
-            }, 
-            "circle-radius": {
-                "type": "categorical",
-                "property": "{{ vectorJoinDataProperty }}", 
-                "stops": {{ vectorRadiusStops }}, 
-                "default": {{ defaultRadius }}
-            }, 
+            {% if enableDataJoin %}
+                "circle-color": {
+                    "type": "categorical",
+                    "property": "{{ vectorJoinDataProperty }}", 
+                    "stops": {{ vectorColorStops }}, 
+                    "default": "{{ defaultColor }}"
+                }, 
+                "circle-radius": {
+                    "type": "categorical",
+                    "property": "{{ vectorJoinDataProperty }}", 
+                    "stops": {{ vectorRadiusStops }}, 
+                    "default": {{ defaultRadius }}
+                }, 
+            {% else %}
+                {% if colorProperty %}
+                    "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+                    {% else %}
+                    "circle-color": "{{ defaultColor }}",
+                {% endif %}
+                {% if radiusProperty %}
+                    "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
+                    {% else %}
+                    "circle-radius": {{ defaultRadius }},
+                {% endif %}
+            {% endif %}
             "circle-stroke-color": "{{ strokeColor }}",
             "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
             "circle-opacity" : {{ opacity }},
             "circle-stroke-opacity" : {{ opacity }}
-        },
-        filter: layerFilter
+        }
+        {% if enableDataJoin %}
+        , filter: layerFilter
+        {% endif %}
     }, "circle-label");
 
 {% endblock graduated_circle %}
@@ -102,15 +123,19 @@
             popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
         }
 
-        // Add color + radius properties from joined data to vector's feature popup
-        {% if colorProperty %}
-            popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
-        {% endif %}
+        {% if enableDataJoin %}
 
-        {% if radiusProperty %}
-            {% if colorProperty != radiusProperty %}
-                popup_html += '<li><b> ' + "{{ radiusProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+            // Add color + radius properties from joined data to vector's feature popup
+            {% if colorProperty %}
+                popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
             {% endif %}
+
+            {% if radiusProperty %}
+                {% if colorProperty != radiusProperty %}
+                    popup_html += '<li><b> ' + "{{ radiusProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
+                {% endif %}
+            {% endif %}
+
         {% endif %}
 
         popup_html += '</div>'

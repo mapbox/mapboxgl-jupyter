@@ -1,0 +1,64 @@
+//https://www.mapbox.com/help/custom-markers-gl-js/
+
+{% extends "base.html" %}
+
+{% block legend %}{% endblock legend %}
+
+{% block map %}
+
+    map.on('style.load', function() {
+        
+        // Add data source
+        map.addSource("data", {
+            "type": "geojson",
+            "data": {{ geojson_data }},
+            "buffer": 1,
+            "maxzoom": 14
+        });
+
+        // Add symbol layer
+        map.addLayer({
+            "id": "symbol",
+            "source": "data",
+            "type": "symbol",
+            "maxzoom": {{ maxzoom }},
+            "minzoom": {{ minzoom }},
+
+            "layout": {
+                {% if labelProperty %}
+                "text-field": "{{ labelProperty }}",
+                {% endif %}
+                "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
+                "text-offset": [0,-1]
+            },
+            "paint": {
+                "text-halo-color": "{{ labelHaloColor }}",
+                "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+                "text-color": "{{ labelColor }}"
+            }
+        }, "{{ belowLayer }}" );        
+
+        // Add label layer
+        map.addLayer({
+            "id": "symbol-label",
+            "source": "data",
+            "type": "symbol",
+            "maxzoom": {{ maxzoom }},
+            "minzoom": {{ minzoom }},
+            "layout": {
+                {% if labelProperty %}
+                "text-field": "{{ labelProperty }}",
+                {% endif %}
+                "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
+                "text-offset": [0,-1]
+            },
+            "paint": {
+                "text-halo-color": "{{ labelHaloColor }}",
+                "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+                "text-color": "{{ labelColor }}"
+            }
+        }, "{{ belowLayer }}" );
+
+    });
+
+{% endblock map %}

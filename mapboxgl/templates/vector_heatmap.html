@@ -3,14 +3,18 @@
 {% block heatmap %}
 
     // extract JSON property used for data-driven styling to add to popup
-    {% if joinData %}
+    {% if enableDataJoin %}
 
-        // Create filter for layers from join data
-        let joinData = {{ joinData }},
-            layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
-        joinData.forEach(function(row, index) {
-            layerFilter.push(row["{{ dataJoinProperty }}"]);
-        });
+        {% if joinData %}
+
+            // Create filter for layers from join data
+            let joinData = {{ joinData }},
+                layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
+            joinData.forEach(function(row, index) {
+                layerFilter.push(row["{{ dataJoinProperty }}"]);
+            });
+
+        {% endif %}
 
     {% endif %}
 
@@ -32,13 +36,19 @@
             {% if radiusStops %}
                 "heatmap-radius": generatePropertyExpression('interpolate', 'zoom', {{ radiusStops }}),
             {% endif %}
-            {% if weightProperty and vectorWeightStops %}
-                "heatmap-weight": {
-                    "type": "categorical",
-                    "property": "{{ vectorJoinDataProperty }}", 
-                    "stops": {{ vectorWeightStops }}, 
-                    "default": 0
-                },
+            {% if enableDataJoin %}
+                {% if weightProperty and vectorWeightStops %}
+                    "heatmap-weight": {
+                        "type": "categorical",
+                        "property": "{{ vectorJoinDataProperty }}", 
+                        "stops": {{ vectorWeightStops }}, 
+                        "default": 0
+                    },
+                {% endif %}
+            {% else %}
+                {% if weightProperty and weightStops %}
+                    "heatmap-weight": generateInterpolateExpression( "{{ weightProperty }}", {{ weightStops }} ),
+                {% endif %}
             {% endif %}
             {% if intensityStops %}
                 "heatmap-intensity": generateInterpolateExpression('zoom', {{ intensityStops }} ),
@@ -47,8 +57,10 @@
                 "heatmap-color" : generateInterpolateExpression('heatmap-density', {{ colorStops }} ),
             {% endif %}
             "heatmap-opacity" : {{ opacity }},
-        },
-        filter: layerFilter
+        }
+        {% if enableDataJoin %}
+        , filter: layerFilter
+        {% endif %}
     }, "{{belowLayer}}");
 
 {% endblock heatmap %}
