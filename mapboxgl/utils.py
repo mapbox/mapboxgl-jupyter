@@ -7,32 +7,52 @@ from io import BytesIO
 import re
 from matplotlib.image import imsave
 from colour import Color as Colour
+try:
+    # Needed only for GeoPandas export support, so maybe we don't want it is a "must" dependency
+    import shapely.geometry
+except ImportError:
+    pass
 
 
-def row_to_geojson(row, lon, lat, precision):
+def row_to_geojson(row, lon_lat, precision):
     """Convert a pandas dataframe row to a geojson format object.  Converts all datetimes to epoch seconds.
     """
 
+    lon, lat = lon_lat
     # Let pandas handle json serialization
     row_json = json.loads(row.to_json(date_format='epoch', date_unit='s'))
     return geojson.Feature(geometry=geojson.Point((round(row_json[lon],precision), round(row_json[lat], precision))),
                            properties={key: row_json[key] for key in row_json.keys() if key not in [lon, lat]})
 
 
-def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filename=None):
-    """Serialize a Pandas dataframe to a geojson format Python dictionary
+def geo_row_to_geojson(row, _, __):
+    """Convert a geopandas dataframe row to a geojson format object.  Converts all datetimes to epoch seconds.
+        geo_properties and precision inputs are ignored
+    """
+
+    # Let pandas handle json serialization, except for the geojson object
+    shapely_geo_object = row['geometry']
+    row_json = json.loads(row.drop('geometry').to_json(date_format='epoch', date_unit='s'))
+    # Convert shapely object to a geojson object
+    geometry = geojson.GeoJSON(shapely.geometry.mapping(shapely_geo_object))
+    return geojson.Feature(geometry=geometry,
+                           properties={key: row_json[key] for key in row_json.keys()})
+
+
+def _to_geojson(df, properties, geo_properties, row_serialize_func, filename, precision=None):
+    """Serialize a Pandas/GeoPandas dataframe to a geojson format Python dictionary
     """
 
     if not properties:
         # if no properties are selected, use all properties in dataframe
-        properties = [c for c in df.columns if c not in [lon, lat]]
+        properties = [c for c in df.columns if c not in geo_properties]
 
     for prop in properties:
         # Check if list of properties exists in dataframe columns
         if prop not in list(df.columns):
             raise ValueError(
                 'properties must be a valid list of column names from dataframe')
-        if prop in [lon, lat]:
+        if prop in geo_properties:
             raise ValueError(
                 'properties cannot be the geometry longitude or latitude column')
 
@@ -45,11 +65,11 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
 
             # Write out file to line
             f.write('{"type": "FeatureCollection", "features": [\n')
-            for idx, row in df[[lon, lat] + properties].iterrows():
+            for idx, row in df[geo_properties + properties].iterrows():
                 if idx == 0:
-                    f.write(geojson.dumps(row_to_geojson(row, lon, lat, precision)) + '\n')
+                    f.write(geojson.dumps(row_serialize_func(row, geo_properties, precision)) + '\n')
                 else:
-                    f.write(',' + geojson.dumps(row_to_geojson(row, lon, lat, precision)) + '\n')
+                    f.write(',' + geojson.dumps(row_serialize_func(row, geo_properties, precision)) + '\n')
             f.write(']}')
 
             return {
@@ -59,9 +79,23 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
             }
     else:
         features = []
-        df[[lon, lat] + properties].apply(lambda x: features.append(
-            row_to_geojson(x, lon, lat, precision)), axis=1)
+        df[geo_properties + properties].apply(lambda x: features.append(
+            row_serialize_func(x, geo_properties, precision)), axis=1)
         return geojson.FeatureCollection(features)
+
+
+def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filename=None):
+    """Serialize a Pandas dataframe to a geojson format Python dictionary
+    """
+    return _to_geojson(df, properties, geo_properties=[lon, lat], precision=precision,
+                       row_serialize_func=row_to_geojson, filename=filename)
+
+
+def gdf_to_geojson(gdf, properties=None, filename=None):
+    """Serialize a GeoPandas dataframe to a geojson format Python dictionary
+    """
+    return _to_geojson(gdf, properties, geo_properties=['geometry'], row_serialize_func=geo_row_to_geojson,
+                       filename=filename)
 
 
 def scale_between(minval, maxval, numStops):
