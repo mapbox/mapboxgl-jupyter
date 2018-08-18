@@ -62,6 +62,7 @@ class VectorMixin(object):
         return vector_stops
 
     def check_vector_template(self):
+        """Determines if features are defined as vector source based on MapViz arguments."""
 
         if self.vector_url is not None and self.vector_layer_name is not None:
             self.template = 'vector_' + self.template
