@@ -7,7 +7,7 @@ import numpy
 import requests
 
 from mapboxgl.errors import TokenError
-from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict
+from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_list
 from mapboxgl import templates
 
 
@@ -22,7 +22,7 @@ class VectorMixin(object):
 
         # if join data specified as filename or URL, parse JSON to list of Python dicts
         if type(self.data) == str:
-            self.data = geojson_to_dict(self.data)
+            self.data = geojson_to_dict_list(self.data)
 
         # loop through features in self.data to create join-data map
         for row in self.data:
@@ -49,7 +49,7 @@ class VectorMixin(object):
 
         # if join data specified as filename or URL, parse JSON to list of Python dicts
         if type(self.data) == str:
-            self.data = geojson_to_dict(self.data)
+            self.data = geojson_to_dict_list(self.data)
 
         for row in self.data:
 
@@ -233,10 +233,12 @@ class MapViz(object):
 
     def create_html(self):
         """Create a circle visual from a geojson data source"""
+        
         if isinstance(self.style, str):
             style = "'{}'".format(self.style)
         else:
             style = self.style
+        
         options = dict(
             gl_js_version=GL_JS_VERSION,
             accessToken=self.access_token,
@@ -254,29 +256,34 @@ class MapViz(object):
             boxZoomOn=json.dumps(self.box_zoom_on),
             doubleClickZoomOn=json.dumps(self.double_click_zoom_on),
             scrollZoomOn=json.dumps(self.scroll_zoom_on),
-            touchZoomOn=json.dumps(self.touch_zoom_on),
-            showLegend=self.legend,
-            legendLayout=self.legend_layout,
-            legendStyle=self.legend_style, # reserve name for custom CSS?
-            legendGradient=json.dumps(self.legend_gradient),
-            legendFill=self.legend_fill,
-            legendHeaderFill=self.legend_header_fill,
-            legendTextColor=self.legend_text_color,
-            legendNumericPrecision=json.dumps(self.legend_text_numeric_precision),
-            legendTitleHaloColor=self.legend_title_halo_color,
-            legendKeyShape=self.legend_key_shape,
-            legendKeyBordersOn=json.dumps(self.legend_key_borders_on))
+            touchZoomOn=json.dumps(self.touch_zoom_on)
+        )
+
+        if self.legend:
+            options.update(
+                showLegend=self.legend,
+                legendLayout=self.legend_layout,
+                legendStyle=self.legend_style, # reserve for custom CSS
+                legendGradient=json.dumps(self.legend_gradient),
+                legendFill=self.legend_fill,
+                legendHeaderFill=self.legend_header_fill,
+                legendTextColor=self.legend_text_color,
+                legendNumericPrecision=json.dumps(self.legend_text_numeric_precision),
+                legendTitleHaloColor=self.legend_title_halo_color,
+                legendKeyShape=self.legend_key_shape,
+                legendKeyBordersOn=json.dumps(self.legend_key_borders_on)
+            )
 
         if self.vector_source:
-            options.update(dict(
+            options.update(
                 vectorUrl=self.vector_url,
                 vectorLayer=self.vector_layer_name,
                 vectorJoinDataProperty=self.vector_join_property,
                 joinData=json.dumps(False),
                 dataJoinProperty=self.data_join_property,
                 enableDataJoin=not self.disable_data_join
-            ))
-            data = geojson_to_dict(self.data)
+            )
+            data = geojson_to_dict_list(self.data)
             if bool(data):
                 options.update(joinData=json.dumps(data, ensure_ascii=False))
 
@@ -284,12 +291,13 @@ class MapViz(object):
             options.update(labelProperty=None)
         else:
             options.update(labelProperty='{' + self.label_property + '}')
-    
-        options.update(dict(
+        
+        options.update(
             labelColor=self.label_color,
             labelSize=self.label_size,
             labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width))
+            labelHaloWidth=self.label_halo_width
+        )
 
         self.add_unique_template_variables(options)
 
@@ -478,7 +486,7 @@ class HeatmapViz(VectorMixin, MapViz):
 
         # if join data specified as filename or URL, parse JSON to list of Python dicts
         if type(self.data) == str:
-            self.data = geojson_to_dict(self.data)
+            self.data = geojson_to_dict_list(self.data)
 
         for row in self.data:
 

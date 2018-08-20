@@ -7,7 +7,7 @@ from pandas.util.testing import assert_frame_equal
 from matplotlib.pyplot import imread
 
 from mapboxgl.errors import SourceDataError
-from mapboxgl.utils import (df_to_geojson, geojson_to_dict, scale_between, create_radius_stops,
+from mapboxgl.utils import (df_to_geojson, geojson_to_dict_list, scale_between, create_radius_stops,
                             create_weight_stops, create_numeric_stops, create_color_stops, 
                             img_encode, rgb_tuple_from_str, color_map, height_map, numeric_map)
 
@@ -228,25 +228,25 @@ def test_height_map_exact():
     assert height_map(50.0, stops, 42) == 5000.0
 
 
-def test_geojson_to_dict_json(df):
+def test_geojson_to_dict_list_json(df):
     """Ensure data converted to Python dict"""
     data = json.loads(df.to_json(orient='records'))
-    assert type(geojson_to_dict(data)) == list
+    assert type(geojson_to_dict_list(data)) == list
 
 
-def test_geojson_to_dict_file():
+def test_geojson_to_dict_list_file():
     """Ensure data converted to Python dict"""
     data = 'tests/points.geojson'
-    assert type(geojson_to_dict(data)) == list
+    assert type(geojson_to_dict_list(data)) == list
 
 
-def test_geojson_to_dict_url():
+def test_geojson_to_dict_list_url():
     """Ensure data converted to Python dict"""
     data = 'https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/tests/points.geojson'
-    assert type(geojson_to_dict(data)) == list
+    assert type(geojson_to_dict_list(data)) == list
 
 
-def test_geojson_to_dict_invalid():
+def test_geojson_to_dict_list_invalid():
     """Ensure data converted to Python dict"""
     with pytest.raises(SourceDataError):
-        geojson_to_dict(0)
+        geojson_to_dict_list(0)

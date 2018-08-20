@@ -29,7 +29,7 @@ Parameter | Description | Example
 data | GeoJSON Feature Collection or JSON Join-Data | 'points.geojson'
 vector_url | optional property to define vector data source (supported for basic MapViz, CircleViz, GraduatedCircleViz, HeatmapViz, ChoroplethViz, LinestringViz) | 'mapbox://mapbox.mapbox-terrain-v2'
 vector_layer_name | property to define target layer of vector source | 'contour'
-vector_join_property | property to aid in determining color for styling vector layer | 'ele'
+vector_join_property | property of features in vector tile data to use as link to joined json data | 'ele'
 data_join_property | property of json data to use as link to vector features | 'elevation'
 disable_data_join | optional property to switch off default data-join technique using vector layer and JSON join-data; also determines if a layer filter based on joined data is applied to features in vector layer | False
 access_token | Mapbox GL JS access token. | 'pk.abc123'
@@ -129,7 +129,7 @@ token = os.getenv('MAPBOX_ACCESS_TOKEN')
 # Create a geojson file export from a Pandas dataframe
 df_to_geojson(df, filename='points.geojson',
               properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
-                     lat='lat', lon='lon', precision=3)
+              lat='lat', lon='lon', precision=3)
 
 # Generate data breaks and color stops from colorBrewer
 color_breaks = [0,10,100,1000,10000]
@@ -190,7 +190,7 @@ token = os.getenv('MAPBOX_ACCESS_TOKEN')
 # Create a geojson file export from a Pandas dataframe
 df_to_geojson(df, filename='points.geojson',
               properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
-                     lat='lat', lon='lon', precision=3)
+              lat='lat', lon='lon', precision=3)
 
 #Create a clustered circle map
 color_stops = create_color_stops([1,10,50,100], colors='BrBG')
@@ -252,7 +252,7 @@ token = os.getenv('MAPBOX_ACCESS_TOKEN')
 # Create a geojson file export from a Pandas dataframe
 df_to_geojson(df, filename='points.geojson',
               properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
-                     lat='lat', lon='lon', precision=3)
+              lat='lat', lon='lon', precision=3)
 
 # Generate color stops from colorBrewer
 measure_color = 'Avg Covered Charges'
@@ -318,7 +318,7 @@ token = os.getenv('MAPBOX_ACCESS_TOKEN')
 # Create a geojson file export from a Pandas dataframe
 df_to_geojson(df, filename='points.geojson',
               properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
-                     lat='lat', lon='lon', precision=3)
+              lat='lat', lon='lon', precision=3)
 
 #Create a heatmap
 heatmap_color_stops = create_color_stops([0.01,0.25,0.5,0.75,1], colors='RdPu')

@@ -67,7 +67,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
         return geojson.FeatureCollection(features)
 
 
-def geojson_to_dict(data):
+def geojson_to_dict_list(data):
     """Parse GeoJSON-formatted information in <data> to list of Python dicts"""
     
     # return data formatted as list or dict
