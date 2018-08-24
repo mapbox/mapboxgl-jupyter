@@ -1,3 +1,4 @@
+import codecs
 import json
 import os
 
@@ -136,7 +137,7 @@ class MapViz(object):
     def add_unique_template_variables(self, options):
         pass
 
-    def create_html(self):
+    def create_html(self, filename=None):
         """Create a circle visual from a geojson data source"""
         if isinstance(self.style, str):
             style = "'{}'".format(self.style)
@@ -179,7 +180,13 @@ class MapViz(object):
 
         self.add_unique_template_variables(options)
 
-        return templates.format(self.template, **options)
+        if filename:
+            html = templates.format(self.template, **options)
+            with codecs.open(filename, "w", "utf-8-sig") as f:
+                f.write(html)
+            return None
+        else:
+            return templates.format(self.template, **options)
 
 
 class CircleViz(MapViz):
