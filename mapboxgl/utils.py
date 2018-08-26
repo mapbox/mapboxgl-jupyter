@@ -1,3 +1,5 @@
+import codecs
+
 from .colors import color_ramps, common_html_colors
 from chroma import Color, Scale
 import geojson
@@ -20,7 +22,7 @@ def row_to_geojson(row, lon, lat, precision):
 
 
 def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filename=None):
-    """Serialize a Pandas dataframe to a geojson format Python dictionary
+    """Serialize a Pandas dataframe to a geojson format Python dictionary / file
     """
 
     if not properties:
@@ -62,6 +64,22 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
         df[[lon, lat] + properties].apply(lambda x: features.append(
             row_to_geojson(x, lon, lat, precision)), axis=1)
         return geojson.FeatureCollection(features)
+
+
+def gdf_to_geojson(gdf, properties=None, filename=None):
+    """Serialize a GeoPandas dataframe to a geojson format Python dictionary / file
+    """
+
+    gdf_out = gdf[['geometry'] + properties or []]
+
+    geojson_str = gdf_out.to_json()
+
+    if filename:
+        with codecs.open(filename, "w", "utf-8-sig") as f:
+            f.write(geojson_str)
+        return None
+    else:
+        return json.loads(geojson_str)
 
 
 def scale_between(minval, maxval, numStops):
