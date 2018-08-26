@@ -1,7 +1,8 @@
+import base64
+import codecs
 from io import BytesIO
 import json
 import re
-import base64
 from chroma import Color, Scale
 from colour import Color as Colour
 import geojson
@@ -23,7 +24,7 @@ def row_to_geojson(row, lon, lat, precision):
 
 
 def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filename=None):
-    """Serialize a Pandas dataframe to a geojson format Python dictionary
+    """Serialize a Pandas dataframe to a geojson format Python dictionary / file
     """
 
     if not properties:
@@ -87,6 +88,22 @@ def geojson_to_dict_list(data):
         raise SourceDataError('MapViz data must be valid GeoJSON or JSON.  Please check your <data> parameter.')
 
     return [feature['properties'] for feature in features]
+
+
+def gdf_to_geojson(gdf, properties=None, filename=None):
+    """Serialize a GeoPandas dataframe to a geojson format Python dictionary / file
+    """
+
+    gdf_out = gdf[['geometry'] + properties or []]
+
+    geojson_str = gdf_out.to_json()
+
+    if filename:
+        with codecs.open(filename, "w", "utf-8-sig") as f:
+            f.write(geojson_str)
+        return None
+    else:
+        return json.loads(geojson_str)
 
 
 def scale_between(minval, maxval, numStops):
