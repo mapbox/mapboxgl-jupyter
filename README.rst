@@ -63,7 +63,7 @@ The ``examples`` directory contains sample Jupyter notebooks demonstrating usage
 
     import pandas as pd
 
-    from mapboxgl.utils import create_color_stops
+    from mapboxgl.utils import create_color_stops, df_to_geojson
     from mapboxgl.viz import CircleViz
 
 
