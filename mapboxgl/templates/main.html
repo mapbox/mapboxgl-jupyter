@@ -83,6 +83,10 @@
 
 var legendHeader;
 
+function getKeyRadius(value) {
+    return '' + value / 5000 + 'px';
+}
+
 function calcColorLegend(myColorStops, title) {
 
     // create legend
@@ -132,6 +136,9 @@ function calcColorLegend(myColorStops, title) {
             key.className = 'legend-key {{ legendKeyShape }}';
             key.id = 'legend-points-id-' + p;
             key.style.backgroundColor = myColorStops[p][1];   
+
+            key.style.width = getKeyRadius(myColorStops[p][0]);
+            key.style.height = getKeyRadius(myColorStops[p][0]);
 
             var value = document.createElement('span');
             value.className = 'legend-value';
