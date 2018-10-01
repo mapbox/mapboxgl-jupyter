@@ -892,7 +892,7 @@ class VizCollection(MapViz):
         template_str += '{% endblock map %}'
 
         if filename:
-            html = templates.format(from_string=True, template_str=template_str, **options)
+            html = templates.format(None, from_string=True, template_str=template_str, **options)
             with codecs.open(filename, "w", "utf-8-sig") as f:
                 f.write(html)
             return None
