@@ -6,16 +6,16 @@
 
     map.on('style.load', function() {
 
-      map.addSource("image", {
+      map.addSource("image" + "_" + "{{uid}}", {
          "type": "image",
          "url": "{{ image }}", // url or base64 encoded image
          "coordinates": {{ coordinates }}
       });
 
       map.addLayer({
-        "id": 'image',
+        "id": 'image' + "_" + "{{uid}}",
         "type": "raster",
-        "source": "image"
+        "source": "image" + "_" + "{{uid}}"
       }, "{{belowLayer}}");
 
     });

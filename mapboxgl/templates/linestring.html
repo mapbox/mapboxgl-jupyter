@@ -19,11 +19,11 @@
 {% block map %}
 
     map.on('style.load', function() {
-        
+
         {% block linestring %}
 
         // Add geojson data source
-        map.addSource("data", {
+        map.addSource("data" + "_" + "{{uid}}", {
             "type": "geojson",
             "data": {{ geojson_data }},
             "buffer": 1,
@@ -32,8 +32,8 @@
 
         // Add data layer
         map.addLayer({
-            "id": "linestring",
-            "source": "data",
+            "id": "linestring" + "_" + "{{uid}}",
+            "source": "data" + "_" + "{{uid}}",
             "type": "line",
             "layout": {
                 "line-join": "round",
@@ -59,8 +59,8 @@
 
         // Add label layer
         map.addLayer({
-            "id": "linestring-label",
-            "source": "data",
+            "id": "linestring-label" + "_" + "{{uid}}",
+            "source": "data" + "_" + "{{uid}}",
             "type": "symbol",
             "layout": {
                 {% if labelProperty %}
@@ -83,13 +83,13 @@
             closeButton: false,
             closeOnClick: false
         });
-        
+
         {% block linestring_popup %}
 
         // Show the popup on mouseover
-        map.on('mousemove', 'linestring', function(e) {
+        map.on('mousemove', 'linestring' + "_" + "{{uid}}", function(e) {
             map.getCanvas().style.cursor = 'pointer';
-            
+
             let f = e.features[0];
             let popup_html = '<div>';
 
@@ -105,13 +105,13 @@
 
         {% endblock linestring_popup %}
 
-        map.on('mouseleave', 'linestring', function() {
+        map.on('mouseleave', 'linestring' + "_" + "{{uid}}", function() {
             map.getCanvas().style.cursor = '';
             popup.remove();
         });
-        
+
         // Fly to on click
-        map.on('click', 'linestring', function(e) {
+        map.on('click', 'linestring' + "_" + "{{uid}}", function(e) {
             map.flyTo({
                 center: e.lngLat,
                 zoom: map.getZoom() + 1

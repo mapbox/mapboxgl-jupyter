@@ -5,19 +5,19 @@
 {% block map %}
 
     map.on('style.load', function() {
-        
+
         // Add data source
-        map.addSource("data", {
+        map.addSource("data" + "_" + "{{uid}}", {
             "type": "geojson",
             "data": {{ geojson_data }},
             "buffer": 1,
             "maxzoom": 14
         });
-        
+
         // Add data layer
         map.addLayer({
-            "id": "circle",
-            "source": "data",
+            "id": "circle" + "_" + "{{uid}}",
+            "source": "data" + "_" + "{{uid}}",
             "type": "circle",
             "maxzoom": {{ maxzoom }},
             "minzoom": {{ minzoom }},

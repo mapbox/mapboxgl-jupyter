@@ -17,12 +17,12 @@
         }
         if ({{ tiles_bounds }} !== undefined) params.bounds = {{ tiles_bounds }};
 
-        map.addSource("raster-tiles", params);
+        map.addSource("raster-tiles" + "_" + "{{uid}}", params);
 
         map.addLayer({
-            "id": "raster-tiles",
+            "id": "raster-tiles" + "_" + "{{uid}}",
             "type": "raster",
-            "source": "raster-tiles"
+            "source": "raster-tiles" + "_" + "{{uid}}"
         }, "{{belowLayer}}" );
 
     });

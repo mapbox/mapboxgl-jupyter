@@ -1,6 +1,7 @@
 import codecs
 import json
 import os
+import uuid
 
 from IPython.core.display import HTML, display
 
@@ -83,6 +84,7 @@ class MapViz(object):
             raise TokenError('Mapbox access token must be public (pk), not secret (sk). ' \
                              'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
                              'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
+        self.uid = str(uuid.uuid4())
         self.access_token = access_token
         self.template = 'map'
         self.data = data
@@ -137,8 +139,8 @@ class MapViz(object):
     def add_unique_template_variables(self, options):
         pass
 
-    def create_html(self, filename=None):
-        """Create a circle visual from a geojson data source"""
+
+    def create_options(self):
         if isinstance(self.style, str):
             style = "'{}'".format(self.style)
         else:
@@ -146,6 +148,7 @@ class MapViz(object):
         options = dict(
             gl_js_version=GL_JS_VERSION,
             accessToken=self.access_token,
+            uid=self.uid,
             div_id=self.div_id,
             style=style,
             center=list(self.center),
@@ -155,7 +158,7 @@ class MapViz(object):
             opacity=self.opacity,
             minzoom=self.min_zoom,
             maxzoom=self.max_zoom,
-            pitch=self.pitch, 
+            pitch=self.pitch,
             bearing=self.bearing,
             boxZoomOn=json.dumps(self.box_zoom_on),
             doubleClickZoomOn=json.dumps(self.double_click_zoom_on),
@@ -179,6 +182,11 @@ class MapViz(object):
             options.update(labelProperty='{' + self.label_property + '}')
 
         self.add_unique_template_variables(options)
+        return options
+
+    def create_html(self, filename=None):
+        """Create a circle visual from a geojson data source"""
+        options = self.create_options()
 
         if filename:
             html = templates.format(self.template, **options)
@@ -357,7 +365,7 @@ class HeatmapViz(MapViz):
         :param color_stops: stops to determine heatmap color.  EX. [[0, "red"], [0.5, "blue"], [1, "green"]]
         :param radius_stops: stops to determine heatmap radius based on zoom.  EX: [[0, 1], [12, 30]]
         :param intensity_stops: stops to determine the heatmap intensity based on zoom. EX: [[0, 0.1], [20, 5]]
-        
+
         """
         super(HeatmapViz, self).__init__(data, *args, **kwargs)
 
@@ -466,7 +474,7 @@ class ChoroplethViz(MapViz):
                  line_color='white',
                  line_stroke='solid',
                  line_width=1,
-                 height_property=None,      
+                 height_property=None,
                  height_stops=None,
                  height_default=0.0,
                  height_function_type='interpolate',
@@ -492,10 +500,10 @@ class ChoroplethViz(MapViz):
         :param height_stops: property for determining 3D extrusion height
         :param height_default: default height for 3D extruded polygons
         :param height_function_type: roperty to determine `type` used by Mapbox to assign height
-        
+
         """
         super(ChoroplethViz, self).__init__(data, *args, **kwargs)
-        
+
         self.vector_url = vector_url
         self.vector_layer_name = vector_layer_name
         self.vector_join_property = vector_join_property
@@ -529,7 +537,7 @@ class ChoroplethViz(MapViz):
 
             # map color to JSON feature using color_property
             color = color_map(row[self.color_property], self.color_stops, self.color_default)
-            
+
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], color])
 
@@ -538,7 +546,7 @@ class ChoroplethViz(MapViz):
     def generate_vector_height_map(self):
         """Generate height stops array for use with match expression in mapbox template"""
         vector_stops = []
-        
+
         if self.height_function_type == 'match':
             match_height = self.height_stops
 
@@ -546,7 +554,7 @@ class ChoroplethViz(MapViz):
 
             # map height to JSON feature using height_property
             height = height_map(row[self.height_property], self.height_stops, self.height_default)
-            
+
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], height])
 
@@ -737,7 +745,7 @@ class LinestringViz(MapViz):
 
         """
         super(LinestringViz, self).__init__(data, *args, **kwargs)
-        
+
         self.vector_url = vector_url
         self.vector_layer_name = vector_layer_name
         self.vector_join_property = vector_join_property
@@ -773,7 +781,7 @@ class LinestringViz(MapViz):
 
             # map color to JSON feature using color_property
             color = color_map(row[self.color_property], self.color_stops, self.color_default)
-            
+
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], color])
 
@@ -782,7 +790,7 @@ class LinestringViz(MapViz):
     def generate_vector_width_map(self):
         """Generate width stops array for use with match expression in mapbox template"""
         vector_stops = []
-        
+
         if self.line_width_function_type == 'match':
             match_width = self.line_width_stops
 
@@ -790,7 +798,7 @@ class LinestringViz(MapViz):
 
             # map width to JSON feature using width_property
             width = numeric_map(row[self.line_width_property], self.line_width_stops, self.line_width_default)
-            
+
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], width])
 
@@ -845,7 +853,7 @@ class LinestringViz(MapViz):
 
             if self.color_property:
                 options.update(dict(vectorColorStops=self.generate_vector_color_map()))
-        
+
             if self.line_width_property:
                 options.update(dict(vectorWidthStops=self.generate_vector_width_map()))
 
@@ -855,3 +863,38 @@ class LinestringViz(MapViz):
                 geojson_data=json.dumps(self.data, ensure_ascii=False),
             ))
 
+
+class VizCollection(MapViz):
+    """
+    Class that can contain several vizualisations.
+    """
+
+    def __init__(self, visualisations, *args, **kwargs):
+        """
+        Initialization of viz collection.
+        """
+        super(VizCollection, self).__init__(None, *args, **kwargs)
+        self.visualisations = visualisations
+
+    def create_html(self, filename=None):
+        """Create a visualization from several viz objects."""
+        options = self.create_options()
+        viz_options = [v.create_options() for v in self.visualisations]
+        template_str = '{% extends "base.html" %}'
+        template_str += '{% block legend %}{% endblock legend %}'
+        template_str += '{% block map %}'
+
+        for idx, viz in enumerate(self.visualisations):
+            single_viz_options = viz_options[idx]
+            template_layer = viz.template + '_layers'
+            template_str += templates.format(template_layer, **single_viz_options)
+
+        template_str += '{% endblock map %}'
+
+        if filename:
+            html = templates.format(from_string=True, template_str=template_str, **options)
+            with codecs.open(filename, "w", "utf-8-sig") as f:
+                f.write(html)
+            return None
+        else:
+            return templates.format(None, from_string=True, template_str=template_str, **options)

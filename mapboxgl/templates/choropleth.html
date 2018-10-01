@@ -8,7 +8,7 @@
 {% endblock extra_css %}
 
 {% block legend %}
-    
+
     {% if showLegend %}
         {% if extrudeChoropleth %}
             {% if colorStops and colorProperty and heightProperty %}
@@ -28,11 +28,11 @@
 {% block map %}
 
     map.on('style.load', function() {
-        
+
         {% block choropleth %}
 
         // Add geojson data source
-        map.addSource("data", {
+        map.addSource("data" + "_" + "{{uid}}", {
             "type": "geojson",
             "data": {{ geojson_data }},
             "buffer": 1,
@@ -41,8 +41,8 @@
 
         // Add data layer
         map.addLayer({
-            "id": "choropleth-fill",
-            "source": "data",
+            "id": "choropleth-fill" + "_" + "{{uid}}",
+            "source": "data" + "_" + "{{uid}}",
             "type": "fill",
             "paint": {
                 "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
@@ -52,8 +52,8 @@
 
         // Add border layer
         map.addLayer({
-            "id": "choropleth-line",
-            "source": "data",
+            "id": "choropleth-line" + "_" + "{{uid}}",
+            "source": "data" + "_" + "{{uid}}",
             "type": "line",
             "layout": {
                 "line-join": "round",
@@ -71,8 +71,8 @@
 
         // Add label layer
         map.addLayer({
-            "id": "choropleth-label",
-            "source": "data",
+            "id": "choropleth-label" + "_" + "{{uid}}",
+            "source": "data" + "_" + "{{uid}}",
             "type": "symbol",
             "layout": {
                 {% if labelProperty %}
@@ -91,9 +91,9 @@
         {% if extrudeChoropleth %}
 
             map.addLayer({
-                id: "choropleth-extrusion",
-                type: "fill-extrusion",            
-                source: "data",
+                id: "choropleth-extrusion" + "_" + "{{uid}}",
+                type: "fill-extrusion",
+                source: "data" + "_" + "{{uid}}",
                 paint: {
                     "fill-extrusion-opacity": {{ opacity }},
                     "fill-extrusion-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
@@ -111,13 +111,13 @@
             closeButton: false,
             closeOnClick: false
         });
-        
+
         {% block choropleth_popup %}
 
         // Show the popup on mouseover
-        map.on('mousemove', 'choropleth-fill', function(e) {
+        map.on('mousemove', 'choropleth-fill' + "_" + "{{uid}}", function(e) {
             map.getCanvas().style.cursor = 'pointer';
-            
+
             let f = e.features[0];
             let popup_html = '<div>';
 
@@ -133,13 +133,13 @@
 
         {% endblock choropleth_popup %}
 
-        map.on('mouseleave', 'choropleth-fill', function() {
+        map.on('mouseleave', 'choropleth-fill' + "_" + "{{uid}}", function() {
             map.getCanvas().style.cursor = '';
             popup.remove();
         });
-        
+
         // Fly to on click
-        map.on('click', 'choropleth-fill', function(e) {
+        map.on('click', 'choropleth-fill' + "_" + "{{uid}}", function(e) {
             map.flyTo({
                 center: e.lngLat,
                 zoom: map.getZoom() + 1

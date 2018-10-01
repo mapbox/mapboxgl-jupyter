@@ -11,10 +11,10 @@
 
         // Create filter for layers from join data
         let layerFilter = ['in', "{{ vectorJoinDataProperty }}"]
-        
+
         joinData.forEach(function(row, index) {
             popUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ colorProperty }}"];
-            
+
             {% if extrudeChoropleth %}
                 {% if colorProperty != heightProperty %}
                     heightPopUpKeys[row["{{ dataJoinProperty }}"]] = row["{{ heightProperty }}"];
@@ -41,10 +41,10 @@
         "paint": {
             "fill-color": {
                 "type": "categorical",
-                "property": "{{ vectorJoinDataProperty }}", 
-                "stops": {{ vectorColorStops }}, 
+                "property": "{{ vectorJoinDataProperty }}",
+                "stops": {{ vectorColorStops }},
                 "default": "{{ defaultColor }}"
-            }, 
+            },
             "fill-opacity": {{ opacity }}
         },
         filter: layerFilter
@@ -93,24 +93,24 @@
 
     // Optional extrusion layer
     {% if extrudeChoropleth %}
-    
+
         map.addLayer({
             id: "choropleth-extrusion",
-            type: "fill-extrusion",            
+            type: "fill-extrusion",
             "source": "vector-data",
             "source-layer": "{{ vectorLayer }}",
             paint: {
                 "fill-extrusion-opacity": {{ opacity }},
                 "fill-extrusion-color": {
                     "type": "categorical",
-                    "property": "{{ vectorJoinDataProperty }}", 
-                    "stops": {{ vectorColorStops }}, 
+                    "property": "{{ vectorJoinDataProperty }}",
+                    "stops": {{ vectorColorStops }},
                     "default": "{{ defaultColor }}"
                 },
                 "fill-extrusion-height": {
                     "type": "categorical",
-                    "property": "{{ vectorJoinDataProperty }}", 
-                    "stops": {{ vectorHeightStops }}, 
+                    "property": "{{ vectorJoinDataProperty }}",
+                    "stops": {{ vectorHeightStops }},
                     "default": {{ defaultHeight }}
                 }
             },
@@ -126,7 +126,7 @@
     // Show the popup on mouseover
     map.on('mousemove', 'choropleth-fill', function(e) {
         map.getCanvas().style.cursor = 'pointer';
-        
+
         let f = e.features[0];
         let popup_html = '<div>';
 
@@ -136,7 +136,7 @@
 
         // Add property from joined data to vector's feature popup
         popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
-        
+
         {% if extrudeChoropleth %}
             {% if colorProperty != heightProperty %}
                 popup_html += '<li><b> ' + "{{ heightProperty }}".toUpperCase() + '</b>: ' + heightPopUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'

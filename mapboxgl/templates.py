@@ -7,6 +7,9 @@ env = Environment(
 )
 
 
-def format(viz, **kwargs):
-    template = env.get_template('{}.html'.format(viz))
+def format(viz, from_string=False, template_str=None, **kwargs):
+    if from_string:
+        template = env.from_string(template_str)
+    else:
+        template = env.get_template('{}.html'.format(viz))
     return template.render(viz=viz, **kwargs)

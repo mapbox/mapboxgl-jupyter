@@ -6,7 +6,7 @@
 
     map.on('style.load', function() {
 
-        map.addSource("data", {
+        map.addSource("data" + "_" + "{{uid}}", {
             "type": "geojson",
             "data": {{ geojson_data }}, //data from dataframe output to geojson
             "buffer": 0,
@@ -14,8 +14,8 @@
         });
 
         map.addLayer({
-            "id": "circle",
-            "source": "data",
+            "id": "circle" + "_" + "{{uid}}",
+            "source": "data" + "_" + "{{uid}}",
             "type": "heatmap",
             "maxzoom": {{ maxzoom }},
             "minzoom": {{ minzoom }},
