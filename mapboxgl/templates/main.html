@@ -14,6 +14,9 @@
 <style type='text/css'>
     body { margin:0; padding:0; }
     .map { position: absolute; top:0; bottom:0; width:100%; }
+    
+    {% if showLegend %}
+    
     .legend {
         background-color: {{ legendFill }};
         color: {{ legendTextColor }};
@@ -71,6 +74,8 @@
     .legend.vertical.contig .legend-key {height: 15px; width: 10px;}
     .legend.vertical.contig li.legend-item {height: 15px;}
     .legend.vertical.contig {padding-bottom: 6px;}
+    
+    {% endif %}
 
 </style>
 {% block extra_css %}{% endblock extra_css %}
@@ -87,6 +92,9 @@ function calcColorLegend(myColorStops, title) {
 
     // create legend
     var legend = document.createElement('div');
+    
+    {% if showLegend %}
+
     if ('{{ legendKeyShape }}' === 'contiguous-bar') {
         legend.className = 'legend {{ legendLayout }} contig';
     }
@@ -196,6 +204,8 @@ function calcColorLegend(myColorStops, title) {
             }
         }
     }
+
+    {% endif %}
 
     // update right-margin for compact Mapbox attribution based on calculated legend width
     var attribMargin = legend.offsetWidth + 15;

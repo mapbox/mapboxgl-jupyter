@@ -873,7 +873,11 @@ class VizCollection(MapViz):
                  width='100%',
                  zoom=0,
                  pitch=0,
-                 bearing=0):
+                 bearing=0,
+                 box_zoom_on=True,
+                 double_click_zoom_on=True,
+                 scroll_zoom_on=True,
+                 touch_zoom_on=True):
         """Construct a VizCollection object
 
         :param access_token: Mapbox GL JS access token.
@@ -905,9 +909,14 @@ class VizCollection(MapViz):
         self.zoom = zoom
         self.pitch = pitch
         self.bearing = bearing
+        self.box_zoom_on = box_zoom_on
+        self.double_click_zoom_on = double_click_zoom_on
+        self.scroll_zoom_on = scroll_zoom_on
+        self.touch_zoom_on = touch_zoom_on
+        self.legend = False
 
     def create_html(self):
-        """Create a circle visual from a geojson data source"""
+        """Create a visual from a geojson data source"""
         if isinstance(self.style, str):
             style = "'{}'".format(self.style)
         else:
@@ -922,7 +931,12 @@ class VizCollection(MapViz):
             zoom=self.zoom,
             pitch=self.pitch, 
             bearing=self.bearing,
-            dataLayers=self.process_layers())
+            boxZoomOn=json.dumps(self.box_zoom_on),
+            doubleClickZoomOn=json.dumps(self.double_click_zoom_on),
+            scrollZoomOn=json.dumps(self.scroll_zoom_on),
+            touchZoomOn=json.dumps(self.touch_zoom_on),
+            dataLayers=self.process_layers(),
+            showLegend=self.legend)
 
         self.add_unique_template_variables(options)
 
@@ -1171,7 +1185,6 @@ class VizCollection(MapViz):
             },
             "belowLayer": viz.below_layer
         }
-
 
     def process_layers(self):
 
