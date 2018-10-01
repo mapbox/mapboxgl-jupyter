@@ -6,24 +6,39 @@
 
     var map = new mapboxgl.Map({
         container: 'map',
+        attributionControl: false,
         style: {{ style }},
         center: {{ center }},
         zoom: {{ zoom }},
         pitch: {{ pitch }},
         bearing: {{ bearing }},
-        transformRequest: (url, resourceType)=> {
-            if ( url.slice(0,22) == 'https://api.mapbox.com' ) {
-                //Add Python Plugin identifier for Mapbox API traffic
-                return {
-                   url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
-                 }
-             }
-             else {
-                 //Do not transform URL for non Mapbox GET requests
-                 return {url: url}
-             }
-        }
+        scrollZoom: {{ scrollZoomOn|safe }},
+        touchZoom: {{ touchZoomOn|safe }},
+        doubleClickZoom: {{ doubleClickZoomOn|safe }},
+        boxZoom: {{ boxZoomOn|safe }},
+        transformRequest: (url, resourceType) => {
+                    if ( url.slice(0,22) == 'https://api.mapbox.com' || 
+                        url.slice(0,26) == 'https://a.tiles.mapbox.com' || 
+                        url.slice(0,26) == 'https://b.tiles.mapbox.com' ||
+                        url.slice(0,26) == 'https://c.tiles.mapbox.com' ||
+                        url.slice(0,26) == 'https://d.tiles.mapbox.com') {
+                        //Add Mapboxgl-Jupyter Plugin identifier for Mapbox API traffic
+                        return {
+                           url: [url.slice(0, url.indexOf("?")+1), "pluginName=PythonMapboxgl&", url.slice(url.indexOf("?")+1)].join('')
+                         }
+                     }
+                     else {
+                         //Do not transform URL for non Mapbox GET requests
+                         return {url: url}
+                     }
+                },
     });
+
+    {% block attribution %}
+    
+        map.addControl(new mapboxgl.AttributionControl({ compact: true }));
+
+    {% endblock attribution %}
 
     {% block navigation %}
 

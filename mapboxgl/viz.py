@@ -1,3 +1,4 @@
+import codecs
 import json
 import os
 
@@ -5,13 +6,12 @@ from IPython.core.display import HTML, display
 
 import numpy
 
-from mapboxgl.errors import TokenError
-from mapboxgl.utils import color_map, height_map
 from mapboxgl import templates
-from mapboxgl.utils import img_encode, numeric_map, generate_interpolate_expression, generate_property_expression
+from mapboxgl.errors import TokenError
+from mapboxgl.utils import color_map, height_map, img_encode, numeric_map, generate_interpolate_expression, generate_property_expression
 
 
-GL_JS_VERSION = 'v0.44.1'
+GL_JS_VERSION = 'v0.49.0'
 
 
 class MapViz(object):
@@ -31,7 +31,22 @@ class MapViz(object):
                  min_zoom=0,
                  max_zoom=24,
                  pitch=0,
-                 bearing=0):
+                 bearing=0,
+                 box_zoom_on=True,
+                 double_click_zoom_on=True,
+                 scroll_zoom_on=True,
+                 touch_zoom_on=True,
+                 legend=True,
+                 legend_layout='vertical',
+                 legend_gradient=False,
+                 legend_style='',
+                 legend_fill='white',
+                 legend_header_fill='white',
+                 legend_text_color='#6e6e6e',
+                 legend_text_numeric_precision=None,
+                 legend_title_halo_color='white',
+                 legend_key_shape='square',
+                 legend_key_borders_on=True):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -45,6 +60,21 @@ class MapViz(object):
         :param opacity: opacity of map data layer
         :param pitch: starting pitch (in degrees) for map
         :param bearing: starting bearing (in degrees) for map
+        :param box_zoom_on: boolean indicating if map can be zoomed to a region by dragging a bounding box
+        :param double_click_zoom_on: boolean indicating if map can be zoomed with double-click
+        :param scroll_zoom_on: boolean indicating if map can be zoomed with the scroll wheel
+        :param touch_zoom_on: boolean indicating if map can be zoomed with two-finger touch gestures
+        :param legend: boolean for whether to show legend on map
+        :param legend_layout: determines if horizontal or vertical legend used
+        :param legend_style: reserved for future custom CSS loader
+        :param legend_gradient: boolean to determine if legend keys are discrete or gradient
+        :param legend_fill: string background color for legend, default is white
+        :param legend_header_fill: string background color for legend header (in vertical layout), default is #eee
+        :param legend_text_color: string color for legend text default is #6e6e6e
+        :param legend_text_numeric_precision: decimal precision for numeric legend values
+        :param legend_title_halo_color: color of legend title text halo
+        :param legend_key_shape: shape of the legend item keys, default varies by viz type; one of square, contiguous_bar, rounded-square, circle, line
+        :param legend_key_borders_on: boolean for whether to show/hide legend key borders
 
         """
         if access_token is None:
@@ -70,6 +100,21 @@ class MapViz(object):
         self.max_zoom = max_zoom
         self.pitch = pitch
         self.bearing = bearing
+        self.box_zoom_on = box_zoom_on
+        self.double_click_zoom_on = double_click_zoom_on
+        self.scroll_zoom_on = scroll_zoom_on
+        self.touch_zoom_on = touch_zoom_on
+        self.legend = legend
+        self.legend_layout = legend_layout
+        self.legend_style = legend_style
+        self.legend_gradient = legend_gradient
+        self.legend_fill = legend_fill
+        self.legend_header_fill = legend_header_fill
+        self.legend_text_color = legend_text_color
+        self.legend_text_numeric_precision = legend_text_numeric_precision
+        self.legend_title_halo_color = legend_title_halo_color
+        self.legend_key_shape = legend_key_shape
+        self.legend_key_borders_on = legend_key_borders_on
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -93,7 +138,7 @@ class MapViz(object):
     def add_unique_template_variables(self, options):
         pass
 
-    def create_html(self):
+    def create_html(self, filename=None):
         """Create a circle visual from a geojson data source"""
         if isinstance(self.style, str):
             style = "'{}'".format(self.style)
@@ -113,7 +158,22 @@ class MapViz(object):
             minzoom=self.min_zoom,
             maxzoom=self.max_zoom,
             pitch=self.pitch, 
-            bearing=self.bearing)
+            bearing=self.bearing,
+            boxZoomOn=json.dumps(self.box_zoom_on),
+            doubleClickZoomOn=json.dumps(self.double_click_zoom_on),
+            scrollZoomOn=json.dumps(self.scroll_zoom_on),
+            touchZoomOn=json.dumps(self.touch_zoom_on),
+            showLegend=self.legend,
+            legendLayout=self.legend_layout,
+            legendStyle=self.legend_style, # reserve name for custom CSS?
+            legendGradient=json.dumps(self.legend_gradient),
+            legendFill=self.legend_fill,
+            legendHeaderFill=self.legend_header_fill,
+            legendTextColor=self.legend_text_color,
+            legendNumericPrecision=json.dumps(self.legend_text_numeric_precision),
+            legendTitleHaloColor=self.legend_title_halo_color,
+            legendKeyShape=self.legend_key_shape,
+            legendKeyBordersOn=json.dumps(self.legend_key_borders_on))
 
         if self.label_property is None:
             options.update(labelProperty=None)
@@ -122,7 +182,13 @@ class MapViz(object):
 
         self.add_unique_template_variables(options)
 
-        return templates.format(self.template, **options)
+        if filename:
+            html = templates.format(self.template, **options)
+            with codecs.open(filename, "w", "utf-8-sig") as f:
+                f.write(html)
+            return None
+        else:
+            return templates.format(self.template, **options)
 
 
 class CircleViz(MapViz):
@@ -143,6 +209,7 @@ class CircleViz(MapViz):
                  stroke_color='grey',
                  stroke_width=0.1,
                  source_buffer=1,
+                 legend_key_shape='circle',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -176,6 +243,7 @@ class CircleViz(MapViz):
         self.stroke_width = stroke_width
         self.color_function_type = color_function_type
         self.color_default = color_default
+        self.legend_key_shape = legend_key_shape
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to circle visual"""
@@ -191,7 +259,7 @@ class CircleViz(MapViz):
             labelColor=self.label_color,
             labelSize=self.label_size,
             labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width
+            labelHaloWidth=self.label_halo_width,
         ))
 
 
@@ -215,6 +283,7 @@ class GraduatedCircleViz(MapViz):
                  radius_stops=None,
                  radius_default=2,
                  radius_function_type='interpolate',
+                 legend_key_shape='circle',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -250,6 +319,7 @@ class GraduatedCircleViz(MapViz):
         self.radius_default = radius_default
         self.stroke_color = stroke_color
         self.stroke_width = stroke_width
+        self.legend_key_shape = legend_key_shape
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to graduated circle visual"""
@@ -290,7 +360,7 @@ class HeatmapViz(MapViz):
         :param color_stops: stops to determine heatmap color.  EX. [[0, "red"], [0.5, "blue"], [1, "green"]]
         :param radius_stops: stops to determine heatmap radius based on zoom.  EX: [[0, 1], [12, 30]]
         :param intensity_stops: stops to determine the heatmap intensity based on zoom. EX: [[0, 0.1], [20, 5]]
-
+        
         """
         super(HeatmapViz, self).__init__(data, *args, **kwargs)
 
@@ -310,7 +380,7 @@ class HeatmapViz(MapViz):
             radiusStops=self.radius_stops,
             weightProperty=self.weight_property,
             weightStops=self.weight_stops,
-            intensityStops=self.intensity_stops
+            intensityStops=self.intensity_stops,
         ))
 
 
@@ -331,6 +401,7 @@ class ClusteredCircleViz(MapViz):
                  color_default='black',
                  stroke_color='grey',
                  stroke_width=0.1,
+                 legend_key_shape='circle',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -361,6 +432,7 @@ class ClusteredCircleViz(MapViz):
         self.stroke_color = stroke_color
         self.stroke_width = stroke_width
         self.color_default = color_default
+        self.legend_key_shape = legend_key_shape
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to a clustered circle visual"""
@@ -402,6 +474,7 @@ class ChoroplethViz(MapViz):
                  height_default=0.0,
                  height_function_type='interpolate',
                  source_buffer=1,
+                 legend_key_shape='rounded-square',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -423,6 +496,7 @@ class ChoroplethViz(MapViz):
         :param height_stops: property for determining 3D extrusion height
         :param height_default: default height for 3D extruded polygons
         :param height_function_type: roperty to determine `type` used by Mapbox to assign height
+        
         """
         super(ChoroplethViz, self).__init__(data, *args, **kwargs)
         
@@ -450,6 +524,7 @@ class ChoroplethViz(MapViz):
         self.height_stops = height_stops
         self.height_default = height_default
         self.height_function_type = height_function_type
+        self.legend_key_shape = legend_key_shape
 
     def generate_vector_color_map(self):
         """Generate color stops array for use with match expression in mapbox template"""
@@ -548,6 +623,7 @@ class ImageViz(MapViz):
     def __init__(self,
                  image,
                  coordinates,
+                 legend=False,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -555,7 +631,8 @@ class ImageViz(MapViz):
         :param coordinates: property to determine image coordinates (UL, UR, LR, LL).
             EX. [[-80.425, 46.437], [-71.516, 46.437], [-71.516, 37.936], [-80.425, 37.936]]
         :param image: url, local path or a numpy ndarray
-        
+        :param legend: default setting is to hide heatmap legend
+
         """
         super(ImageViz, self).__init__(None, *args, **kwargs)
 
@@ -582,6 +659,7 @@ class RasterTilesViz(MapViz):
                  tiles_bounds=None,
                  tiles_minzoom=0,
                  tiles_maxzoom=22,
+                 legend=False,
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -591,6 +669,8 @@ class RasterTilesViz(MapViz):
         :param tiles_bounds: property to determine the tiles endpoint bounds
         :param tiles_minzoom: property to determine the tiles endpoint min zoom
         :param tiles_max: property to determine the tiles endpoint max zoom
+        :param legend: default setting is to hide heatmap legend
+
         """
         super(RasterTilesViz, self).__init__(None, *args, **kwargs)
 
@@ -621,6 +701,10 @@ class LinestringViz(MapViz):
                  vector_join_property=None,
                  data_join_property=None,
                  label_property=None,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -631,6 +715,7 @@ class LinestringViz(MapViz):
                  line_width_default=1,
                  line_width_function_type='interpolate',
                  source_buffer=1,
+                 legend_key_shape='line',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -641,6 +726,10 @@ class LinestringViz(MapViz):
         :param vector_join_property: property to aid in determining color for styling vector lines
         :param data_join_property: property to join json data to vector features
         :param label_property: property to use for marker label
+        :param label_size: size of label text
+        :param label_color: color of label text
+        :param label_halo_color: color of label text halo
+        :param label_halo_width: width of label text halo
         :param color_property: property to determine line color
         :param color_stops: property to determine line color
         :param color_default: property to determine default line color if match lookup fails
@@ -667,6 +756,10 @@ class LinestringViz(MapViz):
             self.template = 'linestring'
 
         self.label_property = label_property
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
         self.color_property = color_property
         self.color_stops = color_stops
         self.color_default = color_default
@@ -676,6 +769,7 @@ class LinestringViz(MapViz):
         self.line_width_stops = line_width_stops
         self.line_width_default = line_width_default
         self.line_width_function_type = line_width_function_type
+        self.legend_key_shape = legend_key_shape
 
     def generate_vector_color_map(self):
         """Generate color stops array for use with match expression in mapbox template"""
@@ -736,6 +830,10 @@ class LinestringViz(MapViz):
             widthProperty=self.line_width_property,
             widthType=self.line_width_function_type,
             defaultWidth=self.line_width_default,
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
         ))
 
         # vector-based linestring map variables
@@ -1105,3 +1203,4 @@ class VizCollection(MapViz):
                 data_layers.append(self.add_linestring_layer(viz, i))
 
         return json.dumps(data_layers, ensure_ascii=False)
+

@@ -1,8 +1,19 @@
 {% extends "base.html" %}
 
-{% block legend %}
+<!-- update legend item key style -->
+{% block extra_css %}
+<style>
+    .gradient-bar.bordered, .legend-key.bordered { border: solid {{ strokeColor }} {{ strokeWidth }}px; }
+</style>
+{% endblock extra_css %}
 
-    calcCircleColorLegend({{ colorStops }}, "Point Density");
+{% block legend %}
+    
+    {% if showLegend %}
+
+        calcColorLegend({{ colorStops }}, "Point Density");
+        
+    {% endif %}
 
 {% endblock legend %}
 
@@ -35,7 +46,7 @@
                 "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
                 "text-color": "{{ labelColor }}"
             }
-        }, "{{ belowLayer }}" )
+        }, "{{ belowLayer }}" );
 
         map.addLayer({
             "id": "circle-cluster",

@@ -9,18 +9,16 @@
 
 {% block legend %}
 
-    var legend = document.getElementById('legend');
-
-    {% if colorStops and colorProperty and widthProperty %}
-        {% if colorProperty != widthProperty %}
-            calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}");
-        {% else %}
-            calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
+    {% if showLegend %}
+        {% if colorStops and colorProperty and widthProperty %}
+            {% if colorProperty != widthProperty %}
+                calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}");
+            {% else %}
+                calcColorLegend({{ colorStops }}, "{{ colorProperty }}");
+            {% endif %}
+        {% elif colorStops and colorProperty %}
+            calcColorLegend({{ colorStops }}, "{{ colorProperty }}");
         {% endif %}
-    {% elif colorStops and colorProperty %}
-        calcCircleColorLegend({{ colorStops }}, "{{ colorProperty }}");
-    {% else %}
-        document.getElementById('legend').style.visibility='hidden';
     {% endif %}
 
 {% endblock legend %}
@@ -58,7 +56,7 @@
                     "line-color": "{{ defaultColor }}",
                 {% endif %}
                 {% if widthProperty %}
-                    "line-width": generatePropertyExpression("{{ widthType }}", "{{ widthProperty }}", {{ widthStops }}, "{{ defaultWidth }}"),
+                    "line-width": generatePropertyExpression("{{ widthType }}", "{{ widthProperty }}", {{ widthStops }}, {{ defaultWidth }}),
                 {% else %}
                     "line-width": {{ defaultWidth }},
                 {% endif %}
@@ -79,8 +77,9 @@
                 "text-offset": [0,-1]
             },
             "paint": {
-                "text-halo-color": "white",
-                "text-halo-width": 1
+                "text-halo-color": "{{ labelHaloColor }}",
+                "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
+                "text-color": "{{ labelColor }}"
             }
         }, "{{belowLayer}}" );
 

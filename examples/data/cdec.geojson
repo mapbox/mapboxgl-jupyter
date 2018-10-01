@@ -39,7 +39,7 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.9967, 38.7161]}, "properties": {"CDEC ID": "LSW", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 224.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.6006, 37.725]}, "properties": {"CDEC ID": "CWS", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 226.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.783, 39.712]}, "properties": {"CDEC ID": "CHI", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 230.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.202, 40.1544]}, "properties": {"CDEC ID": "RDB", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 236.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.2019, 40.1544]}, "properties": {"CDEC ID": "RDB", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 236.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.317, 39.05]}, "properties": {"CDEC ID": "CFW", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 260.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.6352, 39.5898]}, "properties": {"CDEC ID": "OPS", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 268.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-115.174, 32.974]}, "properties": {"CDEC ID": "CAU", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 278.0}}
@@ -56,7 +56,7 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-124.148, 40.23]}, "properties": {"CDEC ID": "HNY", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 370.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-123.967, 41.85]}, "properties": {"CDEC ID": "GAS", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 384.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.9425, 36.7242]}, "properties": {"CDEC ID": "CPS", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 399.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.39, 39.5415]}, "properties": {"CDEC ID": "WCF", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 400.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.3901, 39.5415]}, "properties": {"CDEC ID": "WCF", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 400.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.149, 38.687]}, "properties": {"CDEC ID": "FWP", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 422.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.3292, 39.8083]}, "properties": {"CDEC ID": "BLW", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 425.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.2539, 37.3053]}, "properties": {"CDEC ID": "LAH", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 425.0}}
@@ -98,11 +98,11 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.23, 34.448]}, "properties": {"CDEC ID": "OJA", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 765.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.753, 36.599]}, "properties": {"CDEC ID": "FTD", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 768.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.87, 34.21]}, "properties": {"CDEC ID": "TOK", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 795.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.3862, 39.3807]}, "properties": {"CDEC ID": "BGR", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 800.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.3863, 39.3807]}, "properties": {"CDEC ID": "BGR", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 800.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.533, 39.583]}, "properties": {"CDEC ID": "STG", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 800.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.539, 37.102]}, "properties": {"CDEC ID": "SJK", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 803.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.057, 36.033]}, "properties": {"CDEC ID": "KTT", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 810.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-114.7323, 34.0608]}, "properties": {"CDEC ID": "RIC", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 831.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-114.7323, 34.0607]}, "properties": {"CDEC ID": "RIC", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 831.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-123.3486, 38.9875]}, "properties": {"CDEC ID": "BNV", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 840.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.2653, 39.2372]}, "properties": {"CDEC ID": "ENW", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 850.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.531, 37.132]}, "properties": {"CDEC ID": "SJA", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 870.0}}
@@ -203,7 +203,7 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.834, 40.725]}, "properties": {"CDEC ID": "RCL", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 1700.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-117.3042, 33.8772]}, "properties": {"CDEC ID": "CRK", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 1720.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.5397, 38.4931]}, "properties": {"CDEC ID": "SH4", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 1729.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.9342, 40.6855]}, "properties": {"CDEC ID": "WVC", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 1740.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.9343, 40.6855]}, "properties": {"CDEC ID": "WVC", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 1740.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-117.708, 33.8111]}, "properties": {"CDEC ID": "FMC", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 1750.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.6247, 39.7536]}, "properties": {"CDEC ID": "PDE", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 1750.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.333, 39.917]}, "properties": {"CDEC ID": "BUP", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 1760.0}}
@@ -245,7 +245,7 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-117.083, 33.769]}, "properties": {"CDEC ID": "JUN", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 2200.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.4172, 38.8619]}, "properties": {"CDEC ID": "KNO", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 2200.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.817, 34.517]}, "properties": {"CDEC ID": "SMA", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 2200.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.987, 37.5042]}, "properties": {"CDEC ID": "MRP", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 2250.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.9869, 37.5042]}, "properties": {"CDEC ID": "MRP", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 2250.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-117.418, 33.445]}, "properties": {"CDEC ID": "CSS", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 2320.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-116.609, 32.605]}, "properties": {"CDEC ID": "POT", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 2350.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.13, 35.532]}, "properties": {"CDEC ID": "DEM", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 2356.0}}
@@ -311,7 +311,7 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-117.502, 34.317]}, "properties": {"CDEC ID": "MRN", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 3300.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.184, 34.536]}, "properties": {"CDEC ID": "ROV", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 3331.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.3664, 36.6567]}, "properties": {"CDEC ID": "PHA", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 3353.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.3676, 38.1966]}, "properties": {"CDEC ID": "CVS", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 3360.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.3675, 38.1966]}, "properties": {"CDEC ID": "CVS", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 3360.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.75, 40.333]}, "properties": {"CDEC ID": "BTR", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 3400.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.881, 40.317]}, "properties": {"CDEC ID": "CTN", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 3400.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.767, 39.264]}, "properties": {"CDEC ID": "DPH", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 3400.0}}
@@ -467,7 +467,7 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-116.6217, 34.208]}, "properties": {"CDEC ID": "BNY", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 6000.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.85, 39.725]}, "properties": {"CDEC ID": "PSM", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 6000.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.483, 41.093]}, "properties": {"CDEC ID": "HIG", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 6030.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.7844, 40.7817]}, "properties": {"CDEC ID": "GRS", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 6050.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.7845, 40.7817]}, "properties": {"CDEC ID": "GRS", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 6050.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.7852, 37.7626]}, "properties": {"CDEC ID": "DGH", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 6100.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.043, 40.125]}, "properties": {"CDEC ID": "RTL", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 6100.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.8174, 38.6663]}, "properties": {"CDEC ID": "SPT", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 6150.0}}
@@ -612,14 +612,14 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.39, 36.01]}, "properties": {"CDEC ID": "SR1", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 9900.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.2584, 37.9109]}, "properties": {"CDEC ID": "TES", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 9945.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.903, 37.388]}, "properties": {"CDEC ID": "VLC", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10050.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.1776, 36.4838]}, "properties": {"CDEC ID": "CWD", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10150.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.1775, 36.4838]}, "properties": {"CDEC ID": "CWD", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10150.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.0727, 37.74]}, "properties": {"CDEC ID": "JMS", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10153.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.5625, 37.1619]}, "properties": {"CDEC ID": "SWM", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10200.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.77, 37.067]}, "properties": {"CDEC ID": "BCB", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10300.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.4467, 36.4971]}, "properties": {"CDEC ID": "CHP", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10300.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.574, 36.927]}, "properties": {"CDEC ID": "STL", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10300.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.4266, 36.7777]}, "properties": {"CDEC ID": "CRL", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10400.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.348, 36.5637]}, "properties": {"CDEC ID": "CBT", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10700.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.3479, 36.5637]}, "properties": {"CDEC ID": "CBT", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10700.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.17, 37.78]}, "properties": {"CDEC ID": "GEM", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10750.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.687, 37.24]}, "properties": {"CDEC ID": "PTL", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 10800.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-118.557, 37.1]}, "properties": {"CDEC ID": "BSH", "CNRFC ID": "", "Gage Type": "temp", "Elevation (feet)": 11200.0}}
@@ -833,7 +833,7 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.6376, 37.9763]}, "properties": {"CDEC ID": "RSL", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 10.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.518, 38.257]}, "properties": {"CDEC ID": "SDC", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 10.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.689, 38.052]}, "properties": {"CDEC ID": "SJJ", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 10.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.324, 37.8112]}, "properties": {"CDEC ID": "SJL", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 10.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.324, 37.8111]}, "properties": {"CDEC ID": "SJL", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 10.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.587, 38.285]}, "properties": {"CDEC ID": "SSS", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 10.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.351, 37.7673]}, "properties": {"CDEC ID": "TPP", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 10.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.6861, 38.1033]}, "properties": {"CDEC ID": "TSL", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 10.0}}
@@ -847,7 +847,7 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.3313, 37.8076]}, "properties": {"CDEC ID": "OH1", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 15.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.365, 37.963]}, "properties": {"CDEC ID": "RRI", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 15.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.425, 37.815]}, "properties": {"CDEC ID": "DGL", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 18.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-124.0815, 41.0098]}, "properties": {"CDEC ID": "LRT", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 18.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-124.0815, 41.0099]}, "properties": {"CDEC ID": "LRT", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 18.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.57, 37.89]}, "properties": {"CDEC ID": "ORB", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 18.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-124.2, 40.617]}, "properties": {"CDEC ID": "FER", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 20.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.9278, 38.5085]}, "properties": {"CDEC ID": "HAC", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 20.0}}
@@ -949,7 +949,7 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.525, 39.1757]}, "properties": {"CDEC ID": "MRY", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 88.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.8622, 38.5874]}, "properties": {"CDEC ID": "DRY", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 90.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.988, 37.6269]}, "properties": {"CDEC ID": "MOD", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 90.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.9772, 37.3505]}, "properties": {"CDEC ID": "NEW", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 90.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.9771, 37.3505]}, "properties": {"CDEC ID": "NEW", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 90.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.6474, 39.3666]}, "properties": {"CDEC ID": "GRL", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 92.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.7194, 37.2547]}, "properties": {"CDEC ID": "BSD", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 95.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-121.081, 37.494]}, "properties": {"CDEC ID": "SJP", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 97.0}}
@@ -1018,7 +1018,7 @@
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.787, 36.386]}, "properties": {"CDEC ID": "AMW", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 230.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.463, 37.555]}, "properties": {"CDEC ID": "DSN", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 230.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.1046, 40.0401]}, "properties": {"CDEC ID": "MCH", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 230.0}}
-,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.202, 40.1544]}, "properties": {"CDEC ID": "RDB", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 236.0}}
+,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.2019, 40.1544]}, "properties": {"CDEC ID": "RDB", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 236.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-122.229, 40.179]}, "properties": {"CDEC ID": "RDF", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 237.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-119.9658, 36.8335]}, "properties": {"CDEC ID": "DNB", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 239.0}}
 ,{"type": "Feature", "geometry": {"type": "Point", "coordinates": [-120.058, 36.183]}, "properties": {"CDEC ID": "GAL", "CNRFC ID": "", "Gage Type": "river", "Elevation (feet)": 240.0}}
