@@ -29,16 +29,20 @@
 
     {% endif %}
 
+    sourceId = "data{{ layerId }}"
+    linestringId = "linestring{{ layerId }}";
+    labelId = "label{{ layerId }}";
+
     // Add vector data source
-    map.addSource("vector-data", {
+    map.addSource(sourceId, {
         type: "vector",
         url: "{{ vectorUrl }}",
     });
 
     // Add data layer from the vector tile source with data-driven style
     map.addLayer({
-        "id": "linestring",
-        "source": "vector-data",
+        "id": linestringId,
+        "source": sourceId,
         "source-layer": "{{ vectorLayer }}",
         "type": "line",
         "layout": {
@@ -69,8 +73,8 @@
 
     // Add label layer
     map.addLayer({
-        "id": "linestring-label",
-        "source": "vector-data",
+        "id": labelId,
+        "source": sourceId,
         "source-layer": "{{ vectorLayer }}",
         "type": "symbol",
         "layout": {
@@ -92,8 +96,14 @@
 
 {% block linestring_popup %}
 
+    // Create a popup
+    var popup{{ layerId }} = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+
     // Show the popup on mouseover
-    map.on('mousemove', 'linestring', function(e) {
+    map.on('mousemove', linestringId, function(e) {
         map.getCanvas().style.cursor = 'pointer';
         
         let f = e.features[0];
@@ -115,7 +125,7 @@
         {% endif %}
 
         popup_html += '</div>'
-        popup.setLngLat(e.lngLat)
+        popup{{ layerId }}.setLngLat(e.lngLat)
             .setHTML(popup_html)
             .addTo(map);
     });

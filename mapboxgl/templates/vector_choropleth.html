@@ -26,17 +26,23 @@
 
     {% endif %}
 
+    sourceId = "data{{ layerId }}"
+    choroplethFillId = "choropleth-fill{{ layerId }}";
+    choroplethLineId = "choropleth-line{{ layerId }}";
+    choroplethLabelId = "choropleth-label{{ layerId }}";
+    choroplethExtrusionId = "choropleth-extrusion{{ layerId }}";
+
     // Add vector data source
-    map.addSource("vector-data", {
+    map.addSource(sourceId, {
         type: "vector",
         url: "{{ vectorUrl }}",
     });
 
     // Add layer from the vector tile source with data-driven style
     map.addLayer({
-        "id": "choropleth-fill",
+        "id": choroplethFillId,
         "type": "fill",
-        "source": "vector-data",
+        "source": sourceId,
         "source-layer": "{{ vectorLayer }}",
         "paint": {
             "fill-color": {
@@ -52,8 +58,8 @@
 
     // Add border layer
     map.addLayer({
-        "id": "choropleth-line",
-        "source": "vector-data",
+        "id": choroplethLineId,
+        "source": sourceId,
         "source-layer": "{{ vectorLayer }}",
         "type": "line",
         "layout": {
@@ -73,8 +79,8 @@
 
     // Add label layer
     map.addLayer({
-        "id": "choropleth-label",
-        "source": "vector-data",
+        "id": choroplethLabelId,
+        "source": sourceId,
         "source-layer": "{{ vectorLayer }}",
         "type": "symbol",
         "layout": {
@@ -95,9 +101,9 @@
     {% if extrudeChoropleth %}
     
         map.addLayer({
-            id: "choropleth-extrusion",
+            id: choroplethExtrusionId,
             type: "fill-extrusion",            
-            "source": "vector-data",
+            "source": sourceId,
             "source-layer": "{{ vectorLayer }}",
             paint: {
                 "fill-extrusion-opacity": {{ opacity }},
@@ -123,8 +129,14 @@
 
 {% block choropleth_popup %}
 
+    // Create a popup
+    var popup{{ layerId }} = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+
     // Show the popup on mouseover
-    map.on('mousemove', 'choropleth-fill', function(e) {
+    map.on('mousemove', choroplethFillId, function(e) {
         map.getCanvas().style.cursor = 'pointer';
         
         let f = e.features[0];
@@ -144,7 +156,7 @@
         {% endif %}
 
         popup_html += '</div>'
-        popup.setLngLat(e.lngLat)
+        popup{{ layerId }}.setLngLat(e.lngLat)
             .setHTML(popup_html)
             .addTo(map);
     });
