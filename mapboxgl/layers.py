@@ -48,6 +48,7 @@ class AbstractLayer():
 
         self.layer_id = None
         self.template = None
+        self.label_property = None
 
     def create_html(self):
         options = dict(
@@ -264,6 +265,7 @@ class HeatmapLayer(AbstractLayer):
     def get_layer_specific_variables(self, options):
         """Update map template variables specific to heatmap visual"""
         options.update(dict(
+            geojson_data=json.dumps(self.data, ensure_ascii=False),
             colorStops=self.color_stops,
             radiusStops=self.radius_stops,
             weightProperty=self.weight_property,
