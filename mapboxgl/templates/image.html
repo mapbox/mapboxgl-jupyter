@@ -1,23 +1,21 @@
-{% extends "base.html" %}
+{% extends "layer.html" %}
 
-{% block legend %}{% endblock legend %}
-
-{% block map %}
+{% block extra_javascript %}
 
     map.on('style.load', function() {
 
-      map.addSource("image", {
+      map.addSource("data{{ "image{{ layerId }}" }}", {
          "type": "image",
          "url": "{{ image }}", // url or base64 encoded image
          "coordinates": {{ coordinates }}
       });
 
       map.addLayer({
-        "id": 'image',
+        "id": "image{{ layerId }}",
         "type": "raster",
-        "source": "image"
+        "source": "data{{ "image{{ layerId }}" }}"
       }, "{{belowLayer}}");
 
     });
 
-{% endblock map %}
+{% endblock extra_javascript %}

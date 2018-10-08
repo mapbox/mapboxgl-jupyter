@@ -1,29 +1,25 @@
-{% extends "base.html" %}
+{% extends "layer.html" %}
 
-{% block legend %}
+{% block extra_javascript %}
 
     {% if showLegend %}
         {% if colorStops and colorProperty and widthProperty %}
             {% if colorProperty != widthProperty %}
-                calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}");
+                calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}", {{ layerId }}, "{{legendKeyShape}}", {{legendGradient}}, {{legendNumericPrecision}}, "{{legendLayout}}" );
             {% else %}
-                calcColorLegend({{ colorStops }}, "{{ colorProperty }}");
+                calcColorLegend({{ colorStops }}, "{{ colorProperty }}", {{ layerId }}, "{{legendKeyShape}}", {{legendGradient}}, {{legendNumericPrecision}}, "{{legendLayout}}" );
             {% endif %}
         {% elif colorStops and colorProperty %}
-            calcColorLegend({{ colorStops }}, "{{ colorProperty }}");
+            calcColorLegend({{ colorStops }}, "{{ colorProperty }}", {{ layerId }}, "{{legendKeyShape}}", {{legendGradient}}, {{legendNumericPrecision}}, "{{legendLayout}}" );
         {% endif %}
     {% endif %}
-
-{% endblock legend %}
-
-{% block map %}
 
     map.on('style.load', function() {
         
         {% block linestring %}
 
         // Add geojson data source
-        map.addSource("data", {
+        map.addSource("data{{ layerId }}", {
             "type": "geojson",
             "data": {{ geojson_data }},
             "buffer": 1,
@@ -32,8 +28,8 @@
 
         // Add data layer
         map.addLayer({
-            "id": "linestring",
-            "source": "data",
+            "id": "linestring{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "line",
             "layout": {
                 "line-join": "round",
@@ -59,8 +55,8 @@
 
         // Add label layer
         map.addLayer({
-            "id": "linestring-label",
-            "source": "data",
+            "id": "label{{ layerId }}",
+            "source": "data{{ layerId }}"",
             "type": "symbol",
             "layout": {
                 {% if labelProperty %}
@@ -77,17 +73,17 @@
         }, "{{belowLayer}}" );
 
         {% endblock linestring %}
-
-        // Create a popup
-        var popup = new mapboxgl.Popup({
-            closeButton: false,
-            closeOnClick: false
-        });
         
         {% block linestring_popup %}
 
+        // Create a popup
+        var popup{{ layerId }} = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+
         // Show the popup on mouseover
-        map.on('mousemove', 'linestring', function(e) {
+        map.on('mousemove', "linestring{{ layerId }}", function(e) {
             map.getCanvas().style.cursor = 'pointer';
             
             let f = e.features[0];
@@ -98,20 +94,20 @@
             }
 
             popup_html += '</div>'
-            popup.setLngLat(e.lngLat)
+            popup{{ layerId }}.setLngLat(e.lngLat)
                 .setHTML(popup_html)
                 .addTo(map);
         });
 
         {% endblock linestring_popup %}
 
-        map.on('mouseleave', 'linestring', function() {
+        map.on('mouseleave', "linestring{{ layerId }}", function() {
             map.getCanvas().style.cursor = '';
-            popup.remove();
+            popup{{ layerId }}.remove();
         });
         
         // Fly to on click
-        map.on('click', 'linestring', function(e) {
+        map.on('click', "linestring{{ layerId }}", function(e) {
             map.flyTo({
                 center: e.lngLat,
                 zoom: map.getZoom() + 1
@@ -120,4 +116,4 @@
 
     });
 
-{% endblock map %}
+{% endblock extra_javascript %}

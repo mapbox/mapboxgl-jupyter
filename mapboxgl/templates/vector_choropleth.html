@@ -27,16 +27,16 @@
     {% endif %}
 
     // Add vector data source
-    map.addSource("vector-data", {
+    map.addSource("data{{ layerId }}", {
         type: "vector",
         url: "{{ vectorUrl }}",
     });
 
     // Add layer from the vector tile source with data-driven style
     map.addLayer({
-        "id": "choropleth-fill",
+        "id": "choropleth-fill{{ layerId }}",
         "type": "fill",
-        "source": "vector-data",
+        "source": "data{{ layerId }}",
         "source-layer": "{{ vectorLayer }}",
         "paint": {
             "fill-color": {
@@ -52,8 +52,8 @@
 
     // Add border layer
     map.addLayer({
-        "id": "choropleth-line",
-        "source": "vector-data",
+        "id": "choropleth-line{{ layerId }}",
+        "source": "data{{ layerId }}",
         "source-layer": "{{ vectorLayer }}",
         "type": "line",
         "layout": {
@@ -73,8 +73,8 @@
 
     // Add label layer
     map.addLayer({
-        "id": "choropleth-label",
-        "source": "vector-data",
+        "id": "choropleth-label{{ layerId }}",
+        "source": "data{{ layerId }}",
         "source-layer": "{{ vectorLayer }}",
         "type": "symbol",
         "layout": {
@@ -95,9 +95,9 @@
     {% if extrudeChoropleth %}
     
         map.addLayer({
-            id: "choropleth-extrusion",
+            id: "choropleth-extrusion{{ layerId }}",
             type: "fill-extrusion",            
-            "source": "vector-data",
+            "source": "data{{ layerId }}",
             "source-layer": "{{ vectorLayer }}",
             paint: {
                 "fill-extrusion-opacity": {{ opacity }},
@@ -123,8 +123,14 @@
 
 {% block choropleth_popup %}
 
+    // Create a popup
+    var popup{{ layerId }} = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+    });
+
     // Show the popup on mouseover
-    map.on('mousemove', 'choropleth-fill', function(e) {
+    map.on('mousemove', "choropleth-fill{{ layerId }}", function(e) {
         map.getCanvas().style.cursor = 'pointer';
         
         let f = e.features[0];
@@ -144,7 +150,7 @@
         {% endif %}
 
         popup_html += '</div>'
-        popup.setLngLat(e.lngLat)
+        popup{{ layerId }}.setLngLat(e.lngLat)
             .setHTML(popup_html)
             .addTo(map);
     });

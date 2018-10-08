@@ -1,25 +1,19 @@
-{% extends "base.html" %}
+{% extends "layer.html" %}
 
 <!-- update legend item key style -->
 {% block extra_css %}
-<style>
     .gradient-bar.bordered, .legend-key.bordered { border: solid {{ strokeColor }} {{ strokeWidth }}px; }
-</style>
 {% endblock extra_css %}
 
-{% block legend %}
+{% block extra_javascript %}
     
     {% if showLegend %}
-        calcColorLegend({{ colorStops }}, "Point Density");
+        calcColorLegend({{ colorStops }}, "Point Density", {{ layerId }}, "{{legendKeyShape}}", {{legendGradient}}, {{legendNumericPrecision}}, "{{legendLayout}}" );
     {% endif %}
 
-{% endblock legend %}
-
-{% block map %}
-
     map.on('style.load', function() {
-        
-        map.addSource("data", {
+
+        map.addSource("data{{ layerId }}", {
             "type": "geojson",
             "data": {{ geojson_data }}, //data from dataframe output to geojson
             "buffer": 0,
@@ -30,11 +24,11 @@
         });
 
         map.addLayer({
-            "id": "label",
-            "source": "data",
+            "id": "label{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "symbol",
-            "maxzoom": {{ maxzoom }},
-            "minzoom": {{ minzoom }},
+            "maxzoom": {{ maxZoom }},
+            "minzoom": {{ minZoom }},
             "layout": {
                 "text-field": "{point_count_abbreviated}",
                 "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
@@ -47,11 +41,11 @@
         }, "{{belowLayer}}" )
 
         map.addLayer({
-            "id": "circle-cluster",
-            "source": "data",
+            "id": "circle-cluster{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "circle",
-            "maxzoom": {{ maxzoom }},
-            "minzoom": {{ minzoom }},
+            "maxzoom": {{ maxZoom }},
+            "minzoom": {{ minZoom }},
             "filter": ["has", "point_count"],
             "paint": {
                 "circle-color": generateInterpolateExpression( "point_count", {{ colorStops }} ),
@@ -61,14 +55,14 @@
                 "circle-opacity" : {{ opacity }},
                 "circle-stroke-opacity" : {{ opacity }}
             }
-        }, "label");
+        }, "label{{ layerId }}");
 
         map.addLayer({
-            "id": "circle-unclustered",
-            "source": "data",
+            "id": "circle-unclustered{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "circle",
-            "maxzoom": {{ maxzoom }},
-            "minzoom": {{ minzoom }},
+            "maxzoom": {{ maxZoom }},
+            "minzoom": {{ minZoom }},
             "filter": ["!has", "point_count"],
             "paint": {
                 "circle-color": "{{ colorDefault }}",
@@ -78,16 +72,16 @@
                 "circle-opacity" : {{ opacity }},
                 "circle-stroke-opacity" : {{ opacity }}
             }
-        }, "circle-cluster");
+        }, "circle-cluster{{ layerId }}");
         
         // Create a popup
-        var popup = new mapboxgl.Popup({
+        var popup{{ layerId }} = new mapboxgl.Popup({
             closeButton: false,
             closeOnClick: false
         });
         
         // Show the popup on mouseover
-        map.on('mousemove', 'circle-unclustered', function(e) {
+        map.on('mousemove', "circle-unclustered{{ layerId }}", function(e) {
             map.getCanvas().style.cursor = 'pointer';
             let f = e.features[0];
             let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
@@ -99,12 +93,12 @@
 
             popup_html += '</div>'
 
-            popup.setLngLat(e.features[0].geometry.coordinates)
+            popup{{ layerId }}.setLngLat(e.features[0].geometry.coordinates)
                 .setHTML(popup_html)
                 .addTo(map);
         });
 
-        map.on('mousemove', 'circle-cluster', function(e) {
+        map.on('mousemove', "circle-cluster{{ layerId }}", function(e) {
             map.getCanvas().style.cursor = 'pointer';
             let f = e.features[0];
             let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
@@ -114,30 +108,30 @@
 
             popup_html += '</div>'
 
-            popup.setLngLat(e.features[0].geometry.coordinates)
+            popup{{ layerId }}.setLngLat(e.features[0].geometry.coordinates)
                 .setHTML(popup_html)
                 .addTo(map);
         });
 
-        map.on('mouseleave', 'circle-unclustered', function() {
+        map.on('mouseleave', "circle-unclustered{{ layerId }}", function() {
             map.getCanvas().style.cursor = '';
-            popup.remove();
+            popup{{ layerId }}.remove();
         });
 
-        map.on('mouseleave', 'circle-cluster', function() {
+        map.on('mouseleave', "circle-cluster{{ layerId }}", function() {
             map.getCanvas().style.cursor = '';
-            popup.remove();
+            popup{{ layerId }}.remove();
         });
         
 
-        map.on('click', 'circle-unclustered', function(e) {
+        map.on('click', "circle-unclustered{{ layerId }}", function(e) {
             map.easeTo({
                 center: e.features[0].geometry.coordinates,
                 zoom: map.getZoom() + 1
             });
         });
 
-        map.on('click', 'circle-cluster', function(e) {
+        map.on('click', "circle-cluster{{ layerId }}", function(e) {
             map.easeTo({
                 center: e.features[0].geometry.coordinates,
                 zoom: map.getZoom() + 1
@@ -145,4 +139,4 @@
         });
     });
 
-{% endblock map %}
+{% endblock extra_javascript %}

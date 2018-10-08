@@ -1,27 +1,21 @@
-{% extends "base.html" %}
+{% extends "layer.html" %}
 
 <!-- update legend item key style -->
 {% block extra_css %}
-<style>
     .gradient-bar.bordered, .legend-key.bordered { border: solid {{ strokeColor }} {{ strokeWidth }}px; }
-</style>
 {% endblock extra_css %}
 
-{% block legend %}
+{% block extra_javascript %}
     
     {% if showLegend %}
         {% if colorStops and colorProperty and radiusProperty %}
-            calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+            calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}", {{ layerId }}, "{{legendKeyShape}}", {{legendGradient}}, {{legendNumericPrecision}}, "{{legendLayout}}" );
         {% endif %}
     {% endif %}
 
-{% endblock legend %}
-
-{% block map %}
-
     map.on('style.load', function() {
         
-        map.addSource("data", {
+        map.addSource("data{{ layerId }}", {
             "type": "geojson",
             "data": {{ geojson_data }}, //data from dataframe output to geojson
             "buffer": 0,
@@ -29,11 +23,11 @@
         });
 
         map.addLayer({
-            "id": "label",
-            "source": "data",
+            "id": "label{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "symbol",
-            "maxzoom": {{ maxzoom }},
-            "minzoom": {{ minzoom }},
+            "maxzoom": {{ maxZoom }},
+            "minzoom": {{ minZoom }},
             "layout": {
                 {% if labelProperty %}
                 "text-field": "{{ labelProperty }}",
@@ -49,11 +43,11 @@
         }, "{{belowLayer}}" )
 
         map.addLayer({
-            "id": "circle",
-            "source": "data",
+            "id": "circle{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "circle",
-            "maxzoom": {{ maxzoom }},
-            "minzoom": {{ minzoom }},
+            "maxzoom": {{ maxZoom }},
+            "minzoom": {{ minZoom }},
             "paint": {
                 {% if colorProperty %}
                     "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
@@ -70,16 +64,16 @@
                 "circle-opacity" : {{ opacity }},
                 "circle-stroke-opacity" : {{ opacity }}
             }
-        }, "label");
+        }, "label{{ layerId }}");
         
         // Create a popup
-        var popup = new mapboxgl.Popup({
+        var popup{{ layerId }} = new mapboxgl.Popup({
             closeButton: false,
             closeOnClick: false
         });
         
         // Show the popup on mouseover
-        map.on('mousemove', 'circle', function(e) {
+        map.on('mousemove', "circle{{ layerId }}", function(e) {
             map.getCanvas().style.cursor = 'pointer';
             let f = e.features[0];
             let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
@@ -91,18 +85,18 @@
 
             popup_html += '</div>'
 
-            popup.setLngLat(e.features[0].geometry.coordinates)
+            popup{{ layerId }}.setLngLat(e.features[0].geometry.coordinates)
                 .setHTML(popup_html)
                 .addTo(map);
         });
 
-        map.on('mouseleave', 'circle', function() {
+        map.on('mouseleave', "circle{{ layerId }}", function() {
             map.getCanvas().style.cursor = '';
-            popup.remove();
+            popup{{ layerId }}.remove();
         });
         
         // Fly to on click
-        map.on('click', 'circle', function(e) {
+        map.on('click', "circle{{ layerId }}", function(e) {
             map.easeTo({
                 center: e.features[0].geometry.coordinates,
                 zoom: map.getZoom() + 1
@@ -110,4 +104,4 @@
         });
     });
     
-{% endblock map %}
+{% endblock extra_javascript %}

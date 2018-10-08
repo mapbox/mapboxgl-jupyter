@@ -1,12 +1,10 @@
-{% extends "base.html" %}
+{% extends "layer.html" %}
 
-{% block legend %}{% endblock legend %}
-
-{% block map %}
+{% block extra_javascript %}
 
     map.on('style.load', function() {
 
-        map.addSource("data", {
+        map.addSource("data{{ layerId }}", {
             "type": "geojson",
             "data": {{ geojson_data }}, //data from dataframe output to geojson
             "buffer": 0,
@@ -14,11 +12,11 @@
         });
 
         map.addLayer({
-            "id": "circle",
-            "source": "data",
+            "id": "circle{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "heatmap",
-            "maxzoom": {{ maxzoom }},
-            "minzoom": {{ minzoom }},
+            "maxzoom": {{ maxZoom }},
+            "minzoom": {{ minZoom }},
             "paint": {
                 {% if radiusStops %}
                     "heatmap-radius": generatePropertyExpression('interpolate', 'zoom', {{ radiusStops }}),
@@ -38,4 +36,4 @@
 
     });
 
-{% endblock map %}
+{% endblock extra_javascript %}

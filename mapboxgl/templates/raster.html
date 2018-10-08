@@ -1,11 +1,8 @@
-{% extends "base.html" %}
+{% extends "layer.html" %}
 
-{% block legend %}{% endblock legend %}
-
-{% block map %}
+{% block extra_javascript %}
 
     map.on('style.load', function() {
-      console.log('Yoooooo');
         let params = {
             "type": "raster",
             "tiles": [
@@ -17,14 +14,14 @@
         }
         if ({{ tiles_bounds }} !== undefined) params.bounds = {{ tiles_bounds }};
 
-        map.addSource("raster-tiles", params);
+        map.addSource("raster-tiles{{ "rater-layer{{ layerId }}" }}", params);
 
         map.addLayer({
-            "id": "raster-tiles",
+            "id": "rater-layer{{ layerId }}",
             "type": "raster",
-            "source": "raster-tiles"
+            "source": "raster-tiles{{ "rater-layer{{ layerId }}" }}",
         }, "{{belowLayer}}" );
 
     });
 
-{% endblock map %}
+{% endblock extra_javascript %}
