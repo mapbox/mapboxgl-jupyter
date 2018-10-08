@@ -253,6 +253,7 @@ class HeatmapViz(MapViz):
 
     def __init__(self,
                  data,
+                 label_property=None,
                  weight_property=None,
                  weight_stops=None,
                  color_stops=None,
@@ -273,6 +274,7 @@ class HeatmapViz(MapViz):
 
         self.__dict__['layer'] = HeatmapLayer(
             data=data,
+            label_property=label_property,
             weight_property=weight_property,
             weight_stops=weight_stops,
             color_stops=color_stops,

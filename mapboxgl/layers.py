@@ -232,6 +232,7 @@ class HeatmapLayer(AbstractLayer):
 
     def __init__(self,
                  data,
+                 label_property=None,
                  weight_property=None,
                  weight_stops=None,
                  color_stops=None,
@@ -251,6 +252,7 @@ class HeatmapLayer(AbstractLayer):
         super(HeatmapLayer, self).__init__(data, *args, **kwargs)
 
         self.template = 'heatmap'
+        self.label_property = label_property
         self.weight_property = weight_property
         self.weight_stops = weight_stops
         if color_stops:
