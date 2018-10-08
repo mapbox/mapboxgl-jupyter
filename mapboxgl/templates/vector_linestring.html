@@ -29,20 +29,16 @@
 
     {% endif %}
 
-    sourceId = "data{{ layerId }}"
-    linestringId = "linestring{{ layerId }}";
-    labelId = "label{{ layerId }}";
-
     // Add vector data source
-    map.addSource(sourceId, {
+    map.addSource("data{{ layerId }}", {
         type: "vector",
         url: "{{ vectorUrl }}",
     });
 
     // Add data layer from the vector tile source with data-driven style
     map.addLayer({
-        "id": linestringId,
-        "source": sourceId,
+        "id": "linestring{{ layerId }}",
+        "source": "data{{ layerId }}",
         "source-layer": "{{ vectorLayer }}",
         "type": "line",
         "layout": {
@@ -73,8 +69,8 @@
 
     // Add label layer
     map.addLayer({
-        "id": labelId,
-        "source": sourceId,
+        "id": "label{{ layerId }}",
+        "source": "data{{ layerId }}",
         "source-layer": "{{ vectorLayer }}",
         "type": "symbol",
         "layout": {
@@ -103,7 +99,7 @@
     });
 
     // Show the popup on mouseover
-    map.on('mousemove', linestringId, function(e) {
+    map.on('mousemove', "linestring{{ layerId }}", function(e) {
         map.getCanvas().style.cursor = 'pointer';
         
         let f = e.features[0];

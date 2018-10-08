@@ -4,12 +4,7 @@
 
     map.on('style.load', function() {
 
-        sourceId = "data{{ layerId }}";
-        labelId = "label{{ layerId }}";
-        circleId = "circle{{ layerId }}";
-        popupId = "popup{{ layerId }}";
-
-        map.addSource(sourceId, {
+        map.addSource("data{{ layerId }}", {
             "type": "geojson",
             "data": {{ geojson_data }}, //data from dataframe output to geojson
             "buffer": 0,
@@ -17,8 +12,8 @@
         });
 
         map.addLayer({
-            "id": circleId,
-            "source": sourceId,
+            "id": "circle{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "heatmap",
             "maxzoom": {{ maxZoom }},
             "minzoom": {{ minZoom }},

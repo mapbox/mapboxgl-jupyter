@@ -24,14 +24,8 @@
         
         {% block choropleth %}
 
-        sourceId = "data{{ layerId }}"
-        choroplethFillId = "choropleth-fill{{ layerId }}";
-        choroplethLineId = "choropleth-line{{ layerId }}";
-        choroplethLabelId = "choropleth-label{{ layerId }}";
-        choroplethExtrusionId = "choropleth-extrusion{{ layerId }}";
-
         // Add geojson data source
-        map.addSource(sourceId, {
+        map.addSource("data{{ layerId }}", {
             "type": "geojson",
             "data": {{ geojson_data }},
             "buffer": 1,
@@ -42,8 +36,8 @@
         {% if extrudeChoropleth %}
 
             map.addLayer({
-                id: choroplethExtrusionId,
-                source: sourceId,
+                id: "choropleth-extrusion{{ layerId }}",
+                source: "data{{ layerId }}",
                 type: "fill-extrusion",
                 paint: {
                     "fill-extrusion-opacity": {{ opacity }},
@@ -56,8 +50,8 @@
 
             // Add data layer
             map.addLayer({
-                "id": choroplethFillId,
-                "source": sourceId,
+                "id": "choropleth-fill{{ layerId }}",
+                "source": "data{{ layerId }}",
                 "type": "fill",
                 "paint": {
                     "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
@@ -67,8 +61,8 @@
 
             // Add border layer
             map.addLayer({
-                "id": choroplethLineId,
-                "source": sourceId,
+                "id": "choropleth-line{{ layerId }}",
+                "source": "data{{ layerId }}",
                 "type": "line",
                 "layout": {
                     "line-join": "round",
@@ -86,8 +80,8 @@
 
             // Add label layer
             map.addLayer({
-                "id": choroplethLabelId,
-                "source": sourceId,
+                "id": "choropleth-label{{ layerId }}",
+                "source": "data{{ layerId }}",
                 "type": "symbol",
                 "layout": {
                     {% if labelProperty %}
@@ -118,7 +112,7 @@
             });
 
             // Show the popup on mouseover
-            map.on('mousemove', choroplethExtrusionId, function(e) {
+            map.on('mousemove', "choropleth-extrusion{{ layerId }}", function(e) {
                 map.getCanvas().style.cursor = 'pointer';
 
                 let f = e.features[0];
@@ -134,13 +128,13 @@
                     .addTo(map);
             });
     9
-            map.on('mouseleave', choroplethExtrusionId, function() {
+            map.on('mouseleave', "choropleth-extrusion{{ layerId }}", function() {
                 map.getCanvas().style.cursor = '';
                 popup{{ layerId }}.remove();
             });
 
             // Fly to on click
-            map.on('click', choroplethExtrusionId, function(e) {
+            map.on('click', "choropleth-extrusion{{ layerId }}", function(e) {
                 map.flyTo({
                     center: e.lngLat,
                     zoom: map.getZoom() + 1
@@ -150,7 +144,7 @@
         {% else %}
 
             // Show the popup on mouseover
-            map.on('mousemove', choroplethFillId, function(e) {
+            map.on('mousemove', "choropleth-fill{{ layerId }}", function(e) {
                 map.getCanvas().style.cursor = 'pointer';
 
                 let f = e.features[0];
@@ -167,13 +161,13 @@
             });
 
 
-            map.on('mouseleave', choroplethFillId, function() {
+            map.on('mouseleave', "choropleth-fill{{ layerId }}", function() {
                 map.getCanvas().style.cursor = '';
                 popup{{ layerId }}.remove();
             });
 
             // Fly to on click
-            map.on('click', choroplethFillId, function(e) {
+            map.on('click', "choropleth-fill{{ layerId }}", function(e) {
                 map.flyTo({
                     center: e.lngLat,
                     zoom: map.getZoom() + 1

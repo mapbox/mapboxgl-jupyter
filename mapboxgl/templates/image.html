@@ -4,19 +4,16 @@
 
     map.on('style.load', function() {
 
-        sourceId = "data{{ layerId }}";
-        layerId = "image{{ layerId }}";
-
-      map.addSource(sourceId, {
+      map.addSource("data{{ "image{{ layerId }}" }}", {
          "type": "image",
          "url": "{{ image }}", // url or base64 encoded image
          "coordinates": {{ coordinates }}
       });
 
       map.addLayer({
-        "id": layerId,
+        "id": "image{{ layerId }}",
         "type": "raster",
-        "source": sourceId
+        "source": "data{{ "image{{ layerId }}" }}"
       }, "{{belowLayer}}");
 
     });

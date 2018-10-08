@@ -26,23 +26,17 @@
 
     {% endif %}
 
-    sourceId = "data{{ layerId }}"
-    choroplethFillId = "choropleth-fill{{ layerId }}";
-    choroplethLineId = "choropleth-line{{ layerId }}";
-    choroplethLabelId = "choropleth-label{{ layerId }}";
-    choroplethExtrusionId = "choropleth-extrusion{{ layerId }}";
-
     // Add vector data source
-    map.addSource(sourceId, {
+    map.addSource("data{{ layerId }}", {
         type: "vector",
         url: "{{ vectorUrl }}",
     });
 
     // Add layer from the vector tile source with data-driven style
     map.addLayer({
-        "id": choroplethFillId,
+        "id": "choropleth-fill{{ layerId }}",
         "type": "fill",
-        "source": sourceId,
+        "source": "data{{ layerId }}",
         "source-layer": "{{ vectorLayer }}",
         "paint": {
             "fill-color": {
@@ -58,8 +52,8 @@
 
     // Add border layer
     map.addLayer({
-        "id": choroplethLineId,
-        "source": sourceId,
+        "id": "choropleth-line{{ layerId }}",
+        "source": "data{{ layerId }}",
         "source-layer": "{{ vectorLayer }}",
         "type": "line",
         "layout": {
@@ -79,8 +73,8 @@
 
     // Add label layer
     map.addLayer({
-        "id": choroplethLabelId,
-        "source": sourceId,
+        "id": "choropleth-label{{ layerId }}",
+        "source": "data{{ layerId }}",
         "source-layer": "{{ vectorLayer }}",
         "type": "symbol",
         "layout": {
@@ -101,9 +95,9 @@
     {% if extrudeChoropleth %}
     
         map.addLayer({
-            id: choroplethExtrusionId,
+            id: "choropleth-extrusion{{ layerId }}",
             type: "fill-extrusion",            
-            "source": sourceId,
+            "source": "data{{ layerId }}",
             "source-layer": "{{ vectorLayer }}",
             paint: {
                 "fill-extrusion-opacity": {{ opacity }},
@@ -136,7 +130,7 @@
     });
 
     // Show the popup on mouseover
-    map.on('mousemove', choroplethFillId, function(e) {
+    map.on('mousemove', "choropleth-fill{{ layerId }}", function(e) {
         map.getCanvas().style.cursor = 'pointer';
         
         let f = e.features[0];

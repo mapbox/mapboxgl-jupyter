@@ -13,13 +13,7 @@
 
     map.on('style.load', function() {
 
-        sourceId = "data{{ layerId }}";
-        labelId = "label{{ layerId }}";
-        circleClusterId = "circle-cluster{{ layerId }}";
-        circleUnclusterId = "circle-unclustered{{ layerId }}";
-        popupId = "popup{{ layerId }}";
-        
-        map.addSource(sourceId, {
+        map.addSource("data{{ layerId }}", {
             "type": "geojson",
             "data": {{ geojson_data }}, //data from dataframe output to geojson
             "buffer": 0,
@@ -30,8 +24,8 @@
         });
 
         map.addLayer({
-            "id": labelId,
-            "source": sourceId,
+            "id": "label{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "symbol",
             "maxzoom": {{ maxZoom }},
             "minzoom": {{ minZoom }},
@@ -47,8 +41,8 @@
         }, "{{belowLayer}}" )
 
         map.addLayer({
-            "id": circleClusterId,
-            "source": sourceId,
+            "id": "circle-cluster{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "circle",
             "maxzoom": {{ maxZoom }},
             "minzoom": {{ minZoom }},
@@ -61,11 +55,11 @@
                 "circle-opacity" : {{ opacity }},
                 "circle-stroke-opacity" : {{ opacity }}
             }
-        }, labelId);
+        }, "label{{ layerId }}");
 
         map.addLayer({
-            "id": circleUnclusterId,
-            "source": sourceId,
+            "id": "circle-unclustered{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "circle",
             "maxzoom": {{ maxZoom }},
             "minzoom": {{ minZoom }},
@@ -78,7 +72,7 @@
                 "circle-opacity" : {{ opacity }},
                 "circle-stroke-opacity" : {{ opacity }}
             }
-        }, circleClusterId);
+        }, "circle-cluster{{ layerId }}");
         
         // Create a popup
         var popup{{ layerId }} = new mapboxgl.Popup({
@@ -87,7 +81,7 @@
         });
         
         // Show the popup on mouseover
-        map.on('mousemove', circleUnclusterId, function(e) {
+        map.on('mousemove', "circle-unclustered{{ layerId }}", function(e) {
             map.getCanvas().style.cursor = 'pointer';
             let f = e.features[0];
             let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
@@ -104,7 +98,7 @@
                 .addTo(map);
         });
 
-        map.on('mousemove', circleClusterId, function(e) {
+        map.on('mousemove', "circle-cluster{{ layerId }}", function(e) {
             map.getCanvas().style.cursor = 'pointer';
             let f = e.features[0];
             let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
@@ -119,25 +113,25 @@
                 .addTo(map);
         });
 
-        map.on('mouseleave', circleUnclusterId, function() {
+        map.on('mouseleave', "circle-unclustered{{ layerId }}", function() {
             map.getCanvas().style.cursor = '';
             popup{{ layerId }}.remove();
         });
 
-        map.on('mouseleave', circleClusterId, function() {
+        map.on('mouseleave', "circle-cluster{{ layerId }}", function() {
             map.getCanvas().style.cursor = '';
             popup{{ layerId }}.remove();
         });
         
 
-        map.on('click', circleUnclusterId, function(e) {
+        map.on('click', "circle-unclustered{{ layerId }}", function(e) {
             map.easeTo({
                 center: e.features[0].geometry.coordinates,
                 zoom: map.getZoom() + 1
             });
         });
 
-        map.on('click', circleClusterId, function(e) {
+        map.on('click', "circle-cluster{{ layerId }}", function(e) {
             map.easeTo({
                 center: e.features[0].geometry.coordinates,
                 zoom: map.getZoom() + 1

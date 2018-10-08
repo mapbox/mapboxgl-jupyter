@@ -2,9 +2,6 @@
 
 {% block extra_javascript %}
 
-    sourceId = "raster-tiles{{ layerId }}";
-    layerId = "rater-layer{{ layerId }}";
-
     map.on('style.load', function() {
         let params = {
             "type": "raster",
@@ -17,12 +14,12 @@
         }
         if ({{ tiles_bounds }} !== undefined) params.bounds = {{ tiles_bounds }};
 
-        map.addSource(sourceId, params);
+        map.addSource("raster-tiles{{ "rater-layer{{ layerId }}" }}", params);
 
         map.addLayer({
-            "id": layerId,
+            "id": "rater-layer{{ layerId }}",
             "type": "raster",
-            "source": sourceId,
+            "source": "raster-tiles{{ "rater-layer{{ layerId }}" }}",
         }, "{{belowLayer}}" );
 
     });

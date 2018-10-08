@@ -14,12 +14,7 @@
 
     map.on('style.load', function() {
 
-        sourceId = "data{{ layerId }}";
-        labelId = "label{{ layerId }}";
-        circleId = "circle{{ layerId }}";
-        popupId = "popup{{ layerId }}";
-        
-        map.addSource(sourceId, {
+        map.addSource("data{{ layerId }}", {
             "type": "geojson",
             "data": {{ geojson_data }},
             "buffer": 1,
@@ -27,8 +22,8 @@
         });
 
         map.addLayer({
-            "id": labelId,
-            "source": sourceId,
+            "id": "label{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "symbol",
             "maxzoom": {{ maxZoom }},
             "minzoom": {{ minZoom }},
@@ -47,8 +42,8 @@
         }, "{{belowLayer}}" )
         
         map.addLayer({
-            "id": circleId,
-            "source": sourceId,
+            "id": "circle{{ layerId }}",
+            "source": "data{{ layerId }}",
             "type": "circle",
             "maxzoom": {{ maxZoom }},
             "minzoom": {{ minZoom }},
@@ -64,7 +59,7 @@
                 "circle-opacity" : {{ opacity }},
                 "circle-stroke-opacity" : {{ opacity }}
             }
-        }, labelId);
+        }, "label{{ layerId }}");
         
         // Create a popup
         var popup{{ layerId }} = new mapboxgl.Popup({
@@ -73,7 +68,7 @@
         });
         
         // Show the popup on mouseover
-        map.on('mousemove', circleId, function(e) {
+        map.on('mousemove', "circle{{ layerId }}", function(e) {
             map.getCanvas().style.cursor = 'pointer';
             
             let f = e.features[0];
@@ -90,13 +85,13 @@
                 .addTo(map);
         });
 
-        map.on('mouseleave', circleId, function() {
+        map.on('mouseleave', "circle{{ layerId }}", function() {
             map.getCanvas().style.cursor = '';
             popup{{ layerId }}.remove();
         });
         
         // Fly to on click
-        map.on('click', circleId, function(e) {
+        map.on('click', "circle{{ layerId }}", function(e) {
             map.easeTo({
                 center: e.features[0].geometry.coordinates,
                 zoom: map.getZoom() + 1
