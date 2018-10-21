@@ -136,8 +136,25 @@ def test_display_CircleViz(display, data):
     """Assert that show calls the mocked display function
     """
     viz = CircleViz(data,
-                    color_property="Avg Medicare Payments",
-                    label_property="Avg Medicare Payments",
+                    color_property='Avg Medicare Payments',
+                    label_property='Avg Medicare Payments',
+                    access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_vector_CircleViz(display):
+    """Assert that show calls the mocked display function when using data-join technique
+    for CircleViz.
+    """
+    viz = CircleViz([],
+                    vector_url='mapbox://rsbaumann.2pgmr66a',
+                    vector_layer_name='healthcare-points-2yaw54',
+                    vector_join_property='Provider Id',
+                    data_join_property='Provider Id',
+                    color_property='Avg Medicare Payments',
+                    label_property='Avg Medicare Payments',
                     access_token=TOKEN)
     viz.show()
     display.assert_called_once()
@@ -148,13 +165,35 @@ def test_display_GraduatedCircleViz(display, data):
     """Assert that show calls the mocked display function
     """
     viz = GraduatedCircleViz(data,
-                             color_property="Avg Medicare Payments",
-                             label_property="Avg Medicare Payments",
-                             radius_property="Avg Covered Charges",
-                             radius_function_type="match",
-                             color_function_type="match",
+                             color_property='Avg Medicare Payments',
+                             label_property='Avg Medicare Payments',
+                             radius_property='Avg Covered Charges',
+                             radius_function_type='match',
+                             color_function_type='match',
                              radius_default=2,
-                             color_default="red",
+                             color_default='red',
+                             access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_vector_GraduatedCircleViz(display):
+    """Assert that show calls the mocked display function when using data-join technique
+    for CircleViz.
+    """
+    viz = GraduatedCircleViz([],
+                             vector_url='mapbox://rsbaumann.2pgmr66a',
+                             vector_layer_name='healthcare-points-2yaw54',
+                             vector_join_property='Provider Id',
+                             data_join_property='Provider Id',
+                             color_property='Avg Medicare Payments',
+                             label_property='Avg Medicare Payments',
+                             radius_property='Avg Covered Charges',
+                             radius_function_type='match',
+                             color_function_type='match',
+                             radius_default=2,
+                             color_default='red',
                              access_token=TOKEN)
     viz.show()
     display.assert_called_once()
@@ -165,9 +204,27 @@ def test_display_HeatmapViz(display, data):
     """Assert that show calls the mocked display function
     """
     viz = HeatmapViz(data,
-                     weight_property="Avg Medicare Payments",
+                     weight_property='Avg Medicare Payments',
                      weight_stops=[[10, 0], [100, 1]],
-                     color_stops=[[0, "red"], [0.5, "blue"], [1, "green"]],
+                     color_stops=[[0, 'red'], [0.5, 'blue'], [1, 'green']],
+                     radius_stops=[[0, 1], [12, 30]],
+                     access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_vector_HeatmapViz(display, data):
+    """Assert that show calls the mocked display function
+    """
+    viz = HeatmapViz([],
+                     vector_url='mapbox://rsbaumann.2pgmr66a',
+                     vector_layer_name='healthcare-points-2yaw54',
+                     vector_join_property='Provider Id',
+                     data_join_property='Provider Id',                     
+                     weight_property='Avg Medicare Payments',
+                     weight_stops=[[10, 0], [100, 1]],
+                     color_stops=[[0, 'red'], [0.5, 'blue'], [1, 'green']],
                      radius_stops=[[0, 1], [12, 30]],
                      access_token=TOKEN)
     viz.show()

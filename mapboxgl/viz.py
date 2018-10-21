@@ -5,20 +5,82 @@ import os
 from IPython.core.display import HTML, display
 
 import numpy
+import requests
 
 from mapboxgl.errors import TokenError
-from mapboxgl.utils import color_map, height_map
+from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_list
 from mapboxgl import templates
-from mapboxgl.utils import img_encode, numeric_map
 
 
 GL_JS_VERSION = 'v0.49.0'
+
+
+class VectorMixin(object):
+
+    def generate_vector_color_map(self):
+        """Generate color stops array for use with match expression in mapbox template"""
+        vector_stops = []
+
+        # if join data specified as filename or URL, parse JSON to list of Python dicts
+        if type(self.data) == str:
+            self.data = geojson_to_dict_list(self.data)
+
+        # loop through features in self.data to create join-data map
+        for row in self.data:
+            
+            # map color to JSON feature using color_property
+            color = color_map(row[self.color_property], self.color_stops, self.color_default)
+
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], color])
+
+        return vector_stops
+
+    def generate_vector_numeric_map(self, numeric_property):
+        """Generate stops array for use with match expression in mapbox template"""
+        vector_stops = []
+        
+        function_type = getattr(self, '{}_function_type'.format(numeric_property))
+        lookup_property = getattr(self, '{}_property'.format(numeric_property))
+        numeric_stops = getattr(self, '{}_stops'.format(numeric_property))
+        default = getattr(self, '{}_default'.format(numeric_property))
+
+        if function_type == 'match':
+            match_width = numeric_stops
+
+        # if join data specified as filename or URL, parse JSON to list of Python dicts
+        if type(self.data) == str:
+            self.data = geojson_to_dict_list(self.data)
+
+        for row in self.data:
+
+            # map value to JSON feature using the numeric property
+            value = numeric_map(row[lookup_property], numeric_stops, default)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], value])
+
+        return vector_stops
+
+    def check_vector_template(self):
+        """Determines if features are defined as vector source based on MapViz arguments."""
+
+        if self.vector_url is not None and self.vector_layer_name is not None:
+            self.template = 'vector_' + self.template
+            self.vector_source = True
+        else:
+            self.vector_source = False
 
 
 class MapViz(object):
 
     def __init__(self,
                  data,
+                 vector_url=None,
+                 vector_layer_name=None,
+                 vector_join_property=None,
+                 data_join_property=None,
+                 disable_data_join=False,
                  access_token=None,
                  center=(0, 0),
                  below_layer='',
@@ -26,6 +88,11 @@ class MapViz(object):
                  div_id='map',
                  height='500px',
                  style='mapbox://styles/mapbox/light-v9?optimize=true',
+                 label_property=None,
+                 label_size=8,
+                 label_color='#131516',
+                 label_halo_color='white',
+                 label_halo_width=1,
                  width='100%',
                  zoom=0,
                  min_zoom=0,
@@ -50,9 +117,20 @@ class MapViz(object):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
+        :param vector_url: optional property to define vector data source
+        :param vector_layer_name: property to define target layer of vector source
+        :param vector_join_property: property to aid in determining color for styling vector layer
+        :param data_join_property: property to join json data to vector features
+        :param disable_data_join: property to switch off default data-join technique using vector layer and JSON join-data; 
+                                  also determines if a layer filter based on joined data is applied to features in vector layer
         :param access_token: Mapbox GL JS access token.
         :param center: map center point
         :param style: url to mapbox style or stylesheet as a Python dictionary in JSON format
+        :param label_property: property to use for marker label
+        :param label_size: size of label text
+        :param label_color: color of label text
+        :param label_halo_color: color of label text halo
+        :param label_halo_width: width of label text halo
         :param div_id: The HTML div id of the map container in the viz
         :param width: The CSS width of the HTML div id in % or pixels.
         :param height: The CSS height of the HTML map div in % or pixels.
@@ -84,8 +162,21 @@ class MapViz(object):
                              'Please sign up at https://www.mapbox.com/signup/ to get a public token. ' \
                              'If you already have an account, you can retreive your token at https://www.mapbox.com/account/.')
         self.access_token = access_token
-        self.template = 'map'
+
         self.data = data
+        
+        self.vector_url = vector_url
+        self.vector_layer_name = vector_layer_name
+        self.vector_join_property = vector_join_property
+        self.data_join_property = data_join_property
+        self.disable_data_join = disable_data_join
+
+        self.template = 'map'
+        try:
+            self.check_vector_template()
+        except AttributeError:
+            self.vector_source = False
+
         self.div_id = div_id
         self.width = width
         self.height = height
@@ -94,7 +185,11 @@ class MapViz(object):
         self.zoom = zoom
         self.below_layer = below_layer
         self.opacity = opacity
-        self.label_property = None
+        self.label_property = label_property
+        self.label_color = label_color
+        self.label_size = label_size
+        self.label_halo_color = label_halo_color
+        self.label_halo_width = label_halo_width
         self.min_zoom = min_zoom
         self.max_zoom = max_zoom
         self.pitch = pitch
@@ -139,10 +234,12 @@ class MapViz(object):
 
     def create_html(self, filename=None):
         """Create a circle visual from a geojson data source"""
+        
         if isinstance(self.style, str):
             style = "'{}'".format(self.style)
         else:
             style = self.style
+        
         options = dict(
             gl_js_version=GL_JS_VERSION,
             accessToken=self.access_token,
@@ -160,23 +257,48 @@ class MapViz(object):
             boxZoomOn=json.dumps(self.box_zoom_on),
             doubleClickZoomOn=json.dumps(self.double_click_zoom_on),
             scrollZoomOn=json.dumps(self.scroll_zoom_on),
-            touchZoomOn=json.dumps(self.touch_zoom_on),
-            showLegend=self.legend,
-            legendLayout=self.legend_layout,
-            legendStyle=self.legend_style, # reserve name for custom CSS?
-            legendGradient=json.dumps(self.legend_gradient),
-            legendFill=self.legend_fill,
-            legendHeaderFill=self.legend_header_fill,
-            legendTextColor=self.legend_text_color,
-            legendNumericPrecision=json.dumps(self.legend_text_numeric_precision),
-            legendTitleHaloColor=self.legend_title_halo_color,
-            legendKeyShape=self.legend_key_shape,
-            legendKeyBordersOn=json.dumps(self.legend_key_borders_on))
+            touchZoomOn=json.dumps(self.touch_zoom_on)
+        )
+
+        if self.legend:
+            options.update(
+                showLegend=self.legend,
+                legendLayout=self.legend_layout,
+                legendStyle=self.legend_style, # reserve for custom CSS
+                legendGradient=json.dumps(self.legend_gradient),
+                legendFill=self.legend_fill,
+                legendHeaderFill=self.legend_header_fill,
+                legendTextColor=self.legend_text_color,
+                legendNumericPrecision=json.dumps(self.legend_text_numeric_precision),
+                legendTitleHaloColor=self.legend_title_halo_color,
+                legendKeyShape=self.legend_key_shape,
+                legendKeyBordersOn=json.dumps(self.legend_key_borders_on)
+            )
+
+        if self.vector_source:
+            options.update(
+                vectorUrl=self.vector_url,
+                vectorLayer=self.vector_layer_name,
+                vectorJoinDataProperty=self.vector_join_property,
+                joinData=json.dumps(False),
+                dataJoinProperty=self.data_join_property,
+                enableDataJoin=not self.disable_data_join
+            )
+            data = geojson_to_dict_list(self.data)
+            if bool(data):
+                options.update(joinData=json.dumps(data, ensure_ascii=False))
 
         if self.label_property is None:
             options.update(labelProperty=None)
         else:
             options.update(labelProperty='{' + self.label_property + '}')
+        
+        options.update(
+            labelColor=self.label_color,
+            labelSize=self.label_size,
+            labelHaloColor=self.label_halo_color,
+            labelHaloWidth=self.label_halo_width
+        )
 
         self.add_unique_template_variables(options)
 
@@ -189,16 +311,11 @@ class MapViz(object):
             return templates.format(self.template, **options)
 
 
-class CircleViz(MapViz):
+class CircleViz(VectorMixin, MapViz):
     """Create a circle map"""
 
     def __init__(self,
                  data,
-                 label_property=None,
-                 label_size=8,
-                 label_color='#131516',
-                 label_halo_color='white',
-                 label_halo_width=1,
                  radius=1,
                  color_property=None,
                  color_stops=None,
@@ -211,11 +328,6 @@ class CircleViz(MapViz):
                  **kwargs):
         """Construct a Mapviz object
 
-        :param label_property: property to use for marker label
-        :param label_size: size of label text
-        :param label_color: color of label text
-        :param label_halo_color: color of label text halo
-        :param label_halo_width: width of label text halo
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
         :param color_default: property to determine default circle color if match lookup fails
@@ -228,11 +340,8 @@ class CircleViz(MapViz):
         super(CircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'circle'
-        self.label_property = label_property
-        self.label_color = label_color
-        self.label_size = label_size
-        self.label_halo_color = label_halo_color
-        self.label_halo_width = label_halo_width
+        self.check_vector_template()
+
         self.color_property = color_property
         self.color_stops = color_stops
         self.radius = radius
@@ -253,23 +362,17 @@ class CircleViz(MapViz):
             strokeColor=self.stroke_color,
             radius=self.radius,
             defaultColor=self.color_default,
-            labelColor=self.label_color,
-            labelSize=self.label_size,
-            labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width,
         ))
 
+        if self.vector_source:
+            options.update(vectorColorStops=self.generate_vector_color_map())
 
-class GraduatedCircleViz(MapViz):
+
+class GraduatedCircleViz(VectorMixin, MapViz):
     """Create a graduated circle map"""
 
     def __init__(self,
                  data,
-                 label_property=None,
-                 label_size=8,
-                 label_color='#131516',
-                 label_halo_color='white',
-                 label_halo_width=1,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -285,7 +388,6 @@ class GraduatedCircleViz(MapViz):
                  **kwargs):
         """Construct a Mapviz object
 
-        :param label_property: property to use for marker label
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
         :param color_default: property to determine default circle color if match lookup fails
@@ -301,11 +403,8 @@ class GraduatedCircleViz(MapViz):
         super(GraduatedCircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'graduated_circle'
-        self.label_property = label_property
-        self.label_color = label_color
-        self.label_size = label_size
-        self.label_halo_color = label_halo_color
-        self.label_halo_width = label_halo_width
+        self.check_vector_template()
+
         self.color_property = color_property
         self.color_stops = color_stops
         self.radius_property = radius_property
@@ -331,14 +430,14 @@ class GraduatedCircleViz(MapViz):
             radiusStops=self.radius_stops,
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
-            labelColor=self.label_color,
-            labelSize=self.label_size,
-            labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width
         ))
+        if self.vector_source:
+            options.update(dict(
+                vectorColorStops=self.generate_vector_color_map(),
+                vectorRadiusStops=self.generate_vector_numeric_map('radius')))
 
 
-class HeatmapViz(MapViz):
+class HeatmapViz(VectorMixin, MapViz):
     """Create a heatmap viz"""
 
     def __init__(self,
@@ -362,6 +461,8 @@ class HeatmapViz(MapViz):
         super(HeatmapViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'heatmap'
+        self.check_vector_template()
+
         self.weight_property = weight_property
         self.weight_stops = weight_stops
         if color_stops:
@@ -379,17 +480,37 @@ class HeatmapViz(MapViz):
             weightStops=self.weight_stops,
             intensityStops=self.intensity_stops,
         ))
+        if self.vector_source:
+            options.update(dict(
+                vectorWeightStops=self.generate_vector_numeric_map('weight')))
+
+    def generate_vector_numeric_map(self, numeric_property):
+        """Generate stops array for use with match expression in mapbox template"""
+        vector_stops = []
+        
+        lookup_property = getattr(self, '{}_property'.format(numeric_property))
+        numeric_stops = getattr(self, '{}_stops'.format(numeric_property))
+
+        # if join data specified as filename or URL, parse JSON to list of Python dicts
+        if type(self.data) == str:
+            self.data = geojson_to_dict_list(self.data)
+
+        for row in self.data:
+
+            # map value to JSON feature using the numeric property
+            value = numeric_map(row[lookup_property], numeric_stops, 0)
+            
+            # link to vector feature using data_join_property (from JSON object)
+            vector_stops.append([row[self.data_join_property], value])
+
+        return vector_stops
 
 
 class ClusteredCircleViz(MapViz):
-    """Create a clustered circle map"""
+    """Create a clustered circle map (geojson only)"""
 
     def __init__(self,
                  data,
-                 label_size=8,
-                 label_color='#131516',
-                 label_halo_color='white',
-                 label_halo_width=1,
                  color_stops=None,
                  radius_stops=None,
                  cluster_radius=30,
@@ -401,7 +522,7 @@ class ClusteredCircleViz(MapViz):
                  legend_key_shape='circle',
                  *args,
                  **kwargs):
-        """Construct a Mapviz object
+        """Construct a Mapviz object 
 
         :param color_property: property to determine circle color
         :param color_stops: property to determine circle color
@@ -416,10 +537,6 @@ class ClusteredCircleViz(MapViz):
         super(ClusteredCircleViz, self).__init__(data, *args, **kwargs)
 
         self.template = 'clustered_circle'
-        self.label_color = label_color
-        self.label_size = label_size
-        self.label_halo_color = label_halo_color
-        self.label_halo_width = label_halo_width
         self.color_stops = color_stops
         self.radius_stops = radius_stops
         self.clusterRadius = cluster_radius
@@ -442,23 +559,14 @@ class ClusteredCircleViz(MapViz):
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
             radiusDefault=self.radius_default,
-            labelColor=self.label_color,
-            labelSize=self.label_size,
-            labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width
         ))
 
 
-class ChoroplethViz(MapViz):
+class ChoroplethViz(VectorMixin, MapViz):
     """Create a choropleth viz"""
 
     def __init__(self,
                  data,
-                 vector_url=None,
-                 vector_layer_name=None,
-                 vector_join_property=None,
-                 data_join_property=None, # vector only
-                 label_property=None,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -480,7 +588,6 @@ class ChoroplethViz(MapViz):
         :param vector_layer_name: property to define target layer of vector source
         :param vector_join_property: property to aid in determining color for styling vector polygons
         :param data_join_property: property to join json data to vector features
-        :param label_property: property to use for marker label
         :param color_property: property to determine polygon color
         :param color_stops: property to determine polygon color
         :param color_default: property to determine default polygon color if match lookup fails
@@ -496,19 +603,9 @@ class ChoroplethViz(MapViz):
         """
         super(ChoroplethViz, self).__init__(data, *args, **kwargs)
         
-        self.vector_url = vector_url
-        self.vector_layer_name = vector_layer_name
-        self.vector_join_property = vector_join_property
-        self.data_join_property = data_join_property
+        self.template = 'choropleth'
+        self.check_vector_template()
 
-        if self.vector_url is not None and self.vector_layer_name is not None:
-            self.template = 'vector_choropleth'
-            self.vector_source = True
-        else:
-            self.vector_source = False
-            self.template = 'choropleth'
-
-        self.label_property = label_property
         self.color_property = color_property
         self.color_stops = color_stops
         self.color_default = color_default
@@ -521,36 +618,6 @@ class ChoroplethViz(MapViz):
         self.height_default = height_default
         self.height_function_type = height_function_type
         self.legend_key_shape = legend_key_shape
-
-    def generate_vector_color_map(self):
-        """Generate color stops array for use with match expression in mapbox template"""
-        vector_stops = []
-        for row in self.data:
-
-            # map color to JSON feature using color_property
-            color = color_map(row[self.color_property], self.color_stops, self.color_default)
-            
-            # link to vector feature using data_join_property (from JSON object)
-            vector_stops.append([row[self.data_join_property], color])
-
-        return vector_stops
-
-    def generate_vector_height_map(self):
-        """Generate height stops array for use with match expression in mapbox template"""
-        vector_stops = []
-        
-        if self.height_function_type == 'match':
-            match_height = self.height_stops
-
-        for row in self.data:
-
-            # map height to JSON feature using height_property
-            height = height_map(row[self.height_property], self.height_stops, self.height_default)
-            
-            # link to vector feature using data_join_property (from JSON object)
-            vector_stops.append([row[self.data_join_property], height])
-
-        return vector_stops
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
@@ -593,24 +660,14 @@ class ChoroplethViz(MapViz):
 
         # vector-based choropleth map variables
         if self.vector_source:
-            options.update(dict(
-                vectorUrl=self.vector_url,
-                vectorLayer=self.vector_layer_name,
-                vectorColorStops=self.generate_vector_color_map(),
-                vectorJoinDataProperty=self.vector_join_property,
-                joinData=json.dumps(self.data, ensure_ascii=False),
-                dataJoinProperty=self.data_join_property,
-            ))
+            options.update(vectorColorStops=self.generate_vector_color_map())
+            
             if self.extrude:
-                options.update(dict(
-                    vectorHeightStops=self.generate_vector_height_map(),
-                ))
+                options.update(vectorHeightStops=self.generate_vector_numeric_map('height'))
 
         # geojson-based choropleth map variables
         else:
-            options.update(dict(
-                geojson_data=json.dumps(self.data, ensure_ascii=False),
-            ))
+            options.update(geojson_data=json.dumps(self.data, ensure_ascii=False))
 
 
 class ImageViz(MapViz):
@@ -687,20 +744,11 @@ class RasterTilesViz(MapViz):
             tiles_bounds=self.tiles_bounds if self.tiles_bounds else 'undefined'))
 
 
-class LinestringViz(MapViz):
+class LinestringViz(VectorMixin, MapViz):
     """Create a linestring viz"""
 
     def __init__(self,
                  data,
-                 vector_url=None,
-                 vector_layer_name=None,
-                 vector_join_property=None,
-                 data_join_property=None,
-                 label_property=None,
-                 label_size=8,
-                 label_color='#131516',
-                 label_halo_color='white',
-                 label_halo_width=1,
                  color_property=None,
                  color_stops=None,
                  color_default='grey',
@@ -720,11 +768,6 @@ class LinestringViz(MapViz):
         :param vector_layer_name: property to define target layer of vector source
         :param vector_join_property: property to aid in determining color for styling vector lines
         :param data_join_property: property to join json data to vector features
-        :param label_property: property to use for marker label
-        :param label_size: size of label text
-        :param label_color: color of label text
-        :param label_halo_color: color of label text halo
-        :param label_halo_width: width of label text halo
         :param color_property: property to determine line color
         :param color_stops: property to determine line color
         :param color_default: property to determine default line color if match lookup fails
@@ -738,23 +781,9 @@ class LinestringViz(MapViz):
         """
         super(LinestringViz, self).__init__(data, *args, **kwargs)
         
-        self.vector_url = vector_url
-        self.vector_layer_name = vector_layer_name
-        self.vector_join_property = vector_join_property
-        self.data_join_property = data_join_property
+        self.template = 'linestring'
+        self.check_vector_template()
 
-        if self.vector_url is not None and self.vector_layer_name is not None:
-            self.template = 'vector_linestring'
-            self.vector_source = True
-        else:
-            self.vector_source = False
-            self.template = 'linestring'
-
-        self.label_property = label_property
-        self.label_color = label_color
-        self.label_size = label_size
-        self.label_halo_color = label_halo_color
-        self.label_halo_width = label_halo_width
         self.color_property = color_property
         self.color_stops = color_stops
         self.color_default = color_default
@@ -765,36 +794,6 @@ class LinestringViz(MapViz):
         self.line_width_default = line_width_default
         self.line_width_function_type = line_width_function_type
         self.legend_key_shape = legend_key_shape
-
-    def generate_vector_color_map(self):
-        """Generate color stops array for use with match expression in mapbox template"""
-        vector_stops = []
-        for row in self.data:
-
-            # map color to JSON feature using color_property
-            color = color_map(row[self.color_property], self.color_stops, self.color_default)
-            
-            # link to vector feature using data_join_property (from JSON object)
-            vector_stops.append([row[self.data_join_property], color])
-
-        return vector_stops
-
-    def generate_vector_width_map(self):
-        """Generate width stops array for use with match expression in mapbox template"""
-        vector_stops = []
-        
-        if self.line_width_function_type == 'match':
-            match_width = self.line_width_stops
-
-        for row in self.data:
-
-            # map width to JSON feature using width_property
-            width = numeric_map(row[self.line_width_property], self.line_width_stops, self.line_width_default)
-            
-            # link to vector feature using data_join_property (from JSON object)
-            vector_stops.append([row[self.data_join_property], width])
-
-        return vector_stops
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to linestring visual"""
@@ -825,33 +824,22 @@ class LinestringViz(MapViz):
             widthProperty=self.line_width_property,
             widthType=self.line_width_function_type,
             defaultWidth=self.line_width_default,
-            labelColor=self.label_color,
-            labelSize=self.label_size,
-            labelHaloColor=self.label_halo_color,
-            labelHaloWidth=self.label_halo_width
         ))
 
         # vector-based linestring map variables
         if self.vector_source:
             options.update(dict(
-                vectorUrl=self.vector_url,
-                vectorLayer=self.vector_layer_name,
-                vectorJoinDataProperty=self.vector_join_property,
-                vectorColorStops=[[0,self.color_default]],
-                vectorWidthStops=[[0,self.line_width_default]],
-                joinData=json.dumps(self.data, ensure_ascii=False),
-                dataJoinProperty=self.data_join_property,
+                vectorColorStops=[[0, self.color_default]],
+                vectorWidthStops=[[0, self.line_width_default]],
             ))
 
             if self.color_property:
-                options.update(dict(vectorColorStops=self.generate_vector_color_map()))
+                options.update(vectorColorStops=self.generate_vector_color_map())
         
             if self.line_width_property:
-                options.update(dict(vectorWidthStops=self.generate_vector_width_map()))
+                options.update(vectorWidthStops=self.generate_vector_numeric_map('line_width'))
 
         # geojson-based linestring map variables
         else:
-            options.update(dict(
-                geojson_data=json.dumps(self.data, ensure_ascii=False),
-            ))
+            options.update(geojson_data=json.dumps(self.data, ensure_ascii=False))
 

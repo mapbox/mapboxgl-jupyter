@@ -58,6 +58,16 @@ data = df_to_geojson(
 )
 ```
 
+## geojson_to_dict_list
+Convert data passed as GeoJSON object, filename, URL to a Python list of dictionaries representing the join data from each feature.
+
+### Params
+**geojson_to_dict_list**(_data_)
+
+Parameter | Description
+--|--
+data | GeoJSON join-data for use with vector tiles
+
 ## scale_between
 Scale a minimum and maximum value to an equal interval domain list, with `numStops` values in in the list.
 
