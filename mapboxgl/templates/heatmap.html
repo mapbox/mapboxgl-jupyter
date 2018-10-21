@@ -6,6 +6,8 @@
 
     map.on('style.load', function() {
 
+    {% block heatmap %}
+
         map.addSource("data", {
             "type": "geojson",
             "data": {{ geojson_data }}, //data from dataframe output to geojson
@@ -14,7 +16,7 @@
         });
 
         map.addLayer({
-            "id": "circle",
+            "id": "heatmap",
             "source": "data",
             "type": "heatmap",
             "maxzoom": {{ maxzoom }},
@@ -35,6 +37,8 @@
                 "heatmap-opacity" : {{ opacity }}
             }
         }, "{{belowLayer}}" );
+    
+    {% endblock heatmap %}
 
     });
 
