@@ -47,6 +47,14 @@ def test_df_geojson_file(df):
     assert len(testdata['features']) == 3
 
 
+def test_df_geojson_file_nonsequential_index(df):
+    df.set_index('Avg Total Payments', inplace=True)
+    features = df_to_geojson(df, filename='out.geojson')
+    with open('out.geojson', 'r') as f:
+        testdata = json.load(f)
+    assert len(testdata['features']) == 3
+
+
 def test_scale_between():
     scale = scale_between(0, 1, 4)
     assert scale == [0.0, 0.25, 0.5, 0.75]

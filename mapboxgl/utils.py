@@ -49,8 +49,9 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
 
             # Write out file to line
             f.write('{"type": "FeatureCollection", "features": [\n')
-            for idx, row in df[[lon, lat] + properties].iterrows():
-                if idx == 0:
+            # Iterate over enumerated iterrows as index from iterrows alone could be non-sequential
+            for i, (index, row) in enumerate(df[[lon, lat] + properties].iterrows()):
+                if i == 0:
                     f.write(geojson.dumps(row_to_geojson(row, lon, lat, precision)) + '\n')
                 else:
                     f.write(',' + geojson.dumps(row_to_geojson(row, lon, lat, precision)) + '\n')
