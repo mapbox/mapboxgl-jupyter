@@ -10,8 +10,14 @@
 {% block legend %}
     
     {% if showLegend %}
-        {% if colorStops and colorProperty and radiusProperty %}
+        {% if legendFunction == 'color' and colorStops and colorProperty and radiusProperty %}
+            
             calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ radiusProperty }}");
+
+        {% elif legendFunction == 'radius' and radiusStops and radiusProperty %}
+
+            calcRadiusLegend({{ radiusStops }}, "{{ radiusProperty }}", "{{ defaultColor }}");
+        
         {% endif %}
     {% endif %}
 

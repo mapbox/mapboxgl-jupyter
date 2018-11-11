@@ -7,7 +7,7 @@ from IPython.core.display import HTML, display
 import numpy
 import requests
 
-from mapboxgl.errors import TokenError
+from mapboxgl.errors import TokenError, LegendError
 from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_list
 from mapboxgl import templates
 
@@ -105,6 +105,7 @@ class MapViz(object):
                  touch_zoom_on=True,
                  legend=True,
                  legend_layout='vertical',
+                 legend_function='color',
                  legend_gradient=False,
                  legend_style='',
                  legend_fill='white',
@@ -198,10 +199,18 @@ class MapViz(object):
         self.double_click_zoom_on = double_click_zoom_on
         self.scroll_zoom_on = scroll_zoom_on
         self.touch_zoom_on = touch_zoom_on
+
+        # legend configuration
         self.legend = legend
         self.legend_layout = legend_layout
+        self.legend_function = legend_function
         self.legend_style = legend_style
         self.legend_gradient = legend_gradient
+
+        if all([self.legend, self.legend_gradient, self.legend_function == 'radius']):
+            raise LegendError(' '.join(['Gradient legend format not compatible with a variable radius legend.',
+                                        'Please either change `legend_gradient` to `False` or `legend_function` to `color`.']))
+
         self.legend_fill = legend_fill
         self.legend_header_fill = legend_header_fill
         self.legend_text_color = legend_text_color
@@ -264,6 +273,7 @@ class MapViz(object):
             options.update(
                 showLegend=self.legend,
                 legendLayout=self.legend_layout,
+                legendFunction=self.legend_function,
                 legendStyle=self.legend_style, # reserve for custom CSS
                 legendGradient=json.dumps(self.legend_gradient),
                 legendFill=self.legend_fill,
