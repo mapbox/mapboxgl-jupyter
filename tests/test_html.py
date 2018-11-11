@@ -120,12 +120,13 @@ def test_radius_legend_GraduatedCircleViz(data):
     legend_gradient is True.
     """
     with pytest.raises(LegendError):
-        GraduatedCircleViz(data, 
-                           color_property="Avg Medicare Payments",
-                           radius_property="Avg Covered Charges",
-                           legend_function='radius', 
-                           legend_gradient=True, 
-                           access_token=TOKEN)
+        viz = GraduatedCircleViz(data, 
+                                 color_property="Avg Medicare Payments",
+                                 radius_property="Avg Covered Charges",
+                                 legend_function='radius', 
+                                 legend_gradient=True, 
+                                 access_token=TOKEN)
+        viz.create_html()
 
 
 def test_html_ChoroplethViz(polygon_data):
