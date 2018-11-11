@@ -63,7 +63,7 @@ The ``examples`` directory contains sample Jupyter notebooks demonstrating usage
 
     import pandas as pd
 
-    from mapboxgl.utils import create_color_stops
+    from mapboxgl.utils import create_color_stops, df_to_geojson
     from mapboxgl.viz import CircleViz
 
 
@@ -132,7 +132,7 @@ Release process
     * ``git tag <version>``
     * ``git push --tags``
 - Setup for pypi (one time only)
-    * You'll need to ``pip install twine`` and set up your credentials in a [~/.pypirc](https://docs.python.org/2/distutils/packageindex.html#pypirc) [file](https://docs.python.org/2/distutils/packageindex.html#pypirc).
+    * You'll need to ``pip install twine`` and set up your credentials in a `~/.pypirc <https://docs.python.org/2/distutils/packageindex.html#pypirc>`__ `file <https://docs.python.org/2/distutils/packageindex.html#pypirc>`__.
 - Create the release files
     * ``rm dist/*``  # clean out old releases if they exist
     * ``python setup.py sdist bdist_wheel``

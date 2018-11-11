@@ -1,14 +1,16 @@
+import base64
 import codecs
+from io import BytesIO
+import json
+import re
+from chroma import Color, Scale
+from colour import Color as Colour
+import geojson
+from matplotlib.image import imsave
+import requests
 
 from .colors import color_ramps, common_html_colors
-from chroma import Color, Scale
-import geojson
-import json
-import base64
-from io import BytesIO
-import re
-from matplotlib.image import imsave
-from colour import Color as Colour
+from .errors import SourceDataError
 
 
 def row_to_geojson(row, lon, lat, precision):
@@ -47,8 +49,9 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
 
             # Write out file to line
             f.write('{"type": "FeatureCollection", "features": [\n')
-            for idx, row in df[[lon, lat] + properties].iterrows():
-                if idx == 0:
+            # Iterate over enumerated iterrows as index from iterrows alone could be non-sequential
+            for i, (index, row) in enumerate(df[[lon, lat] + properties].iterrows()):
+                if i == 0:
                     f.write(geojson.dumps(row_to_geojson(row, lon, lat, precision)) + '\n')
                 else:
                     f.write(',' + geojson.dumps(row_to_geojson(row, lon, lat, precision)) + '\n')
@@ -64,6 +67,28 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
         df[[lon, lat] + properties].apply(lambda x: features.append(
             row_to_geojson(x, lon, lat, precision)), axis=1)
         return geojson.FeatureCollection(features)
+
+
+def geojson_to_dict_list(data):
+    """Parse GeoJSON-formatted information in <data> to list of Python dicts"""
+    
+    # return data formatted as list or dict
+    if type(data) in (list, dict):
+        return data
+
+    # read from data defined as local file address
+    try:
+        with open(data, 'r') as f:
+            features = json.load(f)['features']
+
+    # if data is defined as a URL, load JSON object from address
+    except IOError:
+        features = requests.get(data).json()['features']
+
+    except:
+        raise SourceDataError('MapViz data must be valid GeoJSON or JSON.  Please check your <data> parameter.')
+
+    return [feature['properties'] for feature in features]
 
 
 def gdf_to_geojson(gdf, properties=None, filename=None):

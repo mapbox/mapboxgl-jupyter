@@ -19,6 +19,8 @@
 
     map.on('style.load', function() {
         
+        {% block clustered_circle %}
+
         map.addSource("data", {
             "type": "geojson",
             "data": {{ geojson_data }}, //data from dataframe output to geojson
@@ -80,12 +82,16 @@
             }
         }, "circle-cluster");
         
+        {% endblock clustered_circle %}
+
         // Create a popup
         var popup = new mapboxgl.Popup({
             closeButton: false,
             closeOnClick: false
         });
         
+        {% block clustered_circle_popup %}
+
         // Show the popup on mouseover
         map.on('mousemove', 'circle-unclustered', function(e) {
             map.getCanvas().style.cursor = 'pointer';
@@ -119,6 +125,8 @@
                 .addTo(map);
         });
 
+        {% endblock clustered_circle_popup %}
+
         map.on('mouseleave', 'circle-unclustered', function() {
             map.getCanvas().style.cursor = '';
             popup.remove();
@@ -129,7 +137,6 @@
             popup.remove();
         });
         
-
         map.on('click', 'circle-unclustered', function(e) {
             map.easeTo({
                 center: e.features[0].geometry.coordinates,

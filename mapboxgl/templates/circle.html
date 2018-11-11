@@ -21,6 +21,8 @@
 
     map.on('style.load', function() {
         
+        {% block circle %}
+
         map.addSource("data", {
             "type": "geojson",
             "data": {{ geojson_data }},
@@ -68,11 +70,15 @@
             }
         }, "label");
         
+        {% endblock circle %}
+
         // Create a popup
         var popup = new mapboxgl.Popup({
             closeButton: false,
             closeOnClick: false
         });
+
+        {% block circle_popup %}
         
         // Show the popup on mouseover
         map.on('mousemove', 'circle', function(e) {
@@ -91,6 +97,8 @@
                 .setHTML(popup_html)
                 .addTo(map);
         });
+
+        {% endblock circle_popup %}
 
         map.on('mouseleave', 'circle', function() {
             map.getCanvas().style.cursor = '';
