@@ -145,6 +145,7 @@ class MapViz(object):
         :param touch_zoom_on: boolean indicating if map can be zoomed with two-finger touch gestures
         :param legend: boolean for whether to show legend on map
         :param legend_layout: determines if horizontal or vertical legend used
+        :param legend_function: controls whether legend is color or radius-based
         :param legend_style: reserved for future custom CSS loader
         :param legend_gradient: boolean to determine if legend keys are discrete or gradient
         :param legend_fill: string background color for legend, default is white

@@ -22,7 +22,7 @@ The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visuali
 
  
 ### Params
-**MapViz**(_data, vector_url=None, vector_layer_name=None, vector_join_property=None, data_join_property=None, disable_data_join=False, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', label_property=None, label_size=8, label_color='#131516', label_halo_color='white', label_halo_width=1, width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, box_zoom_on=True, double_click_zoom_on=True, scroll_zoom_on=True, touch_zoom_on=True, legend=True, legend_layout='vertical', legend_gradient=False, legend_style='', legend_fill='white', legend_header_fill='white', legend_text_color='#6e6e6e', legend_text_numeric_precision=None, legend_title_halo_color='white', legend_key_shape='square', legend_key_borders_on=True_)
+**MapViz**(_data, vector_url=None, vector_layer_name=None, vector_join_property=None, data_join_property=None, disable_data_join=False, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', label_property=None, label_size=8, label_color='#131516', label_halo_color='white', label_halo_width=1, width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, box_zoom_on=True, double_click_zoom_on=True, scroll_zoom_on=True, touch_zoom_on=True, legend=True, legend_layout='vertical', legend_function='color', legend_gradient=False, legend_style='', legend_fill='white', legend_header_fill='white', legend_text_color='#6e6e6e', legend_text_numeric_precision=None, legend_title_halo_color='white', legend_key_shape='square', legend_key_borders_on=True_)
 
 Parameter | Description | Example
 --|--|--
@@ -57,6 +57,7 @@ label_halo_color | color of text halo outline | 'white'
 label_halo_width | width (in pixels) of text halo outline | 1
 legend | controls visibility of map legend | True
 legend_layout | controls orientation of map legend | 'horizontal'
+legend_function | controls whether legend is color or radius-based | 'color'
 legend_style | reserved for future custom CSS loading | ''
 legend_gradient | boolean to determine appearance of legend keys; takes precedent over legend_key_shape | False
 legend_fill | string background color for legend | 'white'
