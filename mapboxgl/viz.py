@@ -207,11 +207,6 @@ class MapViz(object):
         self.legend_function = legend_function
         self.legend_style = legend_style
         self.legend_gradient = legend_gradient
-
-        if all([self.legend, self.legend_gradient, self.legend_function == 'radius']):
-            raise LegendError(' '.join(['Gradient legend format not compatible with a variable radius legend.',
-                                        'Please either change `legend_gradient` to `False` or `legend_function` to `color`.']))
-
         self.legend_fill = legend_fill
         self.legend_header_fill = legend_header_fill
         self.legend_text_color = legend_text_color
@@ -271,6 +266,11 @@ class MapViz(object):
         )
 
         if self.legend:
+
+            if all([self.legend, self.legend_gradient, self.legend_function == 'radius']):
+                raise LegendError(' '.join(['Gradient legend format not compatible with a variable radius legend.',
+                                            'Please either change `legend_gradient` to False or `legend_function` to "color".']))
+
             options.update(
                 showLegend=self.legend,
                 legendLayout=self.legend_layout,
