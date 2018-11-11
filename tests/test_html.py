@@ -8,7 +8,7 @@ from mock import patch
 import pytest
 
 from mapboxgl.viz import *
-from mapboxgl.errors import TokenError
+from mapboxgl.errors import TokenError, LegendError
 from mapboxgl.utils import create_color_stops, create_numeric_stops
 from matplotlib.pyplot import imread
 
@@ -113,6 +113,19 @@ def test_html_GraduatedCricleViz(data):
                              radius_property="Avg Covered Charges",
                              access_token=TOKEN)
     assert "<html>" in viz.create_html()
+
+
+def test_radius_legend_GraduatedCircleViz(data):
+    """Raises a LegendError if legend is set to 'radius' legend_function and 
+    legend_gradient is True.
+    """
+    with pytest.raises(LegendError):
+        GraduatedCircleViz(data, 
+                           color_property="Avg Medicare Payments",
+                           radius_property="Avg Covered Charges",
+                           legend_function='radius', 
+                           legend_gradient=True, 
+                           access_token=TOKEN)
 
 
 def test_html_ChoroplethViz(polygon_data):
