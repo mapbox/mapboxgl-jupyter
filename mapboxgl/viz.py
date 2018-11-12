@@ -113,7 +113,8 @@ class MapViz(object):
                  legend_text_numeric_precision=None,
                  legend_title_halo_color='white',
                  legend_key_shape='square',
-                 legend_key_borders_on=True):
+                 legend_key_borders_on=True,
+                 add_snapshot_links=False):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -153,7 +154,7 @@ class MapViz(object):
         :param legend_title_halo_color: color of legend title text halo
         :param legend_key_shape: shape of the legend item keys, default varies by viz type; one of square, contiguous_bar, rounded-square, circle, line
         :param legend_key_borders_on: boolean for whether to show/hide legend key borders
-
+        :param add_snapshot_links: boolean switch for adding buttons to download screen captures of map or legend
         """
         if access_token is None:
             access_token = os.environ.get('MAPBOX_ACCESS_TOKEN', '')
@@ -209,6 +210,7 @@ class MapViz(object):
         self.legend_title_halo_color = legend_title_halo_color
         self.legend_key_shape = legend_key_shape
         self.legend_key_borders_on = legend_key_borders_on
+        self.add_snapshot_links = add_snapshot_links
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -257,7 +259,8 @@ class MapViz(object):
             boxZoomOn=json.dumps(self.box_zoom_on),
             doubleClickZoomOn=json.dumps(self.double_click_zoom_on),
             scrollZoomOn=json.dumps(self.scroll_zoom_on),
-            touchZoomOn=json.dumps(self.touch_zoom_on)
+            touchZoomOn=json.dumps(self.touch_zoom_on),
+            includeSnapshotLinks=self.add_snapshot_links
         )
 
         if self.legend:
