@@ -92,9 +92,11 @@
 {% block circle_popup %}
 
     // Show the popup on mouseover
-    map.on('mousemove', 'circle', function(e) {
-        map.getCanvas().style.cursor = 'pointer';
-        
+    map.on(popupAction, 'circle', function(e) {
+        {% if popupOpensOnHover %}
+            map.getCanvas().style.cursor = 'pointer';
+        {% endif %}
+               
         let f = e.features[0];
         let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
             ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
