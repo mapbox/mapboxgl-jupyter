@@ -266,7 +266,7 @@ def test_convert_date_columns(df):
     """Ensure datetime data converted to string format"""
     df['date'] = pd.to_datetime(df['date'])
     df = convert_date_columns(df, date_format='%Y-%m-%d')
-    assert type(df['date'].values[0]) == str
+    assert df['date'].values[0] == '2014-01-01'
 
 
 def test_convert_date_columns_default(df):
