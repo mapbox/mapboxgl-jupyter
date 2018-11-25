@@ -93,6 +93,7 @@
 
     // Show the popup on mouseover
     map.on(popupAction, 'circle', function(e) {
+
         {% if popupOpensOnHover %}
             map.getCanvas().style.cursor = 'pointer';
         {% endif %}
