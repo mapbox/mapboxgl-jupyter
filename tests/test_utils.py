@@ -1,15 +1,17 @@
 import os
 import json
+import numpy
 import pytest
 import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
 from matplotlib.pyplot import imread
 
-from mapboxgl.errors import SourceDataError
+from mapboxgl.errors import SourceDataError, DateConversionError
 from mapboxgl.utils import (df_to_geojson, geojson_to_dict_list, scale_between, create_radius_stops,
                             create_weight_stops, create_numeric_stops, create_color_stops, 
-                            img_encode, rgb_tuple_from_str, color_map, height_map, numeric_map)
+                            img_encode, rgb_tuple_from_str, color_map, height_map, numeric_map,
+                            convert_date_columns)
 
 
 @pytest.fixture()
@@ -258,3 +260,25 @@ def test_geojson_to_dict_list_invalid():
     """Ensure data converted to Python dict"""
     with pytest.raises(SourceDataError):
         geojson_to_dict_list(0)
+
+
+def test_convert_date_columns(df):
+    """Ensure datetime data converted to string format"""
+    df['date'] = pd.to_datetime(df['date'])
+    df = convert_date_columns(df, date_format='%Y-%m-%d')
+    assert df['date'].values[0] == '2014-01-01'
+
+
+def test_convert_date_columns_default(df):
+    """Tests default datetime format for dataframe date serialization
+    remains as numpy datetime format"""
+    df['date'] = pd.to_datetime(df['date'])
+    df = convert_date_columns(df)
+    assert isinstance(df['date'].values[0], numpy.datetime64)
+
+
+def test_convert_date_columns_error(df):
+    """Raise DateConversionError with improper date_format"""
+    with pytest.raises(DateConversionError):
+        convert_date_columns(df, date_format='')
+
