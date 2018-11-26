@@ -7,8 +7,12 @@ class ValueError(ValueError):
 
 
 class SourceDataError(ValueError):
-	pass
+    pass
 
 
 class LegendError(ValueError):
-	pass
+    pass
+
+
+class DateConversionError(ValueError):
+    pass

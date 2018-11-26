@@ -1,5 +1,6 @@
 import base64
 import codecs
+import datetime
 from io import BytesIO
 import json
 import re
@@ -10,20 +11,20 @@ from matplotlib.image import imsave
 import requests
 
 from .colors import color_ramps, common_html_colors
-from .errors import SourceDataError
+from .errors import SourceDataError, DateConversionError
 
 
-def row_to_geojson(row, lon, lat, precision):
+def row_to_geojson(row, lon, lat, precision, date_format='epoch'):
     """Convert a pandas dataframe row to a geojson format object.  Converts all datetimes to epoch seconds.
     """
 
     # Let pandas handle json serialization
-    row_json = json.loads(row.to_json(date_format='epoch', date_unit='s'))
-    return geojson.Feature(geometry=geojson.Point((round(row_json[lon],precision), round(row_json[lat], precision))),
+    row_json = json.loads(row.to_json(date_format=date_format, date_unit='s'))
+    return geojson.Feature(geometry=geojson.Point((round(row_json[lon], precision), round(row_json[lat], precision))),
                            properties={key: row_json[key] for key in row_json.keys() if key not in [lon, lat]})
 
 
-def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filename=None):
+def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, date_format='epoch', filename=None):
     """Serialize a Pandas dataframe to a geojson format Python dictionary / file
     """
 
@@ -40,6 +41,9 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
             raise ValueError(
                 'properties cannot be the geometry longitude or latitude column')
 
+    # convert dates/datetimes to preferred string format if specified
+    df = convert_date_columns(df, date_format)
+
     if filename:
         with open(filename, 'w') as f:
             # Overwrite file if it already exists
@@ -52,9 +56,9 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
             # Iterate over enumerated iterrows as index from iterrows alone could be non-sequential
             for i, (index, row) in enumerate(df[[lon, lat] + properties].iterrows()):
                 if i == 0:
-                    f.write(geojson.dumps(row_to_geojson(row, lon, lat, precision)) + '\n')
+                    f.write(geojson.dumps(row_to_geojson(row, lon, lat, precision, date_format)) + '\n')
                 else:
-                    f.write(',' + geojson.dumps(row_to_geojson(row, lon, lat, precision)) + '\n')
+                    f.write(',' + geojson.dumps(row_to_geojson(row, lon, lat, precision, date_format)) + '\n')
             f.write(']}')
 
             return {
@@ -65,7 +69,7 @@ def df_to_geojson(df, properties=None, lat='lat', lon='lon', precision=6, filena
     else:
         features = []
         df[[lon, lat] + properties].apply(lambda x: features.append(
-            row_to_geojson(x, lon, lat, precision)), axis=1)
+            row_to_geojson(x, lon, lat, precision, date_format)), axis=1)
         return geojson.FeatureCollection(features)
 
 
@@ -91,9 +95,12 @@ def geojson_to_dict_list(data):
     return [feature['properties'] for feature in features]
 
 
-def gdf_to_geojson(gdf, properties=None, filename=None):
+def gdf_to_geojson(gdf, date_format='epoch', properties=None, filename=None):
     """Serialize a GeoPandas dataframe to a geojson format Python dictionary / file
     """
+
+    # convert dates/datetimes to preferred string format if specified
+    gdf = convert_date_columns(gdf, date_format)
 
     gdf_out = gdf[['geometry'] + properties or []]
 
@@ -105,6 +112,27 @@ def gdf_to_geojson(gdf, properties=None, filename=None):
         return None
     else:
         return json.loads(geojson_str)
+
+
+def convert_date_columns(df, date_format='epoch'):
+    """Convert dates/datetimes to preferred string format if specified
+        i.e. '%Y-%m-%d', 'epoch', 'iso'
+    """
+
+    if date_format not in ['epoch', 'iso']:
+        if '%' in date_format:
+            try:
+                datetime.datetime.now().strftime(date_format)
+            except:
+                raise DateConversionError('Error serializing dates in DataFrame using format {}.'.format(date_format))
+            finally:
+                for column, data_type in df.dtypes.to_dict().items():
+                    if 'date' in str(data_type):
+                        df[column] = df[column].dt.strftime(date_format)
+        else:
+            raise DateConversionError('Error serializing dates in DataFrame using format {}.'.format(date_format))
+
+    return df
 
 
 def scale_between(minval, maxval, numStops):

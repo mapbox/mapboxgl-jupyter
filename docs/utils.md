@@ -1,5 +1,5 @@
 ## row_to_geojson
-Convert a pandas dataframe row to a geojson format object. Converts all datetimes to epoch seconds.
+Convert a pandas dataframe row to a geojson format object. Converts all datetimes to epoch seconds by default, ISO format, or formatted date/datetime strings.
 
 ### Params
 **row_to_geojson**(_row, lon, lat_)
@@ -9,12 +9,14 @@ Parameter | Description
 row | Pandas dataframe row.
 lon | Name of dataframe column containing latitude values.
 lat | Name of dataframe column containing longitude values.
+precision | Number of decimal points for latitude and longitude values.
+date_format | string date format for serialization of date/datetime objects to GeoJSON (ex: 'epoch', 'iso', '%Y-%m-%d')
 
 ## df_to_geojson
 Convert a Pandas dataframe to a geojson format Python dictionary or as a line-delimited geojson file.
 
 ### Params
-**df_to_geojson**(_df, properties=None, lat='lat', lon='lon', precision=None, filename=None_)
+**df_to_geojson**(_df, properties=None, lat='lat', lon='lon', precision=None, date_format='epoch', filename=None_)
 
 Parameter | Description
 --|--
@@ -23,6 +25,7 @@ properties | List of dataframe columns to include as object properties. Does not
 lon | Name of dataframe column containing latitude values.
 lat | Name of dataframe column containing longitude values.
 precision | Accuracy of lat/lon values. Values are rounded to the desired precision.
+date_format | Date format for date and datetime data columns. Compatible with all Python datetime string formats or 'epoch', 'iso'. Default is epoch seconds.
 filename | Name of file for writing geojson data. Data is stored as an object if filename is not provided.
 
 ### Usage
@@ -67,6 +70,19 @@ Convert data passed as GeoJSON object, filename, URL to a Python list of diction
 Parameter | Description
 --|--
 data | GeoJSON join-data for use with vector tiles
+
+
+## convert_date_columns
+Convert datetime dataframe columns to JSON-serializable format (epoch seconds, ISO format, or Python strftime format, filename); returns dataframe with updated columns.
+
+### Params
+**convert_date_columns**(_df, date_format='epoch'_)
+
+Parameter | Description
+--|--
+df | Pandas dataframe
+date_format | Python datetime format string or one of `epoch`, `iso`
+
 
 ## scale_between
 Scale a minimum and maximum value to an equal interval domain list, with `numStops` values in in the list.
