@@ -84,17 +84,33 @@
         
         {% endblock clustered_circle %}
 
+        // Popups
+        {% if popupOpensOnHover %}
+            var popupAction = 'mousemove',
+                popupSettings =  {
+                    closeButton: false,
+                    closeOnClick: false
+                };
+        {% else %}
+            var popupAction = 'click',
+                popupSettings =  {
+                    closeButton: true,
+                    closeOnClick: true
+                };
+        {% endif %}
+
         // Create a popup
-        var popup = new mapboxgl.Popup({
-            closeButton: false,
-            closeOnClick: false
-        });
+        var popup = new mapboxgl.Popup(popupSettings);
         
         {% block clustered_circle_popup %}
 
         // Show the popup on mouseover
-        map.on('mousemove', 'circle-unclustered', function(e) {
-            map.getCanvas().style.cursor = 'pointer';
+        map.on(popupAction, 'circle-unclustered', function(e) {
+            
+            {% if popupOpensOnHover %}
+                map.getCanvas().style.cursor = 'pointer';
+            {% endif %}
+
             let f = e.features[0];
             let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
                 ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
@@ -110,7 +126,7 @@
                 .addTo(map);
         });
 
-        map.on('mousemove', 'circle-cluster', function(e) {
+        map.on(popupAction, 'circle-cluster', function(e) {
             map.getCanvas().style.cursor = 'pointer';
             let f = e.features[0];
             let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
@@ -127,14 +143,30 @@
 
         {% endblock clustered_circle_popup %}
 
-        map.on('mouseleave', 'circle-unclustered', function() {
-            map.getCanvas().style.cursor = '';
-            popup.remove();
+        // change cursor to pointer when mouse is over the unclustered circle feature layer
+        map.on('mouseenter', 'circle-unclustered', function () {
+            map.getCanvas().style.cursor = 'pointer';
         });
 
+        // reset cursor to pointer when mouse leaves the unclustered circle feature layer
+        map.on('mouseleave', 'circle-unclustered', function() {
+            map.getCanvas().style.cursor = '';
+            {% if popupOpensOnHover %}
+                popup.remove();
+            {% endif %}
+        });
+
+        // change cursor to pointer when mouse is over the clustered circle feature layer
+        map.on('mouseenter', 'circle-cluster', function () {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+
+        // reset cursor to pointer when mouse leaves the circle-cluster feature layer
         map.on('mouseleave', 'circle-cluster', function() {
             map.getCanvas().style.cursor = '';
-            popup.remove();
+            {% if popupOpensOnHover %}
+                popup.remove();
+            {% endif %}
         });
         
         map.on('click', 'circle-unclustered', function(e) {

@@ -146,8 +146,11 @@
 {% block choropleth_popup %}
 
     // Show the popup on mouseover
-    map.on('mousemove', 'choropleth-fill', function(e) {
-        map.getCanvas().style.cursor = 'pointer';
+    map.on(popupAction, 'choropleth-fill', function(e) {
+
+        {% if popupOpensOnHover %}
+            map.getCanvas().style.cursor = 'pointer';
+        {% endif %}
         
         let f = e.features[0];
         let popup_html = '<div>';

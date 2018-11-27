@@ -8,3 +8,7 @@ class ValueError(ValueError):
 
 class SourceDataError(ValueError):
 	pass
+
+
+class DateConversionError(ValueError):
+	pass

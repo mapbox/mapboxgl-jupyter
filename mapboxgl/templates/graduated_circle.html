@@ -76,17 +76,33 @@
         
         {% endblock graduated_circle %}
 
+        // Popups
+        {% if popupOpensOnHover %}
+            var popupAction = 'mousemove',
+                popupSettings =  {
+                    closeButton: false,
+                    closeOnClick: false
+                };
+        {% else %}
+            var popupAction = 'click',
+                popupSettings =  {
+                    closeButton: true,
+                    closeOnClick: true
+                };
+        {% endif %}
+
         // Create a popup
-        var popup = new mapboxgl.Popup({
-            closeButton: false,
-            closeOnClick: false
-        });
+        var popup = new mapboxgl.Popup(popupSettings);
 
         {% block graduated_circle_popup %}
         
         // Show the popup on mouseover
-        map.on('mousemove', 'circle', function(e) {
-            map.getCanvas().style.cursor = 'pointer';
+        map.on(popupAction, 'circle', function(e) {
+
+            {% if popupOpensOnHover %}
+                map.getCanvas().style.cursor = 'pointer';
+            {% endif %}
+
             let f = e.features[0];
             let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
                 ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
@@ -104,9 +120,17 @@
 
         {% endblock graduated_circle_popup %}
 
+        // change cursor to pointer when mouse is over the circle feature layer
+        map.on('mouseenter', 'circle', function () {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+        
+        // reset cursor to pointer when mouse leaves the circle feature layer
         map.on('mouseleave', 'circle', function() {
             map.getCanvas().style.cursor = '';
-            popup.remove();
+            {% if popupOpensOnHover %}
+                popup.remove();
+            {% endif %}
         });
         
         // Fly to on click

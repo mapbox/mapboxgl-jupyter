@@ -22,7 +22,7 @@ The `MapViz` class is the parent class of the various `mapboxgl-jupyter` visuali
 
  
 ### Params
-**MapViz**(_data, vector_url=None, vector_layer_name=None, vector_join_property=None, data_join_property=None, disable_data_join=False, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', label_property=None, label_size=8, label_color='#131516', label_halo_color='white', label_halo_width=1, width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, box_zoom_on=True, double_click_zoom_on=True, scroll_zoom_on=True, touch_zoom_on=True, legend=True, legend_layout='vertical', legend_gradient=False, legend_style='', legend_fill='white', legend_header_fill='white', legend_text_color='#6e6e6e', legend_text_numeric_precision=None, legend_title_halo_color='white', legend_key_shape='square', legend_key_borders_on=True_)
+**MapViz**(_data, vector_url=None, vector_layer_name=None, vector_join_property=None, data_join_property=None, disable_data_join=False, access_token=None, center=(0, 0), below_layer='', opacity=1, div_id='map', height='500px', style='mapbox://styles/mapbox/light-v9?optimize=true', label_property=None, label_size=8, label_color='#131516', label_halo_color='white', label_halo_width=1, width='100%', zoom=0, min_zoom=0, max_zoom=24, pitch=0, bearing=0, box_zoom_on=True, double_click_zoom_on=True, scroll_zoom_on=True, touch_zoom_on=True, legend=True, legend_layout='vertical', legend_gradient=False, legend_style='', legend_fill='white', legend_header_fill='white', legend_text_color='#6e6e6e', legend_text_numeric_precision=None, legend_title_halo_color='white', legend_key_shape='square', legend_key_borders_on=True, popup_open_action='hover'_)
 
 Parameter | Description | Example
 --|--|--
@@ -66,6 +66,7 @@ legend_text_numeric_precision | decimal precision for numeric legend values | 0
 legend_title_halo_color | color of legend title text halo | 'white'
 legend_key_shape | shape of the legend item keys, default varies by viz type; one of square, contiguous_bar, rounded-square, circle, line | 'square'
 legend_key_borders_on | boolean for whether to show/hide legend key borders | True
+popup_open_action | setting for popup behavior; one of 'hover' or 'click' | 'hover'
 
 ### Methods
 **as_iframe**(_self, html_data_)  
