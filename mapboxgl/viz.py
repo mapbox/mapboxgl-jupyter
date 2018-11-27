@@ -113,8 +113,9 @@ class MapViz(object):
                  legend_text_numeric_precision=None,
                  legend_title_halo_color='white',
                  legend_key_shape='square',
-                 legend_key_borders_on=True,
-                 popup_open_action='hover'):
+                 legend_key_borders_on=True,                 
+                 popup_open_action='hover',
+                 add_snapshot_links=False):
         """Construct a MapViz object
 
         :param data: GeoJSON Feature Collection
@@ -155,6 +156,7 @@ class MapViz(object):
         :param legend_key_shape: shape of the legend item keys, default varies by viz type; one of square, contiguous_bar, rounded-square, circle, line
         :param legend_key_borders_on: boolean for whether to show/hide legend key borders
         :param popup_open_action: controls behavior of opening and closing feature popups; one of 'hover' or 'click'
+        :param add_snapshot_links: boolean switch for adding buttons to download screen captures of map or legend
 
         """
         if access_token is None:
@@ -212,6 +214,7 @@ class MapViz(object):
         self.legend_key_shape = legend_key_shape
         self.legend_key_borders_on = legend_key_borders_on
         self.popup_open_action = popup_open_action
+        self.add_snapshot_links = add_snapshot_links
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -261,7 +264,9 @@ class MapViz(object):
             doubleClickZoomOn=json.dumps(self.double_click_zoom_on),
             scrollZoomOn=json.dumps(self.scroll_zoom_on),
             touchZoomOn=json.dumps(self.touch_zoom_on),
-            popupOpensOnHover=self.popup_open_action=='hover'
+            popupOpensOnHover=self.popup_open_action=='hover',
+            includeSnapshotLinks=self.add_snapshot_links,
+            preserveDrawingBuffer=json.dumps(self.add_snapshot_links)
         )
 
         if self.legend:
