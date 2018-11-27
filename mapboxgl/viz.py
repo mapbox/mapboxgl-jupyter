@@ -265,7 +265,8 @@ class MapViz(object):
             scrollZoomOn=json.dumps(self.scroll_zoom_on),
             touchZoomOn=json.dumps(self.touch_zoom_on),
             popupOpensOnHover=self.popup_open_action=='hover',
-            includeSnapshotLinks=self.add_snapshot_links
+            includeSnapshotLinks=self.add_snapshot_links,
+            preserveDrawingBuffer=json.dumps(self.add_snapshot_links)
         )
 
         if self.legend:
