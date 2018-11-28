@@ -327,5 +327,11 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
 <!-- main map creation code, extended by mapboxgl/templates/{{ viz }}.html -->
 <script type="text/javascript">{% block javascript %}{% endblock %}</script>
 
+<!-- add capability to export map or legend to image file -->
+{% if includeSnapshotLinks %}
+    <script src="https://github.com/niklasvh/html2canvas/releases/download/v1.0.0-alpha.12/html2canvas.min.js" charset="utf-8"></script>
+    {% include 'export_canvas.html' %}
+{% endif %}
+
 </body>
 </html>

@@ -78,17 +78,32 @@
 
         {% endblock linestring %}
 
+        // Popups
+        {% if popupOpensOnHover %}
+            var popupAction = 'mousemove',
+                popupSettings =  {
+                    closeButton: false,
+                    closeOnClick: false
+                };
+        {% else %}
+            var popupAction = 'click',
+                popupSettings =  {
+                    closeButton: true,
+                    closeOnClick: true
+                };
+        {% endif %}
+
         // Create a popup
-        var popup = new mapboxgl.Popup({
-            closeButton: false,
-            closeOnClick: false
-        });
+        var popup = new mapboxgl.Popup(popupSettings);
         
         {% block linestring_popup %}
 
         // Show the popup on mouseover
-        map.on('mousemove', 'linestring', function(e) {
-            map.getCanvas().style.cursor = 'pointer';
+        map.on(popupAction, 'linestring', function(e) {
+
+            {% if popupOpensOnHover %}
+                map.getCanvas().style.cursor = 'pointer';
+            {% endif %}
             
             let f = e.features[0];
             let popup_html = '<div>';
@@ -105,9 +120,17 @@
 
         {% endblock linestring_popup %}
 
+        // change cursor to pointer when mouse is over the linestring feature layer
+        map.on('mouseenter', 'linestring', function () {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+
+        // reset cursor to pointer when mouse leaves the linestring feature layer
         map.on('mouseleave', 'linestring', function() {
             map.getCanvas().style.cursor = '';
-            popup.remove();
+            {% if popupOpensOnHover %}
+                popup.remove();
+            {% endif %}
         });
         
         // Fly to on click
