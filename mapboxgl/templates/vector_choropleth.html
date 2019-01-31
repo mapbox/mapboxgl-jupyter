@@ -146,7 +146,8 @@
 {% block choropleth_popup %}
 
     // Show the popup on mouseover
-    map.on(popupAction, 'choropleth-fill', function(e) {
+    var interactionLayer = {% if extrudeChoropleth %} 'choropleth-extrusion' {% else %} 'choropleth-fill' {% endif %};
+    map.on(popupAction, interactionLayer, function(e) {
 
         {% if popupOpensOnHover %}
             map.getCanvas().style.cursor = 'pointer';

@@ -107,6 +107,7 @@
         {% endblock choropleth %}
 
         // Popups
+        var interactionLayer = {% if extrudeChoropleth %} 'choropleth-extrusion' {% else %} 'choropleth-fill' {% endif %};
         {% if popupOpensOnHover %}
             var popupAction = 'mousemove',
                 popupSettings =  {
@@ -127,7 +128,7 @@
         {% block choropleth_popup %}
 
         // Show the popup on mouseover
-        map.on(popupAction, 'choropleth-fill', function(e) {
+        map.on(popupAction, interactionLayer, function(e) {
 
             {% if popupOpensOnHover %}
                 map.getCanvas().style.cursor = 'pointer';
@@ -149,12 +150,12 @@
         {% endblock choropleth_popup %}
 
         // change cursor to pointer when mouse is over the choropleth feature layer
-        map.on('mouseenter', 'choropleth-fill', function () {
+        map.on('mouseenter', interactionLayer, function () {
             map.getCanvas().style.cursor = 'pointer';
         });
 
         // reset cursor to pointer when mouse leaves the choropleth feature layer
-        map.on('mouseleave', 'choropleth-fill', function() {
+        map.on('mouseleave', interactionLayer, function() {
             map.getCanvas().style.cursor = '';
             {% if popupOpensOnHover %}
                 popup.remove();
@@ -162,7 +163,7 @@
         });
         
         // Fly to on click
-        map.on('click', 'choropleth-fill', function(e) {
+        map.on('click', interactionLayer, function(e) {
             map.flyTo({
                 center: e.lngLat,
                 zoom: map.getZoom() + 1
