@@ -588,6 +588,7 @@ class ChoroplethViz(VectorMixin, MapViz):
                  height_default=0.0,
                  height_function_type='interpolate',
                  legend_key_shape='rounded-square',
+                 highlight_color='black',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -607,8 +608,8 @@ class ChoroplethViz(VectorMixin, MapViz):
         :param height_property: feature property for determining polygon height in 3D extruded choropleth map
         :param height_stops: property for determining 3D extrusion height
         :param height_default: default height for 3D extruded polygons
-        :param height_function_type: roperty to determine `type` used by Mapbox to assign height
-        
+        :param height_function_type: property to determine `type` used by Mapbox to assign height
+        :param highlight_color: color for feature selection, hover, or highlight
         """
         super(ChoroplethViz, self).__init__(data, *args, **kwargs)
         
@@ -627,6 +628,7 @@ class ChoroplethViz(VectorMixin, MapViz):
         self.height_default = height_default
         self.height_function_type = height_function_type
         self.legend_key_shape = legend_key_shape
+        self.highlight_color = highlight_color
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
@@ -658,6 +660,7 @@ class ChoroplethViz(VectorMixin, MapViz):
             lineStroke=self.line_stroke,
             lineWidth=self.line_width,
             extrudeChoropleth=self.extrude,
+            highlightColor=self.highlight_color
         ))
         if self.extrude:
             options.update(dict(

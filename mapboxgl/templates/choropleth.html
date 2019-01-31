@@ -45,7 +45,10 @@
             "source": "data",
             "type": "fill",
             "paint": {
-                "fill-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+                "fill-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}",
+                    generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}")],
                 "fill-opacity": {{ opacity }}
             }
         }, "{{ belowLayer }}" );
@@ -97,7 +100,10 @@
                 source: "data",
                 paint: {
                     "fill-extrusion-opacity": {{ opacity }},
-                    "fill-extrusion-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+                    "fill-extrusion-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}",
+                        generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}")],
                     "fill-extrusion-height": generatePropertyExpression("{{ heightType }}", "{{ heightProperty }}", {{ heightStops }}, {{ defaultHeight }}),
                 }
             }, "{{ belowLayer }}");
@@ -128,45 +134,44 @@
         {% block choropleth_popup %}
 
         // Show the popup on mouseover
-        map.on(popupAction, interactionLayer, function(e) {
+        var hoveredStateId = 0;
 
-            {% if popupOpensOnHover %}
+        map.on(popupAction, function(e) {
+            var features = map.queryRenderedFeatures(e.point, {layers: [interactionLayer] });
+
+            if (features.length > 0) {
                 map.getCanvas().style.cursor = 'pointer';
-            {% endif %}
-            
-            let f = e.features[0];
-            let popup_html = '<div>';
+                var f = features[0];
+                newHoveredStateId = f.id;
+                if (newHoveredStateId != hoveredStateId) {
+                    map.removeFeatureState({source: 'data', id: hoveredStateId});
+                    hoveredStateId = newHoveredStateId;
+                }
+                map.setFeatureState({source: 'data', id: hoveredStateId}, { hover: true});
+                let popup_html = '<div>';
 
-            for (key in f.properties) {
-                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+                for (key in f.properties) {
+                    popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+                }
+
+                popup_html += '</div>'
+                popup.setLngLat(e.lngLat)
+                    .setHTML(popup_html)
+                    .addTo(map);
             }
-
-            popup_html += '</div>'
-            popup.setLngLat(e.lngLat)
-                .setHTML(popup_html)
-                .addTo(map);
+            else {
+                map.getCanvas().style.cursor = '';
+                popup.remove();
+                map.removeFeatureState({source: 'data', id: hoveredStateId});
+            }
         });
 
         {% endblock choropleth_popup %}
-
-        // change cursor to pointer when mouse is over the choropleth feature layer
-        map.on('mouseenter', interactionLayer, function () {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-
-        // reset cursor to pointer when mouse leaves the choropleth feature layer
-        map.on('mouseleave', interactionLayer, function() {
-            map.getCanvas().style.cursor = '';
-            {% if popupOpensOnHover %}
-                popup.remove();
-            {% endif %}
-        });
         
-        // Fly to on click
+        // Fly to selected feature on click
         map.on('click', interactionLayer, function(e) {
             map.flyTo({
-                center: e.lngLat,
-                zoom: map.getZoom() + 1
+                center: e.lngLat
             });
         });
 
