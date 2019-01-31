@@ -12,7 +12,7 @@ from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_l
 from mapboxgl import templates
 
 
-GL_JS_VERSION = 'v0.51.0'
+GL_JS_VERSION = 'v0.53.0-beta.1'
 
 
 class VectorMixin(object):
@@ -87,7 +87,7 @@ class MapViz(object):
                  opacity=1,
                  div_id='map',
                  height='500px',
-                 style='mapbox://styles/mapbox/light-v9?optimize=true',
+                 style='mapbox://styles/mapbox/light-v10?optimize=true',
                  label_property=None,
                  label_size=8,
                  label_color='#131516',
