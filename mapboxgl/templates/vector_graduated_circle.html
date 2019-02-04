@@ -57,7 +57,10 @@
         "paint": {
             "text-halo-color": "{{ labelHaloColor }}",
             "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
-            "text-color": "{{ labelColor }}"
+            "text-color": ["case",
+                ["boolean", ["feature-state", "hover"], false], 
+                "{{ highlightColor }}", 
+                "{{ labelColor }}"]
         }
         {% if enableDataJoin %}
         , filter: layerFilter
@@ -74,23 +77,22 @@
         "minzoom": {{ minzoom }},
         "paint": {
             {% if enableDataJoin %}
-                "circle-color": {
-                    "type": "categorical",
-                    "property": "{{ vectorJoinDataProperty }}", 
-                    "stops": {{ vectorColorStops }}, 
-                    "default": "{{ defaultColor }}"
-                }, 
-                "circle-radius": {
-                    "type": "categorical",
-                    "property": "{{ vectorJoinDataProperty }}", 
-                    "stops": {{ vectorRadiusStops }}, 
-                    "default": {{ defaultRadius }}
-                }, 
+                "circle-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", 
+                    generatePropertyExpression('match', "{{ vectorJoinDataProperty }}", {{ vectorColorStops }}, "{{ defaultColor }}")],
+                "circle-radius": generatePropertyExpression('match', "{{ vectorJoinDataProperty }}", {{ vectorRadiusStops }}, "{{ defaultRadius }}"),
             {% else %}
                 {% if colorProperty %}
-                    "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+                    "circle-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}", 
+                        generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" )],
                     {% else %}
-                    "circle-color": "{{ defaultColor }}",
+                    "circle-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}", 
+                        "{{ defaultColor }}"],
                 {% endif %}
                 {% if radiusProperty %}
                     "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
@@ -98,7 +100,10 @@
                     "circle-radius": {{ defaultRadius }},
                 {% endif %}
             {% endif %}
-            "circle-stroke-color": "{{ strokeColor }}",
+            "circle-stroke-color": ["case",
+                ["boolean", ["feature-state", "hover"], false], 
+                "{{ highlightColor }}", 
+                "{{ strokeColor }}"],
             "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
             "circle-opacity" : {{ opacity }},
             "circle-stroke-opacity" : {{ opacity }}
@@ -111,42 +116,38 @@
 {% endblock graduated_circle %}
 
 {% block graduated_circle_popup %}
-        
-    // Show the popup on mouseover
-    map.on(popupAction, 'circle', function(e) {
 
-        {% if popupOpensOnHover %}
+var hoveredStateId = 0;
+
+    map.on(popupAction, function(e) {
+        var features = map.queryRenderedFeatures(e.point, {layers: ['circle', 'circle-label'] });
+
+        if (features.length > 0) {
             map.getCanvas().style.cursor = 'pointer';
-        {% endif %}
+            var f = features[0];
+            newHoveredStateId = f.id;
+            if (newHoveredStateId != hoveredStateId) {
+                map.removeFeatureState({source: 'vector-data', sourceLayer: "{{ vectorLayer }}", id: hoveredStateId});
+                hoveredStateId = newHoveredStateId;
+            }
+            map.setFeatureState({source: 'vector-data', sourceLayer: "{{ vectorLayer }}", id: hoveredStateId}, { hover: true});
+            let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+                ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
 
-        let f = e.features[0];
-        let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
-            ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
+            for (key in f.properties) {
+                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+            }
 
-        for (key in f.properties) {
-            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+            popup_html += '</div>'
+            popup.setLngLat(e.lngLat)
+                .setHTML(popup_html)
+                .addTo(map);
         }
-
-        {% if enableDataJoin %}
-
-            // Add color + radius properties from joined data to vector's feature popup
-            {% if colorProperty %}
-                popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
-            {% endif %}
-
-            {% if radiusProperty %}
-                {% if colorProperty != radiusProperty %}
-                    popup_html += '<li><b> ' + "{{ radiusProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
-                {% endif %}
-            {% endif %}
-
-        {% endif %}
-
-        popup_html += '</div>'
-
-        popup.setLngLat(e.features[0].geometry.coordinates)
-            .setHTML(popup_html)
-            .addTo(map);
+        else {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+            map.removeFeatureState({source: 'vector-data', sourceLayer: "{{ vectorLayer }}", id: hoveredStateId});
+        }
     });
 
 {% endblock graduated_circle_popup %}

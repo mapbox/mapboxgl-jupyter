@@ -27,7 +27,8 @@
             "type": "geojson",
             "data": {{ geojson_data }},
             "buffer": 1,
-            "maxzoom": 14
+            "maxzoom": 14,
+            "generateId": true
         });
 
         // Add data layer
@@ -44,9 +45,14 @@
                     "line-dasharray": {{ lineDashArray }},
                 {% endif %}
                 {% if colorProperty %}
-                    "line-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+                    "line-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}",
+                        generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}")],
                 {% else %}
-                    "line-color": "{{ defaultColor }}",
+                    "line-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}","{{ defaultColor }}"],
                 {% endif %}
                 {% if widthProperty %}
                     "line-width": generatePropertyExpression("{{ widthType }}", "{{ widthProperty }}", {{ widthStops }}, {{ defaultWidth }}),
@@ -72,7 +78,10 @@
             "paint": {
                 "text-halo-color": "{{ labelHaloColor }}",
                 "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
-                "text-color": "{{ labelColor }}"
+                "text-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}",
+                    "{{ labelColor }}"]
             }
         }, "{{belowLayer}}" );
 
@@ -98,46 +107,44 @@
         
         {% block linestring_popup %}
 
-        // Show the popup on mouseover
-        map.on(popupAction, 'linestring', function(e) {
+        var hoveredStateId = 0;
 
-            {% if popupOpensOnHover %}
+        map.on(popupAction, function(e) {
+            var features = map.queryRenderedFeatures(e.point, {layers: ['linestring', 'linestring-label'] });
+
+            if (features.length > 0) {
                 map.getCanvas().style.cursor = 'pointer';
-            {% endif %}
-            
-            let f = e.features[0];
-            let popup_html = '<div>';
+                var f = features[0];
+                newHoveredStateId = f.id;
+                if (newHoveredStateId != hoveredStateId) {
+                    map.removeFeatureState({source: 'data', id: hoveredStateId});
+                    hoveredStateId = newHoveredStateId;
+                }
+                map.setFeatureState({source: 'data', id: hoveredStateId}, { hover: true});
+                let popup_html = '<div>';
 
-            for (key in f.properties) {
-                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+                for (key in f.properties) {
+                    popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+                }
+
+                popup_html += '</div>'
+                popup.setLngLat(e.lngLat)
+                    .setHTML(popup_html)
+                    .addTo(map);
             }
-
-            popup_html += '</div>'
-            popup.setLngLat(e.lngLat)
-                .setHTML(popup_html)
-                .addTo(map);
+            else {
+                map.getCanvas().style.cursor = '';
+                popup.remove();
+                map.removeFeatureState({source: 'data', id: hoveredStateId});
+            }
         });
 
         {% endblock linestring_popup %}
 
-        // change cursor to pointer when mouse is over the linestring feature layer
-        map.on('mouseenter', 'linestring', function () {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-
-        // reset cursor to pointer when mouse leaves the linestring feature layer
-        map.on('mouseleave', 'linestring', function() {
-            map.getCanvas().style.cursor = '';
-            {% if popupOpensOnHover %}
-                popup.remove();
-            {% endif %}
-        });
-        
         // Fly to on click
         map.on('click', 'linestring', function(e) {
             map.flyTo({
-                center: e.lngLat,
-                zoom: map.getZoom() + 1
+                center: e.lngLat
             });
         });
 

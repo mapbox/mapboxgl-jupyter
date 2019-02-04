@@ -44,7 +44,10 @@
         "source-layer": "{{ vectorLayer }}",
         "paint": {
             {% if enableDataJoin %}
-            "fill-color": generatePropertyExpression('match', "{{ vectorJoinDataProperty }}", {{ vectorColorStops }}, "{{ defaultColor }}"),
+            "fill-color": ["case",
+                ["boolean", ["feature-state", "hover"], false], 
+                "{{ highlightColor }}", 
+                generatePropertyExpression('match', "{{ vectorJoinDataProperty }}", {{ vectorColorStops }}, "{{ defaultColor }}")],
             {% else %}
                 "fill-color": ["case",
                     ["boolean", ["feature-state", "hover"], false], 
@@ -72,7 +75,10 @@
             {% if lineDashArray %}
                 "line-dasharray": {{ lineDashArray }},
             {% endif %}
-            "line-color": "{{ lineColor }}",
+            "line-color": ["case",
+                ["boolean", ["feature-state", "hover"], false], 
+                "{{ highlightColor }}", 
+                "{{ lineColor }}"],
             "line-width": {{ lineWidth }},
             "line-opacity": {{ opacity }}
         }
@@ -97,7 +103,9 @@
         "paint": {
             "text-halo-color": "{{ labelHaloColor }}",
             "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
-            "text-color": "{{ labelColor }}"
+            "text-color": ["case",
+                ["boolean", ["feature-state", "hover"], false], 
+                "{{ highlightColor }}", "{{ labelColor }}"]
         }
         {% if enableDataJoin %}
         , "filter": layerFilter
@@ -144,7 +152,7 @@
     var hoveredStateId = 0;
 
     map.on(popupAction, function(e) {
-        var features = map.queryRenderedFeatures(e.point, {layers: [interactionLayer] });
+        var features = map.queryRenderedFeatures(e.point, {layers: [interactionLayer, 'choropleth-label'] });
 
         if (features.length > 0) {
             map.getCanvas().style.cursor = 'pointer';

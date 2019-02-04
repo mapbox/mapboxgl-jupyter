@@ -55,23 +55,22 @@
             {% endif %}
 
             {% if enableDataJoin %}
-                "line-color": {
-                    "type": "categorical",
-                    "property": "{{ vectorJoinDataProperty }}", 
-                    "stops": {{ vectorColorStops }}, 
-                    "default": "{{ defaultColor }}"
-                }, 
-                "line-width": {
-                    "type": "categorical",
-                    "property": "{{ vectorJoinDataProperty }}", 
-                    "stops": {{ vectorWidthStops }}, 
-                    "default": {{ defaultWidth }}
-                },
+                "line-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", 
+                    generatePropertyExpression('match', "{{ vectorJoinDataProperty }}", {{ vectorColorStops }}, "{{ defaultColor }}")],
+                "line-width": generatePropertyExpression('match', "{{ vectorJoinDataProperty }}", {{ vectorWidthStops }}, {{ defaultWidth}} ),
             {% else %}
                 {% if colorProperty %}
-                    "line-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}"),
+                    "line-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}", 
+                        generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}")],
                 {% else %}
-                    "line-color": "{{ defaultColor }}",
+                    "line-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}", 
+                        "{{ defaultColor }}"],
                 {% endif %}
                 {% if widthProperty %}
                     "line-width": generatePropertyExpression("{{ widthType }}", "{{ widthProperty }}", {{ widthStops }}, {{ defaultWidth }}),
@@ -103,7 +102,10 @@
         "paint": {
             "text-halo-color": "{{ labelHaloColor }}",
             "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
-            "text-color": "{{ labelColor }}"
+            "text-color": ["case",
+                ["boolean", ["feature-state", "hover"], false], 
+                "{{ highlightColor }}", 
+                "{{ labelColor }}"]
         }
         {% if enableDataJoin %}
         , filter: layerFilter
@@ -114,39 +116,36 @@
 
 {% block linestring_popup %}
 
-    // Show the popup on mouseover
-    map.on(popupAction, 'linestring', function(e) {
+var hoveredStateId = 0;
 
-        {% if popupOpensOnHover %}
+    map.on(popupAction, function(e) {
+        var features = map.queryRenderedFeatures(e.point, {layers: ['linestring', 'linestring-label'] });
+
+        if (features.length > 0) {
             map.getCanvas().style.cursor = 'pointer';
-        {% endif %}
-        
-        let f = e.features[0];
-        let popup_html = '<div>';
+            var f = features[0];
+            newHoveredStateId = f.id;
+            if (newHoveredStateId != hoveredStateId) {
+                map.removeFeatureState({source: 'vector-data', sourceLayer: "{{ vectorLayer }}", id: hoveredStateId});
+                hoveredStateId = newHoveredStateId;
+            }
+            map.setFeatureState({source: 'vector-data', sourceLayer: "{{ vectorLayer }}", id: hoveredStateId}, { hover: true});
+            let popup_html = '<div>';
 
-        for (key in f.properties) {
-            popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+            for (key in f.properties) {
+                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+            }
+
+            popup_html += '</div>'
+            popup.setLngLat(e.lngLat)
+                .setHTML(popup_html)
+                .addTo(map);
         }
-
-        {% if enableDataJoin %}
-
-            // Add property from joined data to vector's feature popup
-            {% if colorProperty %}
-                popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
-            {% endif %}
-
-            {% if widthProperty %}
-                {% if colorProperty != widthProperty %}
-                    popup_html += '<li><b> ' + "{{ widthProperty }}".toUpperCase() + '</b>: ' + lineWidthPopUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
-                {% endif %}
-            {% endif %}
-
-        {% endif %}
-
-        popup_html += '</div>'
-        popup.setLngLat(e.lngLat)
-            .setHTML(popup_html)
-            .addTo(map);
+        else {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+            map.removeFeatureState({source: 'vector-data', sourceLayer: "{{ vectorLayer }}", id: hoveredStateId});
+        }
     });
 
 {% endblock linestring_popup %}
