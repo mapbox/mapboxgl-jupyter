@@ -333,6 +333,7 @@ class CircleViz(VectorMixin, MapViz):
                  stroke_color='grey',
                  stroke_width=0.1,
                  legend_key_shape='circle',
+                 highlight_color='black',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -359,6 +360,7 @@ class CircleViz(VectorMixin, MapViz):
         self.color_function_type = color_function_type
         self.color_default = color_default
         self.legend_key_shape = legend_key_shape
+        self.highlight_color = highlight_color
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to circle visual"""
@@ -371,6 +373,7 @@ class CircleViz(VectorMixin, MapViz):
             strokeColor=self.stroke_color,
             radius=self.radius,
             defaultColor=self.color_default,
+            highlightColor=self.highlight_color
         ))
 
         if self.vector_source:
@@ -393,6 +396,7 @@ class GraduatedCircleViz(VectorMixin, MapViz):
                  radius_default=2,
                  radius_function_type='interpolate',
                  legend_key_shape='circle',
+                 highlight_color='black',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -425,6 +429,7 @@ class GraduatedCircleViz(VectorMixin, MapViz):
         self.stroke_color = stroke_color
         self.stroke_width = stroke_width
         self.legend_key_shape = legend_key_shape
+        self.highlight_color = highlight_color
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to graduated circle visual"""
@@ -439,6 +444,7 @@ class GraduatedCircleViz(VectorMixin, MapViz):
             radiusStops=self.radius_stops,
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
+            highlightColor=self.highlight_color
         ))
         if self.vector_source:
             options.update(dict(
@@ -529,6 +535,7 @@ class ClusteredCircleViz(MapViz):
                  stroke_color='grey',
                  stroke_width=0.1,
                  legend_key_shape='circle',
+                 highlight_color='black',
                  *args,
                  **kwargs):
         """Construct a Mapviz object 
@@ -556,6 +563,7 @@ class ClusteredCircleViz(MapViz):
         self.stroke_width = stroke_width
         self.color_default = color_default
         self.legend_key_shape = legend_key_shape
+        self.highlight_color = highlight_color
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to a clustered circle visual"""
@@ -568,6 +576,7 @@ class ClusteredCircleViz(MapViz):
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
             radiusDefault=self.radius_default,
+            highlightColor=self.highlight_color
         ))
 
 
@@ -771,6 +780,7 @@ class LinestringViz(VectorMixin, MapViz):
                  line_width_default=1,
                  line_width_function_type='interpolate',
                  legend_key_shape='line',
+                 highlight_color='black',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -806,6 +816,7 @@ class LinestringViz(VectorMixin, MapViz):
         self.line_width_default = line_width_default
         self.line_width_function_type = line_width_function_type
         self.legend_key_shape = legend_key_shape
+        self.highlight_color = highlight_color
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to linestring visual"""
@@ -836,6 +847,7 @@ class LinestringViz(VectorMixin, MapViz):
             widthProperty=self.line_width_property,
             widthType=self.line_width_function_type,
             defaultWidth=self.line_width_default,
+            highlightColor=self.highlight_color
         ))
 
         # vector-based linestring map variables
