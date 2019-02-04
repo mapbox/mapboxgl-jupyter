@@ -345,6 +345,7 @@ class CircleViz(VectorMixin, MapViz):
         :param radius: radius of circle
         :param stroke_color: color of circle stroke outline
         :param stroke_width: with of circle stroke outline
+        :param highlight_color: color for feature selection, hover, or highlight
 
         """
         super(CircleViz, self).__init__(data, *args, **kwargs)
@@ -411,6 +412,7 @@ class GraduatedCircleViz(VectorMixin, MapViz):
         :param radius_function_type: property to determine `type` used by Mapbox to assign radius size
         :param stroke_color: color of circle stroke outline
         :param stroke_width: with of circle stroke outline
+        :param highlight_color: color for feature selection, hover, or highlight
 
         """
         super(GraduatedCircleViz, self).__init__(data, *args, **kwargs)
@@ -548,6 +550,7 @@ class ClusteredCircleViz(MapViz):
         :param stroke_width: with of circle stroke outline
         :param radius_default: radius of circles not contained in a cluster
         :param color_default: color of circles not contained in a cluster
+        :param highlight_color: color for feature selection, hover, or highlight
 
         """
         super(ClusteredCircleViz, self).__init__(data, *args, **kwargs)
@@ -799,7 +802,7 @@ class LinestringViz(VectorMixin, MapViz):
         :param line_width_stops: property to determine line width
         :param line_width_default: property to determine default line width if match lookup fails
         :param line_width_function_type: property to determine `type` used by Mapbox to assign line width
-
+        :param highlight_color: color for feature selection, hover, or highlight
         """
         super(LinestringViz, self).__init__(data, *args, **kwargs)
         
