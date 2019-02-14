@@ -23,12 +23,13 @@
 
         map.addSource("data", {
             "type": "geojson",
-            "data": {{ geojson_data }}, //data from dataframe output to geojson
+            "data": {{ geojson_data }},
             "buffer": 0,
             "maxzoom": {{ clusterMaxZoom }} + 1,
             "cluster": true,
             "clusterMaxZoom": {{ clusterMaxZoom }},
-            "clusterRadius": {{ clusterRadius }}
+            "clusterRadius": {{ clusterRadius }},
+            "generateId": true
         });
 
         map.addLayer({
@@ -44,7 +45,10 @@
             "paint": {
                 "text-halo-color": "{{ labelHaloColor }}",
                 "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
-                "text-color": "{{ labelColor }}"
+                "text-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", 
+                    "{{ labelColor }}"]
             }
         }, "{{belowLayer}}" )
 
@@ -56,9 +60,14 @@
             "minzoom": {{ minzoom }},
             "filter": ["has", "point_count"],
             "paint": {
-                "circle-color": generateInterpolateExpression( "point_count", {{ colorStops }} ),
+                "circle-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", 
+                    generateInterpolateExpression( "point_count", {{ colorStops }} )],
                 "circle-radius" : generateInterpolateExpression( "point_count", {{ radiusStops }} ),
-                "circle-stroke-color": "{{ strokeColor }}",
+                "circle-stroke-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", "{{ strokeColor }}"],
                 "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
                 "circle-opacity" : {{ opacity }},
                 "circle-stroke-opacity" : {{ opacity }}
@@ -73,9 +82,15 @@
             "minzoom": {{ minzoom }},
             "filter": ["!has", "point_count"],
             "paint": {
-                "circle-color": "{{ colorDefault }}",
+                "circle-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", 
+                    "{{ colorDefault }}"],
                 "circle-radius" : generateInterpolateExpression( 'zoom', [[0, {{ radiusDefault }} ], [22,10 * {{ radiusDefault }}]]),
-                "circle-stroke-color": "{{ strokeColor }}",
+                "circle-stroke-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", 
+                    "{{ strokeColor }}"],
                 "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
                 "circle-opacity" : {{ opacity }},
                 "circle-stroke-opacity" : {{ opacity }}
@@ -104,82 +119,52 @@
         
         {% block clustered_circle_popup %}
 
+        var hoveredStateId = 0;
+        
         // Show the popup on mouseover
-        map.on(popupAction, 'circle-unclustered', function(e) {
+        map.on(popupAction, function(e) {
             
-            {% if popupOpensOnHover %}
+            var features = map.queryRenderedFeatures(e.point, {layers: ['circle-unclustered', 'circle-cluster', 'label'] });
+
+            if (features.length > 0) {
                 map.getCanvas().style.cursor = 'pointer';
-            {% endif %}
+                var f = features[0];
+                newHoveredStateId = f.id;
+                if (newHoveredStateId != hoveredStateId) {
+                    map.removeFeatureState({source: 'data', id: hoveredStateId});
+                    hoveredStateId = newHoveredStateId;
+                }
+                map.setFeatureState({source: 'data', id: hoveredStateId}, { hover: true});
+                let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+                    ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
 
-            let f = e.features[0];
-            let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
-                ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
+                for (key in f.properties) {
+                    popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+                }
 
-            for (key in f.properties) {
-                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+                popup_html += '</div>'
+                popup.setLngLat(e.lngLat)
+                    .setHTML(popup_html)
+                    .addTo(map);
             }
-
-            popup_html += '</div>'
-
-            popup.setLngLat(e.features[0].geometry.coordinates)
-                .setHTML(popup_html)
-                .addTo(map);
-        });
-
-        map.on(popupAction, 'circle-cluster', function(e) {
-            map.getCanvas().style.cursor = 'pointer';
-            let f = e.features[0];
-            let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
-                ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
-
-            popup_html += '<li><b>Point Count:</b>: ' + f.properties.point_count + ' </li>'
-
-            popup_html += '</div>'
-
-            popup.setLngLat(e.features[0].geometry.coordinates)
-                .setHTML(popup_html)
-                .addTo(map);
+            else {
+                map.getCanvas().style.cursor = '';
+                popup.remove();
+                map.removeFeatureState({source: 'data', id: hoveredStateId});
+            }
         });
 
         {% endblock clustered_circle_popup %}
-
-        // change cursor to pointer when mouse is over the unclustered circle feature layer
-        map.on('mouseenter', 'circle-unclustered', function () {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-
-        // reset cursor to pointer when mouse leaves the unclustered circle feature layer
-        map.on('mouseleave', 'circle-unclustered', function() {
-            map.getCanvas().style.cursor = '';
-            {% if popupOpensOnHover %}
-                popup.remove();
-            {% endif %}
-        });
-
-        // change cursor to pointer when mouse is over the clustered circle feature layer
-        map.on('mouseenter', 'circle-cluster', function () {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-
-        // reset cursor to pointer when mouse leaves the circle-cluster feature layer
-        map.on('mouseleave', 'circle-cluster', function() {
-            map.getCanvas().style.cursor = '';
-            {% if popupOpensOnHover %}
-                popup.remove();
-            {% endif %}
-        });
         
         map.on('click', 'circle-unclustered', function(e) {
             map.easeTo({
-                center: e.features[0].geometry.coordinates,
-                zoom: map.getZoom() + 1
+                center: e.features[0].geometry.coordinates
             });
         });
 
         map.on('click', 'circle-cluster', function(e) {
             map.easeTo({
-                center: e.features[0].geometry.coordinates,
-                zoom: map.getZoom() + 1
+                center: e.features[0].geometry.coordinates
             });
         });
     });

@@ -12,7 +12,7 @@ from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_l
 from mapboxgl import templates
 
 
-GL_JS_VERSION = 'v0.51.0'
+GL_JS_VERSION = 'v0.53.0'
 
 
 class VectorMixin(object):
@@ -87,7 +87,7 @@ class MapViz(object):
                  opacity=1,
                  div_id='map',
                  height='500px',
-                 style='mapbox://styles/mapbox/light-v9?optimize=true',
+                 style='mapbox://styles/mapbox/light-v10?optimize=true',
                  label_property=None,
                  label_size=8,
                  label_color='#131516',
@@ -333,6 +333,7 @@ class CircleViz(VectorMixin, MapViz):
                  stroke_color='grey',
                  stroke_width=0.1,
                  legend_key_shape='circle',
+                 highlight_color='black',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -344,6 +345,7 @@ class CircleViz(VectorMixin, MapViz):
         :param radius: radius of circle
         :param stroke_color: color of circle stroke outline
         :param stroke_width: with of circle stroke outline
+        :param highlight_color: color for feature selection, hover, or highlight
 
         """
         super(CircleViz, self).__init__(data, *args, **kwargs)
@@ -359,6 +361,7 @@ class CircleViz(VectorMixin, MapViz):
         self.color_function_type = color_function_type
         self.color_default = color_default
         self.legend_key_shape = legend_key_shape
+        self.highlight_color = highlight_color
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to circle visual"""
@@ -371,6 +374,7 @@ class CircleViz(VectorMixin, MapViz):
             strokeColor=self.stroke_color,
             radius=self.radius,
             defaultColor=self.color_default,
+            highlightColor=self.highlight_color
         ))
 
         if self.vector_source:
@@ -393,6 +397,7 @@ class GraduatedCircleViz(VectorMixin, MapViz):
                  radius_default=2,
                  radius_function_type='interpolate',
                  legend_key_shape='circle',
+                 highlight_color='black',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -407,6 +412,7 @@ class GraduatedCircleViz(VectorMixin, MapViz):
         :param radius_function_type: property to determine `type` used by Mapbox to assign radius size
         :param stroke_color: color of circle stroke outline
         :param stroke_width: with of circle stroke outline
+        :param highlight_color: color for feature selection, hover, or highlight
 
         """
         super(GraduatedCircleViz, self).__init__(data, *args, **kwargs)
@@ -425,6 +431,7 @@ class GraduatedCircleViz(VectorMixin, MapViz):
         self.stroke_color = stroke_color
         self.stroke_width = stroke_width
         self.legend_key_shape = legend_key_shape
+        self.highlight_color = highlight_color
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to graduated circle visual"""
@@ -439,6 +446,7 @@ class GraduatedCircleViz(VectorMixin, MapViz):
             radiusStops=self.radius_stops,
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
+            highlightColor=self.highlight_color
         ))
         if self.vector_source:
             options.update(dict(
@@ -529,6 +537,7 @@ class ClusteredCircleViz(MapViz):
                  stroke_color='grey',
                  stroke_width=0.1,
                  legend_key_shape='circle',
+                 highlight_color='black',
                  *args,
                  **kwargs):
         """Construct a Mapviz object 
@@ -541,6 +550,7 @@ class ClusteredCircleViz(MapViz):
         :param stroke_width: with of circle stroke outline
         :param radius_default: radius of circles not contained in a cluster
         :param color_default: color of circles not contained in a cluster
+        :param highlight_color: color for feature selection, hover, or highlight
 
         """
         super(ClusteredCircleViz, self).__init__(data, *args, **kwargs)
@@ -556,6 +566,7 @@ class ClusteredCircleViz(MapViz):
         self.stroke_width = stroke_width
         self.color_default = color_default
         self.legend_key_shape = legend_key_shape
+        self.highlight_color = highlight_color
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to a clustered circle visual"""
@@ -568,6 +579,7 @@ class ClusteredCircleViz(MapViz):
             strokeWidth=self.stroke_width,
             strokeColor=self.stroke_color,
             radiusDefault=self.radius_default,
+            highlightColor=self.highlight_color
         ))
 
 
@@ -588,6 +600,7 @@ class ChoroplethViz(VectorMixin, MapViz):
                  height_default=0.0,
                  height_function_type='interpolate',
                  legend_key_shape='rounded-square',
+                 highlight_color='black',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -607,8 +620,8 @@ class ChoroplethViz(VectorMixin, MapViz):
         :param height_property: feature property for determining polygon height in 3D extruded choropleth map
         :param height_stops: property for determining 3D extrusion height
         :param height_default: default height for 3D extruded polygons
-        :param height_function_type: roperty to determine `type` used by Mapbox to assign height
-        
+        :param height_function_type: property to determine `type` used by Mapbox to assign height
+        :param highlight_color: color for feature selection, hover, or highlight
         """
         super(ChoroplethViz, self).__init__(data, *args, **kwargs)
         
@@ -627,6 +640,7 @@ class ChoroplethViz(VectorMixin, MapViz):
         self.height_default = height_default
         self.height_function_type = height_function_type
         self.legend_key_shape = legend_key_shape
+        self.highlight_color = highlight_color
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
@@ -658,6 +672,7 @@ class ChoroplethViz(VectorMixin, MapViz):
             lineStroke=self.line_stroke,
             lineWidth=self.line_width,
             extrudeChoropleth=self.extrude,
+            highlightColor=self.highlight_color
         ))
         if self.extrude:
             options.update(dict(
@@ -768,6 +783,7 @@ class LinestringViz(VectorMixin, MapViz):
                  line_width_default=1,
                  line_width_function_type='interpolate',
                  legend_key_shape='line',
+                 highlight_color='black',
                  *args,
                  **kwargs):
         """Construct a Mapviz object
@@ -786,7 +802,7 @@ class LinestringViz(VectorMixin, MapViz):
         :param line_width_stops: property to determine line width
         :param line_width_default: property to determine default line width if match lookup fails
         :param line_width_function_type: property to determine `type` used by Mapbox to assign line width
-
+        :param highlight_color: color for feature selection, hover, or highlight
         """
         super(LinestringViz, self).__init__(data, *args, **kwargs)
         
@@ -803,6 +819,7 @@ class LinestringViz(VectorMixin, MapViz):
         self.line_width_default = line_width_default
         self.line_width_function_type = line_width_function_type
         self.legend_key_shape = legend_key_shape
+        self.highlight_color = highlight_color
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to linestring visual"""
@@ -833,6 +850,7 @@ class LinestringViz(VectorMixin, MapViz):
             widthProperty=self.line_width_property,
             widthType=self.line_width_function_type,
             defaultWidth=self.line_width_default,
+            highlightColor=self.highlight_color
         ))
 
         # vector-based linestring map variables
