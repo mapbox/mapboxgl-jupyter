@@ -111,7 +111,7 @@ color_function_type | property to determine `type` used by Mapbox to assign colo
 stroke_color | color of circle outline stroke
 stroke_width | width (in pixels) of circle outline stroke
 
-[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs/viz.md#params)
 
 ### Usage
 ```python
@@ -172,7 +172,7 @@ color_default | Color of points not contained in a cluster
 stroke_color | Color of stroke outline on circles
 stroke_width | Width of stroke outline on circles
 
-[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs/viz.md#params)
 
 ### Usage
 ```python
@@ -234,7 +234,7 @@ radius_function_type | property to determine `type` used by Mapbox to assign rad
 stroke_color | Color of stroke outline on circles
 stroke_width | Width of stroke outline on circles
 
-[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs/viz.md#params)
 
 ### Usage
 ```python
@@ -300,7 +300,7 @@ radius_stops | stops to determine heatmap radius based on zoom. | [[0, 1], [12, 
 intensity_stops | stops to determine the heatmap intensity based on zoom. | [[0, 0.1], [20, 5]]
 legend | defaults to no legend for HeatmapViz | False
 
-[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs/viz.md#params)
 
 ### Usage
 ```python
@@ -370,7 +370,7 @@ height_stops | property for determining 3D extrusion height | [[0, 0], [500, 500
 height_default | default height (in meters) for 3D extruded polygons on map | 1500.0
 height_function_type | property to determine `type` used by Mapbox to assign height | 'interpolate'
 
-[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+[View options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs/viz.md#params)
 
 ### Usage
 ```python
@@ -398,7 +398,7 @@ viz.show()
 ![ChoroplethViz](https://user-images.githubusercontent.com/13527707/37823022-73782a0a-2e45-11e8-9fdd-4a8ddd35cb92.png)
 
 
-[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/choropleth-viz-example.ipynb)
+[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/choropleth-viz-example.ipynb)
 
 
 ## class ImageViz
@@ -414,7 +414,7 @@ image | image url, path or numpy ndarray | './my_image.png'
 coordinates | property to image coordinates (UL, UR, LR, LL) | [[-80.425, 46.437], [-71.516, 46.437], [-71.516, 37.936], [-80.425, 37.936]]
 legend | no legend for ImageViz | False
 
-[MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+[MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs/viz.md#params)
 
 ### Usage
 ```python
@@ -438,7 +438,7 @@ viz.show()
 ```
 ![ImageViz](https://user-images.githubusercontent.com/10407788/37532428-5c8ff7a8-2915-11e8-8d03-2b258a0a53a8.jpg)
 
-[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/image-viz-types-example.ipynb)
+[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/image-viz-types-example.ipynb)
 
 
 ## class RasterTilesViz
@@ -459,7 +459,7 @@ legend | no legend for RasterTilesViz | False
 
 
 
-[MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+[MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs/viz.md#params)
 
 ### Usage
 ```python
@@ -484,7 +484,7 @@ viz.show()
 ![RasterTilesViz](https://user-images.githubusercontent.com/10407788/37537676-b055a108-2924-11e8-94cb-ad3203b736af.jpg)
 
 
-[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/rastertile-viz-types-example.ipynb)
+[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/rastertile-viz-types-example.ipynb)
 
 
 #### Bring your own raster
@@ -543,7 +543,7 @@ line_width_stops | property to determine line width | [[0, 1], [50000, 2], [1500
 line_width_default | property to determine default line width if match lookup fails | 1.0
 line_width_function_type | property to determine `type` used by Mapbox to assign line width | 'interpolate'
 
-[MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs-markdown/viz.md#params)
+[MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs/viz.md#params)
 
 ### Usage
 ```python
