@@ -1,8 +1,12 @@
-//https://www.mapbox.com/help/custom-markers-gl-js/
-
 {% extends "base.html" %}
 
 {% block legend %}{% endblock legend %}
+
+{% block extra_css %}
+<style type="text/css">
+    .marker { background-size: cover; width: 50px; height: 50px; cursor: pointer; }
+</style>
+{% endblock extra_css %}
 
 {% block map %}
 
@@ -13,41 +17,20 @@
             "type": "geojson",
             "data": {{ geojson_data }},
             "buffer": 1,
-            "maxzoom": 14
+            "maxzoom": 14,
+            "generateId": true
         });
-
-        // Add symbol layer
-        map.addLayer({
-            "id": "symbol",
-            "source": "data",
-            "type": "symbol",
-            "maxzoom": {{ maxzoom }},
-            "minzoom": {{ minzoom }},
-
-            "layout": {
-                {% if labelProperty %}
-                "text-field": "{{ labelProperty }}",
-                {% endif %}
-                "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
-                "text-offset": [0,-1]
-            },
-            "paint": {
-                "text-halo-color": "{{ labelHaloColor }}",
-                "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
-                "text-color": "{{ labelColor }}"
-            }
-        }, "{{ belowLayer }}" );        
 
         // Add label layer
         map.addLayer({
-            "id": "symbol-label",
+            "id": "label",
             "source": "data",
             "type": "symbol",
             "maxzoom": {{ maxzoom }},
             "minzoom": {{ minzoom }},
             "layout": {
                 {% if labelProperty %}
-                "text-field": "{{ labelProperty }}",
+                    "text-field": "{{ labelProperty }}",
                 {% endif %}
                 "text-size" : generateInterpolateExpression('zoom', [[0, {{ labelSize }}],[22, 3* {{ labelSize }}]] ),
                 "text-offset": [0,-1]
@@ -55,10 +38,30 @@
             "paint": {
                 "text-halo-color": "{{ labelHaloColor }}",
                 "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
-                "text-color": "{{ labelColor }}"
+                "text-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", 
+                    "{{ labelColor }}"]
             }
-        }, "{{ belowLayer }}" );
+        }, "{{belowLayer}}" );        
 
+    });
+
+    // Add symbol layer by looping through individual features
+    var data = {{ geojson_data }};
+
+    // add markers to map
+    data.features.forEach(function(marker) {
+
+      // create a HTML element for each feature
+      var el = document.createElement('div');
+      el.className = 'marker';
+      el.style.backgroundImage = "url(x)".replace("x", marker['properties']['symbol-url']);
+
+      // make a marker for each feature and add to the map
+      new mapboxgl.Marker(el)
+        .setLngLat(marker.geometry.coordinates)
+        .addTo(map);
     });
 
 {% endblock map %}

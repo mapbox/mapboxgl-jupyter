@@ -870,3 +870,25 @@ class LinestringViz(VectorMixin, MapViz):
         else:
             options.update(geojson_data=json.dumps(self.data, ensure_ascii=False))
 
+
+class SymbolViz(VectorMixin, MapViz):
+    """
+    Create a symbol map
+    https://www.mapbox.com/help/custom-markers-gl-js/
+    """
+
+    def __init__(self,
+                 data,
+                 *args,
+                 **kwargs):
+        """
+        Construct a Mapviz object with symbols defined as 'marker-url' property in GeoJSON data source
+        """
+        super(SymbolViz, self).__init__(data, *args, **kwargs)
+        self.template = 'symbol'
+
+    def add_unique_template_variables(self, options):
+        """Update map template variables specific to circle visual"""
+        options.update(dict(
+            geojson_data=json.dumps(self.data, ensure_ascii=False),
+        ))
