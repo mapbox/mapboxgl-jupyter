@@ -355,6 +355,9 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
     if (expressionType == 'match') {
         expression = generateMatchExpression(propertyValue, stops, defaultValue)
     }
+    else if (propertyValue == 'identity') {
+        expression = ['get', propertyValue]
+    }
     else {
         expression = generateInterpolateExpression(propertyValue, stops)
     }

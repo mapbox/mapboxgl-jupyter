@@ -38,21 +38,28 @@
         "minzoom": {{ minzoom }},
         "paint": {
             {% if enableDataJoin %}
-                "circle-color": {
-                    "type": "categorical",
-                    "property": "{{ vectorJoinDataProperty }}", 
-                    "stops": {{ vectorColorStops }}, 
-                    "default": "{{ defaultColor }}"
-                }, 
+                "circle-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", 
+                    generatePropertyExpression('match', "{{ vectorJoinDataProperty }}", {{ vectorColorStops }}, "{{ defaultColor }}")], 
             {% else %}
                 {% if colorProperty %}
-                    "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+                    "circle-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}",
+                        generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}")],
                     {% else %}
-                    "circle-color": "{{ defaultColor }}",
+                    "circle-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}",
+                        "{{ defaultColor }}"],
                 {% endif %}
             {% endif %}
             "circle-radius" : generatePropertyExpression('interpolate', 'zoom', [[0,{{ radius }}], [22,10 * {{ radius }}]]),
-            "circle-stroke-color": "{{ strokeColor }}",
+            "circle-stroke-color": ["case",
+                ["boolean", ["feature-state", "hover"], false], 
+                "{{ highlightColor }}",
+                "{{ strokeColor }}"],
             "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
             "circle-opacity" : {{ opacity }},
             "circle-stroke-opacity" : {{ opacity }}
@@ -80,7 +87,10 @@
         "paint": {
             "text-halo-color": "{{ labelHaloColor }}",
             "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
-            "text-color": "{{ labelColor }}"
+            "text-color": ["case",
+                ["boolean", ["feature-state", "hover"], false], 
+                "{{ highlightColor }}",
+                "{{ labelColor }}"]
         }
         {% if enableDataJoin %}
         , filter: layerFilter
@@ -91,32 +101,36 @@
 
 {% block circle_popup %}
 
-    // Show the popup on mouseover
-    map.on(popupAction, 'circle', function(e) {
+var hoveredStateId = 0;
 
-        {% if popupOpensOnHover %}
+    map.on(popupAction, function(e) {
+        var features = map.queryRenderedFeatures(e.point, {layers: ['circle', 'circle-label'] });
+
+        if (features.length > 0) {
             map.getCanvas().style.cursor = 'pointer';
-        {% endif %}
-               
-        let f = e.features[0];
-        let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
-            ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
-
-        {% if enableDataJoin %}
+            var f = features[0];
+            newHoveredStateId = f.id;
+            if (newHoveredStateId != hoveredStateId) {
+                map.removeFeatureState({source: 'vector-data', sourceLayer: "{{ vectorLayer }}", id: hoveredStateId});
+                hoveredStateId = newHoveredStateId;
+            }
+            map.setFeatureState({source: 'vector-data', sourceLayer: "{{ vectorLayer }}", id: hoveredStateId}, { hover: true});
+            let popup_html = '<div>';
 
             for (key in f.properties) {
                 popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
             }
 
-            // Add property from joined data to vector's feature popup
-            popup_html += '<li><b> ' + "{{ colorProperty }}".toUpperCase() + '</b>: ' + popUpKeys[f.properties["{{ vectorJoinDataProperty }}"]] + ' </li>'
-
-        {% endif %}
-
-        popup_html += '</div>'
-        popup.setLngLat(e.features[0].geometry.coordinates)
-            .setHTML(popup_html)
-            .addTo(map);
+            popup_html += '</div>'
+            popup.setLngLat(e.lngLat)
+                .setHTML(popup_html)
+                .addTo(map);
+        }
+        else {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+            map.removeFeatureState({source: 'vector-data', sourceLayer: "{{ vectorLayer }}", id: hoveredStateId});
+        }
     });
 
 {% endblock circle_popup %}

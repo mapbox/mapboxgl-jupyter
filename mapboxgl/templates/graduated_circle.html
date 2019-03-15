@@ -37,7 +37,8 @@
             "type": "geojson",
             "data": {{ geojson_data }}, //data from dataframe output to geojson
             "buffer": 0,
-            "maxzoom": 14
+            "maxzoom": 14,
+            "generateId": true
         });
 
         map.addLayer({
@@ -56,7 +57,10 @@
             "paint": {
                 "text-halo-color": "{{ labelHaloColor }}",
                 "text-halo-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ labelHaloWidth }}], [18,5* {{ labelHaloWidth }}]]),
-                "text-color": "{{ labelColor }}"
+                "text-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", 
+                    "{{ labelColor }}"]
             }
         }, "{{belowLayer}}" )
 
@@ -68,16 +72,25 @@
             "minzoom": {{ minzoom }},
             "paint": {
                 {% if colorProperty %}
-                    "circle-color": generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" ),
+                    "circle-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}", 
+                        generatePropertyExpression("{{ colorType }}", "{{ colorProperty }}", {{ colorStops }}, "{{ defaultColor }}" )],
                     {% else %}
-                    "circle-color": "{{ defaultColor }}",
+                    "circle-color": ["case",
+                        ["boolean", ["feature-state", "hover"], false], 
+                        "{{ highlightColor }}", 
+                        "{{ defaultColor }}"],
                 {% endif %}
                 {% if radiusProperty %}
                     "circle-radius" : generatePropertyExpression("{{ radiusType }}", "{{ radiusProperty }}", {{ radiusStops }}, {{ defaultRadius }} ),
                     {% else %}
                     "circle-radius": {{ defaultRadius }},
                 {% endif %}
-                "circle-stroke-color": "{{ strokeColor }}",
+                "circle-stroke-color": ["case",
+                    ["boolean", ["feature-state", "hover"], false], 
+                    "{{ highlightColor }}", 
+                    "{{ strokeColor }}"],
                 "circle-stroke-width": generatePropertyExpression('interpolate', 'zoom', [[0,{{ strokeWidth }}], [18,5* {{ strokeWidth }}]]),
                 "circle-opacity" : {{ opacity }},
                 "circle-stroke-opacity" : {{ opacity }}
@@ -106,48 +119,47 @@
 
         {% block graduated_circle_popup %}
         
+        var hoveredStateId = 0;
+        
         // Show the popup on mouseover
-        map.on(popupAction, 'circle', function(e) {
+        map.on(popupAction, function(e) {
+            
+            var features = map.queryRenderedFeatures(e.point, {layers: ['circle', 'label'] });
 
-            {% if popupOpensOnHover %}
+            if (features.length > 0) {
                 map.getCanvas().style.cursor = 'pointer';
-            {% endif %}
+                var f = features[0];
+                newHoveredStateId = f.id;
+                if (newHoveredStateId != hoveredStateId) {
+                    map.removeFeatureState({source: 'data', id: hoveredStateId});
+                    hoveredStateId = newHoveredStateId;
+                }
+                map.setFeatureState({source: 'data', id: hoveredStateId}, { hover: true});
+                let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
+                    ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
 
-            let f = e.features[0];
-            let popup_html = '<div><li><b>Location</b>: ' + f.geometry.coordinates[0].toPrecision(6) + 
-                ', ' + f.geometry.coordinates[1].toPrecision(6) + '</li>';
+                for (key in f.properties) {
+                    popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+                }
 
-            for (key in f.properties) {
-                popup_html += '<li><b> ' + key + '</b>: ' + f.properties[key] + ' </li>'
+                popup_html += '</div>'
+                popup.setLngLat(e.lngLat)
+                    .setHTML(popup_html)
+                    .addTo(map);
             }
-
-            popup_html += '</div>'
-
-            popup.setLngLat(e.features[0].geometry.coordinates)
-                .setHTML(popup_html)
-                .addTo(map);
+            else {
+                map.getCanvas().style.cursor = '';
+                popup.remove();
+                map.removeFeatureState({source: 'data', id: hoveredStateId});
+            }
         });
 
         {% endblock graduated_circle_popup %}
-
-        // change cursor to pointer when mouse is over the circle feature layer
-        map.on('mouseenter', 'circle', function () {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-        
-        // reset cursor to pointer when mouse leaves the circle feature layer
-        map.on('mouseleave', 'circle', function() {
-            map.getCanvas().style.cursor = '';
-            {% if popupOpensOnHover %}
-                popup.remove();
-            {% endif %}
-        });
         
         // Fly to on click
         map.on('click', 'circle', function(e) {
             map.easeTo({
-                center: e.features[0].geometry.coordinates,
-                zoom: map.getZoom() + 1
+                center: e.features[0].geometry.coordinates
             });
         });
     });
