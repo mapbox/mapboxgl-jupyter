@@ -7,7 +7,7 @@ from IPython.core.display import HTML, display
 import numpy
 import requests
 
-from mapboxgl.errors import TokenError
+from mapboxgl.errors import TokenError, LegendError
 from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_list
 from mapboxgl import templates
 
@@ -105,6 +105,7 @@ class MapViz(object):
                  touch_zoom_on=True,
                  legend=True,
                  legend_layout='vertical',
+                 legend_function='color',
                  legend_gradient=False,
                  legend_style='',
                  legend_fill='white',
@@ -146,6 +147,7 @@ class MapViz(object):
         :param touch_zoom_on: boolean indicating if map can be zoomed with two-finger touch gestures
         :param legend: boolean for whether to show legend on map
         :param legend_layout: determines if horizontal or vertical legend used
+        :param legend_function: controls whether legend is color or radius-based
         :param legend_style: reserved for future custom CSS loader
         :param legend_gradient: boolean to determine if legend keys are discrete or gradient
         :param legend_fill: string background color for legend, default is white
@@ -202,8 +204,11 @@ class MapViz(object):
         self.double_click_zoom_on = double_click_zoom_on
         self.scroll_zoom_on = scroll_zoom_on
         self.touch_zoom_on = touch_zoom_on
+
+        # legend configuration
         self.legend = legend
         self.legend_layout = legend_layout
+        self.legend_function = legend_function
         self.legend_style = legend_style
         self.legend_gradient = legend_gradient
         self.legend_fill = legend_fill
@@ -270,9 +275,15 @@ class MapViz(object):
         )
 
         if self.legend:
+
+            if all([self.legend, self.legend_gradient, self.legend_function == 'radius']):
+                raise LegendError(' '.join(['Gradient legend format not compatible with a variable radius legend.',
+                                            'Please either change `legend_gradient` to False or `legend_function` to "color".']))
+
             options.update(
                 showLegend=self.legend,
                 legendLayout=self.legend_layout,
+                legendFunction=self.legend_function,
                 legendStyle=self.legend_style, # reserve for custom CSS
                 legendGradient=json.dumps(self.legend_gradient),
                 legendFill=self.legend_fill,
