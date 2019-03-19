@@ -49,7 +49,7 @@
     .legend.vertical .legend-item {white-space: nowrap;}
     .legend-value {display: inline-block; line-height: 18px; vertical-align: top;}
     .legend.horizontal ul.legend-content li.legend-item .legend-value,
-    .legend.horizontal ul.legend-content li.legend-item {display: inline-block; float: left; width: 30px; margin-bottom: 0; text-align: center; height: 30px;}
+    .legend.horizontal ul.legend-content li.legend-item {display: inline-block; float: left; width: 30px; margin-bottom: 0; text-align: center; min-height: 30px;}
 
     /* legend key styles */
     .legend-key {display: inline-block; height: 10px;}
@@ -72,8 +72,14 @@
     .legend.vertical.contig li.legend-item {height: 15px;}
     .legend.vertical.contig {padding-bottom: 6px;}
 
+    /* vertical radius legend */
+    .legend.horizontal.legend-variable-radius ul.legend-content li.legend-item .legend-value,
+    .legend.horizontal.legend-variable-radius ul.legend-content li.legend-item {width: 30px; min-height: 20px;}
+
 </style>
+
 {% block extra_css %}{% endblock extra_css %}
+
 </head>
 <body>
 
@@ -84,19 +90,18 @@
 var legendHeader;
 
 function calcColorLegend(myColorStops, title) {
-
     // create legend
-    var legend = document.createElement('div');
+    var legend = document.createElement('div'),
+        legendContainer = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0];
+
     if ('{{ legendKeyShape }}' === 'contiguous-bar') {
         legend.className = 'legend {{ legendLayout }} contig';
     }
     else {
         legend.className = 'legend {{ legendLayout }}';
     }
-
-    legend.id = 'legend';
+    legend.id = 'legend-0';
     document.body.appendChild(legend);
-
     // add legend header and content elements
     var mytitle = document.createElement('div'),
         legendContent = document.createElement('ul');
@@ -108,41 +113,35 @@ function calcColorLegend(myColorStops, title) {
     legendHeader.appendChild(mytitle);
     legend.appendChild(legendHeader);
     legend.appendChild(legendContent);
-
     if ({{ legendGradient|safe }} === true) {
-        var gradientText = 'linear-gradient(to right, ';
-        var gradient = document.createElement('div');
+        var gradientText = 'linear-gradient(to right, ',
+            gradient = document.createElement('div');
         gradient.className = 'gradient-bar';
         legend.appendChild(gradient);
     }
-
     // calculate a legend entries on a Mapbox GL Style Spec property function stops array
     for (p = 0; p < myColorStops.length; p++) {
-        if (!!document.getElementById('legend-points-value-' + p)) {
-            //update the legend if it already exists
-            document.getElementById('legend-points-value-' + p).textContent = myColorStops[p][0];
-            document.getElementById('legend-points-id-' + p).style.backgroundColor = myColorStops[p][1];
+        if (!!document.getElementById('legend-color-points-value-' + p)) {
+            // update the legend if it already exists
+            document.getElementById('legend-color-points-value-' + p).textContent = myColorStops[p][0];
+            document.getElementById('legend-color-points-id-' + p).style.backgroundColor = myColorStops[p][1];
         }
         else {
             // create the legend if it doesn't yet exist
             var item = document.createElement('li');
             item.className = 'legend-item';
-
             var key = document.createElement('span');
             key.className = 'legend-key {{ legendKeyShape }}';
-            key.id = 'legend-points-id-' + p;
-            key.style.backgroundColor = myColorStops[p][1];   
-
+            key.id = 'legend-color-points-id-' + p;
+            key.style.backgroundColor = myColorStops[p][1];
             var value = document.createElement('span');
             value.className = 'legend-value';
-            value.id = 'legend-points-value-' + p;
-
+            value.id = 'legend-color-points-value-' + p;
             item.appendChild(key);
             item.appendChild(value);
             legendContent.appendChild(item);
             
-            data = document.getElementById('legend-points-value-' + p)
-
+            data = document.getElementById('legend-color-points-value-' + p)
             // round number values in legend if precision defined
             if ((typeof(myColorStops[p][0]) == 'number') && (typeof({{ legendNumericPrecision }}) == 'number')) {
                 data.textContent = myColorStops[p][0].toFixed({{ legendNumericPrecision }});
@@ -150,7 +149,6 @@ function calcColorLegend(myColorStops, title) {
             else {
                 data.textContent = myColorStops[p][0];
             }
-
             // add color stop to gradient list
             if ({{ legendGradient|safe }} === true) {
                 if (p < myColorStops.length - 1) {
@@ -165,22 +163,18 @@ function calcColorLegend(myColorStops, title) {
             }
         }
     }
-
     if ({{ legendGradient|safe }} === true) {
         // convert to gradient scale appearance
         gradient.style.background = gradientText;
-
         // hide legend keys generated above
         var keys = document.getElementsByClassName('legend-key');
         for (var i=0; i < keys.length; i++) {
             keys[i].style.visibility = 'hidden';
         }
-
         if ('{{ legendLayout }}' === 'vertical') {
             gradient.style.height = (legendContent.offsetHeight - 6) + 'px';
         }
     }
-
     // add class for styling bordered legend keys
     if ({{ legendKeyBordersOn|safe }}) {
         var keys = document.getElementsByClassName('legend-key');
@@ -196,11 +190,132 @@ function calcColorLegend(myColorStops, title) {
             }
         }
     }
+    // update right-margin for compact Mapbox attribution based on calculated legend width
+    updateAttribMargin(legend);
+    updateLegendMargin(legend);
+}
+
+
+function calcRadiusLegend(myRadiusStops, title, color) {
+
+    // maximum legend item height
+    var maxLegendItemHeight = 2 * myRadiusStops[myRadiusStops.length - 1][1];
+
+    // create legend
+    var legend = document.createElement('div');
+    legend.className = 'legend {{ legendLayout }} legend-variable-radius';
+
+    legend.id = 'legend-1';
+    document.body.appendChild(legend);
+
+    // add legend header and content elements
+    var mytitle = document.createElement('div'),
+        legendContent = document.createElement('ul');
+    legendHeader = document.createElement('div');
+    mytitle.textContent = title;
+    mytitle.className = 'legend-title'
+    legendHeader.className = 'legend-header'
+    legendContent.className = 'legend-content'
+    legendHeader.appendChild(mytitle);
+    legend.appendChild(legendHeader);
+    legend.appendChild(legendContent);
+
+    // calculate a legend entries on a Mapbox GL Style Spec property function stops array
+    for (p = 0; p < myRadiusStops.length; p++) {
+        if (!!document.getElementById('legend-radius-points-value-' + p)) {
+            //update the legend if it already exists
+            document.getElementById('legend-radius-points-value-' + p).textContent = myRadiusStops[p][0];
+            document.getElementById('legend-radius-points-id-' + p).style.backgroundColor = color;
+        }
+        else {
+            // create the legend if it doesn't yet exist
+            var item = document.createElement('li');
+            item.className = 'legend-item';
+            item.height = '' + maxLegendItemHeight + 'px';
+
+            var key = document.createElement('span');
+            key.className = 'legend-key {{ legendKeyShape }}';
+            key.id = 'legend-radius-points-id-' + p;
+            key.style.backgroundColor = color;   
+
+            key.style.width = '' + myRadiusStops[p][1] * 2 + 'px';
+            key.style.height = '' + myRadiusStops[p][1] * 2 + 'px';
+
+            keyVerticalMargin = (maxLegendItemHeight - myRadiusStops[p][1] * 2) * 0.5;
+            key.style.marginTop = '' + keyVerticalMargin + 'px';
+            key.style.marginBottom = '' + keyVerticalMargin + 'px';
+
+            var value = document.createElement('span');
+            value.className = 'legend-value';
+            value.id = 'legend-radius-points-value-' + p;
+
+            item.appendChild(key);
+            item.appendChild(value);
+            legendContent.appendChild(item);
+            
+            data = document.getElementById('legend-radius-points-value-' + p)
+
+            // round number values in legend if precision defined
+            if ((typeof(myRadiusStops[p][0]) == 'number') && (typeof({{ legendNumericPrecision }}) == 'number')) {
+                data.textContent = myRadiusStops[p][0].toFixed({{ legendNumericPrecision }});
+            }
+            else {
+                data.textContent = myRadiusStops[p][0];
+            }
+        }
+    }
+
+    // add class for styling bordered legend keys
+    if ({{ legendKeyBordersOn|safe }}) {
+        var keys = document.getElementsByClassName('legend-key');
+        for (var i=0; i < keys.length; i++) {
+            if (keys[i]) {
+                keys[i].classList.add('bordered');
+            }
+        }
+    }
 
     // update right-margin for compact Mapbox attribution based on calculated legend width
-    var attribMargin = legend.offsetWidth + 15;
-    document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight =  attribMargin.toString() + 'px';
+    updateAttribMargin(legend);
+    updateLegendMargin(legend);
 
+}
+
+
+function updateAttribMargin(legend) {
+
+    // default margin is based on calculated legend width
+    var attribMargin = legend.offsetWidth + 15;
+    
+    // if horizontal legend layout (multiple legends are stacked vertically)
+    if ('{{ legendLayout }}' === 'horizontal') {
+        document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight = (attribMargin).toString() + 'px';
+    }
+    // vertical legend layout means multiple legends are side-by-side
+    else if ('{{ legendLayout }}' === 'vertical') {
+        var currentMargin = Number(document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight.replace('px', ''));
+        document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight = (attribMargin + currentMargin).toString() + 'px';
+    }
+}
+
+
+function updateLegendMargin(legend) {
+
+    var verticalLegends = document.getElementsByClassName('legend vertical'),
+        horizontalLegends = document.getElementsByClassName('legend horizontal');
+
+    if (verticalLegends.length > 1) {
+        for (i = 1; i < verticalLegends.length; i++) {
+            verticalLegends[i].style.marginRight = (legend.offsetWidth - 5).toString() + 'px';
+            var legend = verticalLegends[i];
+        }
+    }
+    else if (horizontalLegends.length > 1) {
+        for (i = 1; i < horizontalLegends.length; i++) {
+            horizontalLegends[i].style.marginBottom = (legend.offsetHeight + 15).toString() + 'px';
+            var legend = horizontalLegends[i];
+        }
+    }
 }
 
 
