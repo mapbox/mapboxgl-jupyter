@@ -291,7 +291,13 @@ class MapViz(object):
             touchZoomOn=json.dumps(self.touch_zoom_on),
             popupOpensOnHover=self.popup_open_action=='hover',
             includeSnapshotLinks=self.add_snapshot_links,
-            preserveDrawingBuffer=json.dumps(self.add_snapshot_links)
+            preserveDrawingBuffer=json.dumps(self.add_snapshot_links),
+            showScale=self.scale,
+            scaleUnits=self.scale_unit_system,
+            scaleBorderColor=self.scale_border_color,
+            scalePosition=self.scale_position,
+            scaleFillColor=self.scale_background_color,
+            scaleTextColor=self.scale_text_color,
         )
 
         if self.legend:
@@ -313,16 +319,6 @@ class MapViz(object):
                 legendTitleHaloColor=self.legend_title_halo_color,
                 legendKeyShape=self.legend_key_shape,
                 legendKeyBordersOn=json.dumps(self.legend_key_borders_on)
-            )
-
-        if self.scale:
-            options.update(
-                showScale=self.scale,
-                scaleUnits=self.scale_unit_system,
-                scaleBorderColor=self.scale_border_color,
-                scalePosition=self.scale_position,
-                scaleFillColor=self.scale_background_color,
-                scaleTextColor=self.scale_text_color,
             )
 
         if self.vector_source:
