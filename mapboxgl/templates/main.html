@@ -76,6 +76,10 @@
     .legend.horizontal.legend-variable-radius ul.legend-content li.legend-item .legend-value,
     .legend.horizontal.legend-variable-radius ul.legend-content li.legend-item {width: 30px; min-height: 20px;}
 
+    /* scale annotation */
+    .mapboxgl-ctrl.mapboxgl-ctrl-scale { border-color: {{ scaleBorderColor }}; 
+                                         background-color: {{ scaleFillColor }}; 
+                                         color: {{ scaleTextColor }}; }
 </style>
 
 {% block extra_css %}{% endblock extra_css %}

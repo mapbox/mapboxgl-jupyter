@@ -114,7 +114,13 @@ class MapViz(object):
                  legend_text_numeric_precision=None,
                  legend_title_halo_color='white',
                  legend_key_shape='square',
-                 legend_key_borders_on=True,                 
+                 legend_key_borders_on=True, 
+                 scale=False,
+                 scale_unit_system='metric',
+                 scale_position='bottom-left',
+                 scale_border_color='#6e6e6e', 
+                 scale_background_color='white',
+                 scale_text_color='#131516',
                  popup_open_action='hover',
                  add_snapshot_links=False):
         """Construct a MapViz object
@@ -157,6 +163,12 @@ class MapViz(object):
         :param legend_title_halo_color: color of legend title text halo
         :param legend_key_shape: shape of the legend item keys, default varies by viz type; one of square, contiguous_bar, rounded-square, circle, line
         :param legend_key_borders_on: boolean for whether to show/hide legend key borders
+        :param scale: add map control showing current scale of map
+        :param scale_unit_system: choose units for scale display (metric, nautical or imperial)
+        :param scale_position: location of the scale annotation
+        :param scale_border_color: border color of the scale annotation
+        :param scale_background_color: fill color of the scale annotation
+        :param scale_text_color: text color the scale annotation
         :param popup_open_action: controls behavior of opening and closing feature popups; one of 'hover' or 'click'
         :param add_snapshot_links: boolean switch for adding buttons to download screen captures of map or legend
 
@@ -220,6 +232,14 @@ class MapViz(object):
         self.legend_key_borders_on = legend_key_borders_on
         self.popup_open_action = popup_open_action
         self.add_snapshot_links = add_snapshot_links
+
+        # scale configuration
+        self.scale = scale
+        self.scale_unit_system = scale_unit_system
+        self.scale_position = scale_position
+        self.scale_border_color = scale_border_color
+        self.scale_background_color = scale_background_color
+        self.scale_text_color = scale_text_color
 
     def as_iframe(self, html_data):
         """Build the HTML representation for the mapviz."""
@@ -293,6 +313,16 @@ class MapViz(object):
                 legendTitleHaloColor=self.legend_title_halo_color,
                 legendKeyShape=self.legend_key_shape,
                 legendKeyBordersOn=json.dumps(self.legend_key_borders_on)
+            )
+
+        if self.scale:
+            options.update(
+                showScale=self.scale,
+                scaleUnits=self.scale_unit_system,
+                scaleBorderColor=self.scale_border_color,
+                scalePosition=self.scale_position,
+                scaleFillColor=self.scale_background_color,
+                scaleTextColor=self.scale_text_color,
             )
 
         if self.vector_source:
