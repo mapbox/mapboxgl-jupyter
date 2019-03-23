@@ -43,6 +43,16 @@
 
     {% block legend %}{% endblock legend %}
 
+    {% block scale %}
+        
+        {% if showScale %}
+        
+            map.addControl(new mapboxgl.ScaleControl({ unit: '{{ scaleUnits }}' }), '{{ scalePosition }}');
+        
+        {% endif %}
+
+    {% endblock scale %}
+
     {% block map %}{% endblock map %}
 
 {% endblock %}
