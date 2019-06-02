@@ -360,7 +360,7 @@ viz.show()
 The `ChoroplethViz` object handles the creation of a choropleth map and inherits from the `MapViz` class. It applies a thematic map style to polygon features with color shading in proportion to the intensity of the data being displayed. Choropleth polygons can be initialized with geojson source or vector source styled using the data-join technique.
 
 ### Params
-**ChoroplethViz**(_data, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, height_property=None, height_stops=None, height_default=0.0, height_function_type='interpolate', \*args, \*\*kwargs_)
+**ChoroplethViz**(_data, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, line_opacity=1, height_property=None, height_stops=None, height_default=0.0, height_function_type='interpolate', \*args, \*\*kwargs_)
 
 Parameter | Description | Example
 --|--|--
@@ -373,6 +373,7 @@ color_function_type | property to determine type of expression used by Mapbox to
 line_color | property to determine choropleth border line color | '#FFFFFF'
 line_stroke | property to determine choropleth border line stroke (one of solid (-), dashed (--), dotted (:), dash dot (-.)) | 'solid' or '-'
 line_width | property to determine choropleth border line width | 1
+line_opacity | opacity of choropleth line layer | 1
 height_property | feature property for determining polygon height in 3D extruded choropleth map | 'density'
 height_stops | property for determining 3D extrusion height | [[0, 0], [500, 50000], [1500, 150000]]
 height_default | default height (in meters) for 3D extruded polygons on map | 1500.0
@@ -397,6 +398,7 @@ viz = ChoroplethViz('us-states.geojson',
                      line_stroke='--',
                      line_color='rgb(128,0,38)',
                      line_width=1,
+                     line_opacity=0.9,
                      opacity=0.8,
                      center=(-96, 37.8),
                      zoom=3,
