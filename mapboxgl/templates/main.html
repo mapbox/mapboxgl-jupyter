@@ -14,9 +14,10 @@
 <style type='text/css'>
     body { margin:0; padding:0; }
     .map { position: absolute; top:0; bottom:0; width:100%; }
+
     .legend {
-        background-color: {{ legendFill }};
-        color: {{ legendTextColor }};
+        background-color: {{ legendFill|default("white") }};
+        color: {{ legendTextColor|default("black") }};
         border-radius: 3px;
         bottom: 10px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
@@ -30,10 +31,10 @@
    .legend.horizontal {bottom: 10px; text-align: left;}
 
     /* legend header */
-    .legend .legend-header { border-radius: 3px 3px 0 0; background: {{ legendHeaderFill }}; }
+    .legend .legend-header { border-radius: 3px 3px 0 0; background: {{ legendHeaderFill|default("white") }}; }
     .legend .legend-title {
         padding: 6px 12px 6px 12px;
-        text-shadow: 0 0 2px {{ legendTitleHaloColor }};
+        text-shadow: 0 0 2px {{ legendTitleHaloColor|default("white") }};
         text-transform: capitalize;
         text-align: center;
         font-weight: bold !important;
@@ -98,11 +99,11 @@ function calcColorLegend(myColorStops, title) {
     var legend = document.createElement('div'),
         legendContainer = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0];
 
-    if ('{{ legendKeyShape }}' === 'contiguous-bar') {
-        legend.className = 'legend {{ legendLayout }} contig';
+    if ('{{ legendKeyShape|default("circle") }}' === 'contiguous-bar') {
+        legend.className = 'legend {{ legendLayout|default("vertical") }} contig';
     }
     else {
-        legend.className = 'legend {{ legendLayout }}';
+        legend.className = 'legend {{ legendLayout|default("vertical") }}';
     }
     legend.id = 'legend-0';
     document.body.appendChild(legend);
@@ -135,7 +136,7 @@ function calcColorLegend(myColorStops, title) {
             var item = document.createElement('li');
             item.className = 'legend-item';
             var key = document.createElement('span');
-            key.className = 'legend-key {{ legendKeyShape }}';
+            key.className = 'legend-key {{ legendKeyShape|default("circle") }}';
             key.id = 'legend-color-points-id-' + p;
             key.style.backgroundColor = myColorStops[p][1];
             var value = document.createElement('span');
@@ -161,7 +162,7 @@ function calcColorLegend(myColorStops, title) {
                 else {
                     gradientText = gradientText + myColorStops[p][1] + ')';
                 }
-                if ('{{ legendLayout }}' === 'vertical') {
+                if ('{{ legendLayout|default("vertical") }}' === 'vertical') {
                     gradientText = gradientText.replace('to right', 'to bottom');
                 }
             }
@@ -175,7 +176,7 @@ function calcColorLegend(myColorStops, title) {
         for (var i=0; i < keys.length; i++) {
             keys[i].style.visibility = 'hidden';
         }
-        if ('{{ legendLayout }}' === 'vertical') {
+        if ('{{ legendLayout|default("vertical") }}' === 'vertical') {
             gradient.style.height = (legendContent.offsetHeight - 6) + 'px';
         }
     }
@@ -207,7 +208,7 @@ function calcRadiusLegend(myRadiusStops, title, color) {
 
     // create legend
     var legend = document.createElement('div');
-    legend.className = 'legend {{ legendLayout }} legend-variable-radius';
+    legend.className = 'legend {{ legendLayout|default("vertical") }} legend-variable-radius';
 
     legend.id = 'legend-1';
     document.body.appendChild(legend);
@@ -238,7 +239,7 @@ function calcRadiusLegend(myRadiusStops, title, color) {
             item.height = '' + maxLegendItemHeight + 'px';
 
             var key = document.createElement('span');
-            key.className = 'legend-key {{ legendKeyShape }}';
+            key.className = 'legend-key {{ legendKeyShape|default("circle") }}';
             key.id = 'legend-radius-points-id-' + p;
             key.style.backgroundColor = color;   
 
@@ -292,11 +293,11 @@ function updateAttribMargin(legend) {
     var attribMargin = legend.offsetWidth + 15;
     
     // if horizontal legend layout (multiple legends are stacked vertically)
-    if ('{{ legendLayout }}' === 'horizontal') {
+    if ('{{ legendLayout|default("vertical") }}' === 'horizontal') {
         document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight = (attribMargin).toString() + 'px';
     }
     // vertical legend layout means multiple legends are side-by-side
-    else if ('{{ legendLayout }}' === 'vertical') {
+    else if ('{{ legendLayout|default("vertical") }}' === 'vertical') {
         var currentMargin = Number(document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight.replace('px', ''));
         document.getElementsByClassName('mapboxgl-ctrl-attrib')[0].style.marginRight = (attribMargin + currentMargin).toString() + 'px';
     }
@@ -358,6 +359,9 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
     var expression;
     if (expressionType == 'match') {
         expression = generateMatchExpression(propertyValue, stops, defaultValue)
+    }
+    else if (expressionType == 'identity') {
+        expression = ['get', propertyValue]
     }
     else if (propertyValue == 'identity') {
         expression = ['get', propertyValue]

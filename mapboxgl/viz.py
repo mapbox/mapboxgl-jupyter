@@ -266,6 +266,9 @@ class MapViz(object):
     def create_html(self, filename=None):
         """Create a circle visual from a geojson data source"""
         
+        # automatic behavior for property function types defined as "identity"
+        self.check_for_identity_property()
+
         if isinstance(self.style, str):
             style = "'{}'".format(self.style)
         else:
@@ -298,6 +301,10 @@ class MapViz(object):
             scalePosition=self.scale_position,
             scaleFillColor=self.scale_background_color,
             scaleTextColor=self.scale_text_color,
+            showLegend=False,
+            legendGradient=json.dumps(False),
+            legendNumericPrecision=json.dumps(0),
+            legendKeyBordersOn=json.dumps(False)
         )
 
         if self.legend:
@@ -355,6 +362,24 @@ class MapViz(object):
             return None
         else:
             return templates.format(self.template, **options)
+
+    def check_for_identity_property(self):
+        """
+        automatic behavior for property function types defined as "identity"
+        """
+        for attribute in ['color', 'radius', 'height', 'line_width']:
+            
+            # if self.***_property exists
+            if hasattr(self, '{}_property'.format(attribute)):
+
+                # if self.****_function_type == 'identity'
+                if getattr(self, '{}_function_type'.format(attribute)) == 'identity':
+                    
+                    # self.***_property = ***
+                    setattr(self, '{}_property'.format(attribute), attribute)
+                    
+                    # self.***_stops = []
+                    setattr(self, '{}_stops'.format(attribute), [])
 
 
 class CircleViz(VectorMixin, MapViz):
