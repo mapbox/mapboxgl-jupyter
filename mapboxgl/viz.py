@@ -721,7 +721,9 @@ class ChoroplethViz(VectorMixin, MapViz):
             self.line_dash_array = [1, 0]
 
         # check if choropleth map should include 3-D extrusion
-        self.extrude = all([bool(self.height_property), bool(self.height_stops)])
+        self.extrude = all([bool(self.height_property), bool(self.height_stops)]) or (self.height_function_type == 'identity')
+
+        print(self.extrude)
 
         # common variables for vector and geojson-based choropleths
         options.update(dict(

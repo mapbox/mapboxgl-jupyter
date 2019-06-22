@@ -7,7 +7,8 @@
       "properties": {
         "name": "Utah", 
         "density": 34.3,
-        "color": "gold"
+        "color": "gold",
+        "height": 100000
       }, 
       "geometry": {
         "type": "Polygon", 
@@ -35,7 +36,8 @@
       "properties": {
         "name": "Colorado", 
         "density": 49.33,
-        "color": "skyblue"
+        "color": "skyblue",
+        "height": 300000
       }, 
       "geometry": {
         "type": "Polygon", 
@@ -67,7 +69,8 @@
       "properties": {
         "name": "Wyoming", 
         "density": 5.851,
-        "color": "orange"
+        "color": "orange",
+        "height": 200000
       }, 
       "geometry": {
         "type": "Polygon", 
