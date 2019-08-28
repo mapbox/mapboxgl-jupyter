@@ -1,5 +1,5 @@
-.. image:: https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Mapbox_Logo.svg/1280px-Mapbox_Logo.svg.png
-   :width: 500
+.. image:: https://upload.wikimedia.org/wikipedia/commons/1/1f/Mapbox_logo_2019.svg
+   :width: 512
    :target: https://mapbox.com
 
 =========================================================
