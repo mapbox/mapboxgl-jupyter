@@ -1,6 +1,7 @@
 import codecs
 import json
 import os
+import warnings
 
 from IPython.core.display import HTML, display
 
@@ -258,7 +259,9 @@ class MapViz(object):
         map_html = self.as_iframe(html)
 
         # Display the iframe in the current jupyter notebook view
-        display(HTML(map_html))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            display(HTML(map_html))
 
     def add_unique_template_variables(self, options):
         pass
