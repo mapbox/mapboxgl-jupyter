@@ -7,7 +7,7 @@ from IPython.core.display import HTML, display
 import numpy
 import requests
 
-from mapboxgl.errors import TokenError, LegendError
+from mapboxgl.errors import TokenError, LegendError, ExpressionTypeError
 from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_list
 from mapboxgl import templates
 
@@ -72,7 +72,15 @@ class VectorMixin(object):
             self.vector_source = False
 
 
-class MapViz(object):
+class ExpressionTypeMixin(object):
+    """
+    validate the color_function_type, height_function_type, and radius_function_type arguments
+    """
+    def validate_color_function_type(self):
+        allowed_types = ['interpolate', 'match', 'identity', 'step']
+        if self.color_function_type not in allowed_types:
+            raise ExpressionTypeError('`color_function_type` must be one of `{}`.'.format(
+                '`, `'.join(allowed_types)))
 
     def __init__(self,
                  data,

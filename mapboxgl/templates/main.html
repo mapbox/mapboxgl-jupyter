@@ -355,6 +355,16 @@ function generateMatchExpression(propertyValue, stops, defaultValue) {
 }
 
 
+function generateStepExpression(propertyValue, stops, defaultValue) {
+    var expression;
+    expression = ['step', ['get', propertyValue], defaultValue]
+    for (var i=0; i<stops.length; i++) {
+        expression.push(stops[i][0], stops[i][1])
+    }
+    return expression
+}
+
+
 function generatePropertyExpression(expressionType, propertyValue, stops, defaultValue) {
     var expression;
     if (expressionType == 'match') {
@@ -365,6 +375,9 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
     }
     else if (propertyValue == 'identity') {
         expression = ['get', propertyValue]
+    }
+    else if (expressionType == 'step') {
+        expression = generateStepExpression(propertyValue, stops, defaultValue)
     }
     else {
         expression = generateInterpolateExpression(propertyValue, stops)

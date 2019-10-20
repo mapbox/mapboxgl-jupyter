@@ -16,3 +16,7 @@ class LegendError(ValueError):
 
 class DateConversionError(ValueError):
     pass
+
+
+class ExpressionTypeError(ValueError):
+    pass
