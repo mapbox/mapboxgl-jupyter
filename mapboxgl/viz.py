@@ -12,7 +12,7 @@ from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_l
 from mapboxgl import templates
 
 
-GL_JS_VERSION = 'v1.0.0'
+GL_JS_VERSION = 'v1.5.0'
 
 
 class VectorMixin(object):
