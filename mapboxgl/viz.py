@@ -102,7 +102,7 @@ class ExpressionsMixin(object):
         
         allowed_types = ['interpolate', 'match', 'identity', 'step']
 
-        for prop in ['color', 'radius', 'height']:
+        for prop in ['color', 'radius', 'height', 'line_width']:
 
             try:
                 function_type = getattr(self, '{}_function_type'.format(prop))
@@ -120,17 +120,22 @@ class ExpressionsMixin(object):
         radius_function_type
         """
 
-        if self.legend and self.color_function_type == 'identity':
-            message = ''.join(['`legend` = True is incompatible with selected ',
-                               '`color_function_type` = \'identity\'.'])
+        try:
 
-            warnings.warn(message)
+            if self.legend and self.color_function_type == 'identity':
+                message = ''.join(['`legend` = True is incompatible with selected ',
+                                   '`color_function_type` = \'identity\'.'])
 
-        if self.legend_gradient and self.color_function_type in ['step', 'identity']:
-            message = ''.join(['`legend_gradient` = True is incompatible with selected ',
-                               '`color_function_type`. `color_function_type` must be one ',
-                               'of `{}`.'.format('`, `'.join(allowed_types[:2]))])
-            raise ExpressionTypeError(message)
+                warnings.warn(message)
+
+            if self.legend_gradient and self.color_function_type in ['step', 'identity']:
+                message = ''.join(['`legend_gradient` = True is incompatible with selected ',
+                                   '`color_function_type`. `color_function_type` must be one ',
+                                   'of `{}`.'.format('`, `'.join(allowed_types[:2]))])
+                raise ExpressionTypeError(message)
+        
+        except AttributeError:
+            pass
 
 
 class MapViz(object):
@@ -486,7 +491,9 @@ class CircleViz(ExpressionsMixin, VectorMixin, MapViz):
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
 
+        # raise errors if incorrectly configured
         self.validate_function_types()
+        self.validate_legend_settings()
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to circle visual"""
@@ -558,6 +565,10 @@ class GraduatedCircleViz(ExpressionsMixin, VectorMixin, MapViz):
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
 
+        # raise errors if incorrectly configured
+        self.validate_function_types()
+        self.validate_legend_settings()
+
     def add_unique_template_variables(self, options):
         """Update map template variables specific to graduated circle visual"""
         options.update(dict(
@@ -579,7 +590,7 @@ class GraduatedCircleViz(ExpressionsMixin, VectorMixin, MapViz):
                 vectorRadiusStops=self.generate_vector_numeric_map('radius')))
 
 
-class HeatmapViz(ExpressionsMixin, VectorMixin, MapViz):
+class HeatmapViz(VectorMixin, MapViz):
     """Create a heatmap viz"""
 
     def __init__(self,
@@ -689,7 +700,6 @@ class ClusteredCircleViz(MapViz):
         self.color_default = color_default
         self.stroke_color = stroke_color
         self.stroke_width = stroke_width
-        self.color_default = color_default
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
 
@@ -697,7 +707,7 @@ class ClusteredCircleViz(MapViz):
         """Update map template variables specific to a clustered circle visual"""
         options.update(dict(
             colorStops=self.color_stops,
-            colorDefault=self.color_default,
+            defaultColor=self.color_default,
             radiusStops=self.radius_stops,
             clusterRadius=self.clusterRadius,
             clusterMaxZoom=self.clusterMaxZoom,
@@ -767,6 +777,10 @@ class ChoroplethViz(ExpressionsMixin, VectorMixin, MapViz):
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
 
+        # raise errors if incorrectly configured
+        self.validate_function_types()
+        self.validate_legend_settings()
+
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
 
@@ -785,8 +799,6 @@ class ChoroplethViz(ExpressionsMixin, VectorMixin, MapViz):
 
         # check if choropleth map should include 3-D extrusion
         self.extrude = all([bool(self.height_property), bool(self.height_stops)]) or (self.height_function_type == 'identity')
-
-        print(self.extrude)
 
         # common variables for vector and geojson-based choropleths
         options.update(dict(
@@ -947,6 +959,10 @@ class LinestringViz(ExpressionsMixin, VectorMixin, MapViz):
         self.line_width_function_type = line_width_function_type
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
+
+        # raise errors if incorrectly configured
+        self.validate_function_types()
+        self.validate_legend_settings()
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to linestring visual"""

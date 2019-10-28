@@ -47,6 +47,8 @@
 
     /* legend items */
     .legend-content {margin: 6px 12px 6px 12px; overflow: hidden; padding: 0; float: left; list-style: none; font-size: 0.8em;}
+    .legend.horizontal.step ul.legend-content {font-size: 0.5em;}
+    .legend.horizontal.step ul.legend-content li.legend-item .legend-value {line-height: 1.5em;}
     .legend.vertical .legend-item {white-space: nowrap;}
     .legend-value {display: inline-block; line-height: 18px; vertical-align: top;}
     .legend.horizontal ul.legend-content li.legend-item .legend-value,
@@ -92,33 +94,53 @@
 
 <script type='text/javascript'>
 
-var legendHeader;
+var legendHeader,
+    legendContent,
+    legendTitle;
 
+
+function initLegend(legend, title, legendIndex, legendFunction, legendKeyShape) {
+
+    // assign legend class
+    if (legendFunction === 'radius') {
+        legend.className = 'legend {{ legendLayout|default("vertical") }} legend-variable-radius';
+    }
+    else if (legendKeyShape === 'contiguous-bar') {
+        legend.className = 'legend {{ legendLayout|default("vertical") }} contig';
+    }
+    else {
+        legend.className = 'legend {{ legendLayout|default("vertical") }}';
+    }
+
+    legend.id = 'legend-' + legendIndex;
+    document.body.appendChild(legend);
+
+    // add legend header and content elements
+    legendTitle = document.createElement('div');
+    legendTitle.textContent = title;
+    legendTitle.className = 'legend-title'
+
+    legendHeader = document.createElement('div');
+    legendHeader.className = 'legend-header'
+    legendHeader.appendChild(legendTitle);
+
+    legendContent = document.createElement('ul');
+    legendContent.className = 'legend-content'
+
+    legend.appendChild(legendHeader);
+    legend.appendChild(legendContent);
+
+}
 
 
 function calcRadiusLegend(myRadiusStops, title, color) {
 
     // maximum legend item height
-    var maxLegendItemHeight = 2 * myRadiusStops[myRadiusStops.length - 1][1];
+    var legend = document.createElement('div'),
+        maxLegendItemHeight = 2 * myRadiusStops[myRadiusStops.length - 1][1];
 
     // create legend
-    var legend = document.createElement('div');
-    legend.className = 'legend {{ legendLayout|default("vertical") }} legend-variable-radius';
-
-    legend.id = 'legend-1';
-    document.body.appendChild(legend);
-
-    // add legend header and content elements
-    var mytitle = document.createElement('div'),
-        legendContent = document.createElement('ul');
-    legendHeader = document.createElement('div');
-    mytitle.textContent = title;
-    mytitle.className = 'legend-title'
-    legendHeader.className = 'legend-header'
-    legendContent.className = 'legend-content'
-    legendHeader.appendChild(mytitle);
-    legend.appendChild(legendHeader);
-    legend.appendChild(legendContent);
+    initLegend(legend, title, 1, 'radius', 'circle');
 
     // calculate a legend entries on a Mapbox GL Style Spec property function stops array
     for (p = 0; p < myRadiusStops.length; p++) {
@@ -272,28 +294,12 @@ function calcColorLegend(myColorStops, title, colorFunctionType, defaultColor) {
 
     // create legend
     var legend = document.createElement('div'),
-        legendContainer = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0],
+        // legendContainer = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0],
         legendKeyShape = '{{ legendKeyShape|default("circle") }}';
 
-    if (legendKeyShape === 'contiguous-bar') {
-        legend.className = 'legend {{ legendLayout|default("vertical") }} contig';
-    }
-    else {
-        legend.className = 'legend {{ legendLayout|default("vertical") }}';
-    }
-    legend.id = 'legend-0';
-    document.body.appendChild(legend);
-    // add legend header and content elements
-    var mytitle = document.createElement('div'),
-        legendContent = document.createElement('ul');
-    legendHeader = document.createElement('div');
-    mytitle.textContent = title;
-    mytitle.className = 'legend-title'
-    legendHeader.className = 'legend-header'
-    legendContent.className = 'legend-content'
-    legendHeader.appendChild(mytitle);
-    legend.appendChild(legendHeader);
-    legend.appendChild(legendContent);
+    initLegend(legend, title, 0, 'color', legendKeyShape);
+
+
     if ({{ legendGradient|safe }} === true) {
         var gradientText = 'linear-gradient(to right, ',
             gradient = document.createElement('div');
@@ -336,6 +342,9 @@ function calcColorLegend(myColorStops, title, colorFunctionType, defaultColor) {
 
     // add last legend item for step-type expressions
     if (colorFunctionType === 'step') {
+
+        legend.className = legend.className + ' step';
+
         addLegendItem(legendContent, 
                       p, 
                       legendKeyShape, 
@@ -377,6 +386,7 @@ function calcColorLegend(myColorStops, title, colorFunctionType, defaultColor) {
     updateAttribMargin(legend);
     updateLegendMargin(legend);
 }
+
 
 function updateAttribMargin(legend) {
 
