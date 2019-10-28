@@ -135,17 +135,17 @@ df = pd.read_csv(data_url)
 # Must be a public token, starting with `pk`
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
 
-# Create a geojson file export from a Pandas dataframe
-df_to_geojson(df, filename='points.geojson',
-              properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
-              lat='lat', lon='lon', precision=3)
+# Create a geojson Feature Collection export from a Pandas dataframe
+points = df_to_geojson(df, 
+                       properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
+                       lat='lat', lon='lon', precision=3)
 
 # Generate data breaks and color stops from colorBrewer
 color_breaks = [0,10,100,1000,10000]
 color_stops = create_color_stops(color_breaks, colors='YlGnBu')
 
 # Create the viz from the dataframe
-viz = CircleViz('points.geojson',
+viz = CircleViz(points,
                 access_token=token,
                 height='400px',
                 color_property='Avg Medicare Payments',
@@ -196,25 +196,25 @@ df = pd.read_csv(data_url)
 # Must be a public token, starting with `pk`
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
 
-# Create a geojson file export from a Pandas dataframe
-df_to_geojson(df, filename='points.geojson',
-              properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
-              lat='lat', lon='lon', precision=3)
+# Create a geojson Feature Collection export from a Pandas dataframe
+points = df_to_geojson(df, 
+                       properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
+                       lat='lat', lon='lon', precision=3)
 
 #Create a clustered circle map
 color_stops = create_color_stops([1,10,50,100], colors='BrBG')
 
-viz = ClusteredCircleViz('points.geojson',
-                          access_token=token,
-                          color_stops=color_stops,
-                          radius_stops=[[1,5], [10, 10], [50, 15], [100, 20]],
-                          radius_default=2,
-                          cluster_maxzoom=10,
-                          cluster_radius=30,
-                          label_size=12,
-                          opacity=0.9,
-                          center=(-95, 40),
-                          zoom=3)
+viz = ClusteredCircleViz(points,
+                         access_token=token,
+                         color_stops=color_stops,
+                         radius_stops=[[1,5], [10, 10], [50, 15], [100, 20]],
+                         radius_default=2,
+                         cluster_maxzoom=10,
+                         cluster_radius=30,
+                         label_size=12,
+                         opacity=0.9,
+                         center=(-95, 40),
+                         zoom=3)
 
 viz.show()
 ```
@@ -258,10 +258,10 @@ df = pd.read_csv(data_url)
 # Must be a public token, starting with `pk`
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
 
-# Create a geojson file export from a Pandas dataframe
-df_to_geojson(df, filename='points.geojson',
-              properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
-              lat='lat', lon='lon', precision=3)
+# Create a geojson Feature Collection export from a Pandas dataframe
+points = df_to_geojson(df, 
+                       properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
+                       lat='lat', lon='lon', precision=3)
 
 # Generate color stops from colorBrewer
 measure_color = 'Avg Covered Charges'
@@ -274,17 +274,17 @@ radius_breaks = [round(df[measure_radius].quantile(q=x*0.1), 2) for x in range(2
 radius_stops = create_radius_stops(radius_breaks, 0.5, 10)
 
 # Create the viz
-viz = GraduatedCircleViz('points.geojson',
-                          access_token=token,
-                          color_property='Avg Covered Charges',
-                          color_stops=color_stops,
-                          radius_property='Avg Medicare Payments',
-                          stroke_color='black',
-                          stroke_width=0.5,
-                          radius_stops=radius_stops,
-                          center=(-95, 40),
-                          zoom=3,
-                          below_layer='waterway-label')
+viz = GraduatedCircleViz(points,
+                         access_token=token,
+                         color_property='Avg Covered Charges',
+                         color_stops=color_stops,
+                         radius_property='Avg Medicare Payments',
+                         stroke_color='black',
+                         stroke_width=0.5,
+                         radius_stops=radius_stops,
+                         center=(-95, 40),
+                         zoom=3,
+                         below_layer='waterway-label')
 
 viz.show()
 ```
@@ -324,10 +324,10 @@ df = pd.read_csv(data_url)
 # Must be a public token, starting with `pk`
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
 
-# Create a geojson file export from a Pandas dataframe
-df_to_geojson(df, filename='points.geojson',
-              properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
-              lat='lat', lon='lon', precision=3)
+# Create a geojson Feature Collection export from a Pandas dataframe
+points = df_to_geojson(df, 
+                       properties=['Avg Medicare Payments', 'Avg Covered Charges', 'date'],
+                       lat='lat', lon='lon', precision=3)
 
 #Create a heatmap
 heatmap_color_stops = create_color_stops([0.01,0.25,0.5,0.75,1], colors='RdPu')
@@ -339,16 +339,16 @@ color_stops = create_color_stops(color_breaks, colors='Spectral')
 heatmap_weight_stops = create_weight_stops(color_breaks)
 
 #Create a heatmap
-viz = HeatmapViz('points.geojson',
-                  access_token=token,
-                  weight_property='Avg Medicare Payments',
-                  weight_stops=heatmap_weight_stops,
-                  color_stops=heatmap_color_stops,
-                  radius_stops=heatmap_radius_stops,
-                  opacity=0.9,
-                  center=(-95, 40),
-                  zoom=3,
-                  below_layer='waterway-label')
+viz = HeatmapViz(points,
+                 access_token=token,
+                 weight_property='Avg Medicare Payments',
+                 weight_stops=heatmap_weight_stops,
+                 color_stops=heatmap_color_stops,
+                 radius_stops=heatmap_radius_stops,
+                 opacity=0.9,
+                 center=(-95, 40),
+                 zoom=3,
+                 below_layer='waterway-label')
 
 viz.show()
 ```
@@ -360,7 +360,7 @@ viz.show()
 The `ChoroplethViz` object handles the creation of a choropleth map and inherits from the `MapViz` class. It applies a thematic map style to polygon features with color shading in proportion to the intensity of the data being displayed. Choropleth polygons can be initialized with geojson source or vector source styled using the data-join technique.
 
 ### Params
-**ChoroplethViz**(_data, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, height_property=None, height_stops=None, height_default=0.0, height_function_type='interpolate', \*args, \*\*kwargs_)
+**ChoroplethViz**(_data, color_property=None, color_stops=None, color_default='grey', color_function_type='interpolate', line_color='white', line_stroke='solid', line_width=1, line_opacity=1, height_property=None, height_stops=None, height_default=0.0, height_function_type='interpolate', \*args, \*\*kwargs_)
 
 Parameter | Description | Example
 --|--|--
@@ -373,6 +373,7 @@ color_function_type | property to determine type of expression used by Mapbox to
 line_color | property to determine choropleth border line color | '#FFFFFF'
 line_stroke | property to determine choropleth border line stroke (one of solid (-), dashed (--), dotted (:), dash dot (-.)) | 'solid' or '-'
 line_width | property to determine choropleth border line width | 1
+line_opacity | opacity of choropleth line layer | 1
 height_property | feature property for determining polygon height in 3D extruded choropleth map | 'density'
 height_stops | property for determining 3D extrusion height | [[0, 0], [500, 50000], [1500, 150000]]
 height_default | default height (in meters) for 3D extruded polygons on map | 1500.0
@@ -390,13 +391,14 @@ from mapboxgl.utils import *
 token = os.getenv('MAPBOX_ACCESS_TOKEN')
 
 # Create Choropleth with GeoJSON Source
-viz = ChoroplethViz('us-states.geojson',
+viz = ChoroplethViz('https://raw.githubusercontent.com/mapbox/mapboxgl-jupyter/master/examples/data/us-states.geojson',
                      color_property='density',
                      color_stops=create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd'),
                      color_function_type='interpolate',
                      line_stroke='--',
                      line_color='rgb(128,0,38)',
                      line_width=1,
+                     line_opacity=0.9,
                      opacity=0.8,
                      center=(-96, 37.8),
                      zoom=3,

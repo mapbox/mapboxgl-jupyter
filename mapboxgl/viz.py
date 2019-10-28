@@ -12,7 +12,7 @@ from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_l
 from mapboxgl import templates
 
 
-GL_JS_VERSION = 'v0.53.0'
+GL_JS_VERSION = 'v1.0.0'
 
 
 class VectorMixin(object):
@@ -657,6 +657,7 @@ class ChoroplethViz(VectorMixin, MapViz):
                  line_color='white',
                  line_stroke='solid',
                  line_width=1,
+                 line_opacity=1,
                  height_property=None,      
                  height_stops=None,
                  height_default=0.0,
@@ -679,6 +680,7 @@ class ChoroplethViz(VectorMixin, MapViz):
         :param line_color: property to determine choropleth line color
         :param line_stroke: property to determine choropleth line stroke (solid, dashed, dotted, dash dot)
         :param line_width: property to determine choropleth line width
+        :param line_opacity: opacity of choropleth line layer
         :param height_property: feature property for determining polygon height in 3D extruded choropleth map
         :param height_stops: property for determining 3D extrusion height
         :param height_default: default height for 3D extruded polygons
@@ -697,6 +699,7 @@ class ChoroplethViz(VectorMixin, MapViz):
         self.line_color = line_color
         self.line_stroke = line_stroke
         self.line_width = line_width
+        self.line_opacity = line_opacity
         self.height_property = height_property
         self.height_stops = height_stops
         self.height_default = height_default
@@ -735,6 +738,7 @@ class ChoroplethViz(VectorMixin, MapViz):
             lineDashArray=self.line_dash_array,
             lineStroke=self.line_stroke,
             lineWidth=self.line_width,
+            lineOpacity=self.line_opacity,
             extrudeChoropleth=self.extrude,
             highlightColor=self.highlight_color
         ))
