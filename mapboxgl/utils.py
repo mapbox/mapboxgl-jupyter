@@ -460,47 +460,46 @@ def height_map(lookup, height_stops, default_height=0.0):
     return default_height
 
 
-def step_map(lookup, color_stops, default_color='rgb(122,122,122)'):
-    """Return an rgb color value from step 'function' define by given color_stops;
-    assumes colors in color_stops provided as strings of form 'rgb(RRR,GGG,BBB)'
-    or in hex: '#RRGGBB'; compatible with color_stops or numeric_stops including
-    height_stops
+def step_map(lookup, step_stops, default='rgb(122,122,122)'):
+    """Return a numeric value or rgb color value from step 'function' defined
+    by given stops; assumes colors in step_stops provided as strings; compatible 
+    with color_stops or numeric_stops including height_stops
     """
-    # if no color_stops, use default color
-    if len(color_stops) == 0:
-        return default_color
+    # if no step_stops, use default
+    if len(step_stops) == 0:
+        return default
     
-    # dictionary to lookup color from match-type color_stops
-    match_map = dict((x, y) for (x, y) in color_stops)
+    # dictionary to lookup color from match-type stops
+    match_map = dict((x, y) for (x, y) in step_stops)
 
-    # if lookup matches stop exactly, return corresponding color (first priority)
-    # (includes non-numeric color_stop "keys" for finding color by match)
+    # if lookup matches stop exactly, return corresponding color/value (first priority)
+    # (includes non-numeric color_stop/numeric_stop "keys" for finding color by match)
     if lookup in match_map.keys():
         return match_map.get(lookup)
 
-    # if lookup value numeric, map color by interpolating from color scale
+    # if lookup value numeric, map color/value with step logic from stops
     if isinstance(lookup, (int, float, complex)):
 
-        # try ordering stops 
+        # try ordering stops (descending order)
         try:
-            stops, colors = zip(*sorted(color_stops, reverse=True))
+            stops, values = zip(*sorted(step_stops, reverse=True))
         
         # if not all stops are numeric, attempt looking up as if categorical stops
         except TypeError:
-            return match_map.get(lookup, default_color)
+            return match_map.get(lookup, default)
 
         # for step-map, all stops must be numeric
         if not all(isinstance(x, (int, float, complex)) for x in stops):
-            return default_color
+            return default
 
-        # check if lookup value is below minimum of stops
+        # check if lookup value is below minimum of step_stops
         if float(lookup) <= stops[-1]:
-            return default_color
+            return default
         
-        # color break forms the left bound for bin assigned to corresponding color
+        # break forms the left bound for bin assigned to corresponding color/value
         for i, stop in enumerate(stops):
             if float(lookup) >= stops[i]:
-                return colors[i]
+                return values[i]
 
-    # default color value catch-all
-    return default_color
+    # default color/value catch-all
+    return default
