@@ -11,7 +11,7 @@
 
     {% if showLegend %}
         {% if colorStops and colorProperty %}
-            calcColorLegend({{ colorStops }} , "{{ colorProperty }}");
+            calcColorLegend({{ colorStops }}, "{{ colorProperty }}", "{{ colorType }}", "{{ defaultColor }}");
         {% endif %}
     {% endif %}
         

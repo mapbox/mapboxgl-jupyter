@@ -94,111 +94,6 @@
 
 var legendHeader;
 
-function calcColorLegend(myColorStops, title) {
-    // create legend
-    var legend = document.createElement('div'),
-        legendContainer = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0];
-
-    if ('{{ legendKeyShape|default("circle") }}' === 'contiguous-bar') {
-        legend.className = 'legend {{ legendLayout|default("vertical") }} contig';
-    }
-    else {
-        legend.className = 'legend {{ legendLayout|default("vertical") }}';
-    }
-    legend.id = 'legend-0';
-    document.body.appendChild(legend);
-    // add legend header and content elements
-    var mytitle = document.createElement('div'),
-        legendContent = document.createElement('ul');
-    legendHeader = document.createElement('div');
-    mytitle.textContent = title;
-    mytitle.className = 'legend-title'
-    legendHeader.className = 'legend-header'
-    legendContent.className = 'legend-content'
-    legendHeader.appendChild(mytitle);
-    legend.appendChild(legendHeader);
-    legend.appendChild(legendContent);
-    if ({{ legendGradient|safe }} === true) {
-        var gradientText = 'linear-gradient(to right, ',
-            gradient = document.createElement('div');
-        gradient.className = 'gradient-bar';
-        legend.appendChild(gradient);
-    }
-    // calculate a legend entries on a Mapbox GL Style Spec property function stops array
-    for (p = 0; p < myColorStops.length; p++) {
-        if (!!document.getElementById('legend-color-points-value-' + p)) {
-            // update the legend if it already exists
-            document.getElementById('legend-color-points-value-' + p).textContent = myColorStops[p][0];
-            document.getElementById('legend-color-points-id-' + p).style.backgroundColor = myColorStops[p][1];
-        }
-        else {
-            // create the legend if it doesn't yet exist
-            var item = document.createElement('li');
-            item.className = 'legend-item';
-            var key = document.createElement('span');
-            key.className = 'legend-key {{ legendKeyShape|default("circle") }}';
-            key.id = 'legend-color-points-id-' + p;
-            key.style.backgroundColor = myColorStops[p][1];
-            var value = document.createElement('span');
-            value.className = 'legend-value';
-            value.id = 'legend-color-points-value-' + p;
-            item.appendChild(key);
-            item.appendChild(value);
-            legendContent.appendChild(item);
-            
-            data = document.getElementById('legend-color-points-value-' + p)
-            // round number values in legend if precision defined
-            if ((typeof(myColorStops[p][0]) == 'number') && (typeof({{ legendNumericPrecision }}) == 'number')) {
-                data.textContent = myColorStops[p][0].toFixed({{ legendNumericPrecision }});
-            }
-            else {
-                data.textContent = myColorStops[p][0];
-            }
-            // add color stop to gradient list
-            if ({{ legendGradient|safe }} === true) {
-                if (p < myColorStops.length - 1) {
-                    gradientText = gradientText + myColorStops[p][1] + ', ';
-                }
-                else {
-                    gradientText = gradientText + myColorStops[p][1] + ')';
-                }
-                if ('{{ legendLayout|default("vertical") }}' === 'vertical') {
-                    gradientText = gradientText.replace('to right', 'to bottom');
-                }
-            }
-        }
-    }
-    if ({{ legendGradient|safe }} === true) {
-        // convert to gradient scale appearance
-        gradient.style.background = gradientText;
-        // hide legend keys generated above
-        var keys = document.getElementsByClassName('legend-key');
-        for (var i=0; i < keys.length; i++) {
-            keys[i].style.visibility = 'hidden';
-        }
-        if ('{{ legendLayout|default("vertical") }}' === 'vertical') {
-            gradient.style.height = (legendContent.offsetHeight - 6) + 'px';
-        }
-    }
-    // add class for styling bordered legend keys
-    if ({{ legendKeyBordersOn|safe }}) {
-        var keys = document.getElementsByClassName('legend-key');
-        for (var i=0; i < keys.length; i++) {
-            if (keys[i]) {
-                keys[i].classList.add('bordered');
-            }
-        }
-        var gradientBars = document.getElementsByClassName('gradient-bar');
-        for (var i=0; i < keys.length; i++) {
-            if (gradientBars[i]) {
-                gradientBars[i].classList.add('bordered');
-            }
-        }
-    }
-    // update right-margin for compact Mapbox attribution based on calculated legend width
-    updateAttribMargin(legend);
-    updateLegendMargin(legend);
-}
 
 
 function calcRadiusLegend(myRadiusStops, title, color) {
@@ -287,18 +182,100 @@ function calcRadiusLegend(myRadiusStops, title, color) {
 }
 
 
-function addLegendItem(color, value, precision, colorFunctionType) {
+function addLegendItem(legendContent, itemIndex, keyShape, precision, defaultColor, colorStops, colorFunctionType) {
+
+    // create the legend item if it doesn't yet exist
+    var item = document.createElement('li');
+    item.className = 'legend-item';
+
+    // create the legend key (contains symbol for legend item)
+    var key = document.createElement('span');
+    key.className = 'legend-key ' + keyShape;
+    key.id = 'legend-color-points-id-' + itemIndex;
+
+    // determine the color to use for step color functions
+    if (colorFunctionType === 'step') {
+
+        if (itemIndex===0) {
+            key.style.backgroundColor = defaultColor;
+        }
+        else if (itemIndex === colorStops.length) {
+            key.style.backgroundColor = colorStops[itemIndex-1][1];
+        }
+        else {
+            key.style.backgroundColor = colorStops[itemIndex-1][1];
+        }
+
+    }
+    // determine the color to use for other color functions 
+    else {
+        key.style.backgroundColor = colorStops[itemIndex][1];
+    }
+
+    // determine the legend item label
+    var value = document.createElement('span');
+    value.className = 'legend-value';
+    value.id = 'legend-color-points-value-' + itemIndex;
+    item.appendChild(key);
+    item.appendChild(value);
+    legendContent.appendChild(item);
+    
+    data = document.getElementById('legend-color-points-value-' + itemIndex);
+
+    if (colorFunctionType === 'step' && itemIndex === colorStops.length) {
+        var useStop = colorStops[itemIndex-1][0];
+    }
+    else {
+        var useStop = colorStops[itemIndex][0];
+    }
+
+    // round number values in legend if precision defined
+    if ((typeof(useStop) == 'number') && (typeof(precision) == 'number')) {
+        data.textContent = useStop.toFixed(precision);
+    }
+    else {
+        data.textContent = useStop;
+    }
+
+    // update legend key text for step color functions
+    if (colorFunctionType === 'step') {
+
+        if (itemIndex === 0) {
+            data.textContent = '< ' + data.textContent;
+        }
+
+        else if (itemIndex < colorStops.length) {
+
+            if ((typeof(colorStops[itemIndex][0]) == 'number') && (typeof(precision) == 'number')) {
+                prepend = colorStops[itemIndex-1][0].toFixed(precision);
+            }
+            else {
+                prepend = colorStops[itemIndex-1][0];
+            }
+
+            data.textContent = prepend + ' - ' + data.textContent;
+
+        }
+
+        else {
+
+            data.textContent = '> ' + data.textContent;
+
+        }
+
+    }
 
 }
 
 
-function calcStepColorLegend(myColorStops, title, colorFunctionType, defaultColor) {
+function calcColorLegend(myColorStops, title, colorFunctionType, defaultColor) {
 
     // create legend
     var legend = document.createElement('div'),
-        legendContainer = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0];
+        legendContainer = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0],
+        legendKeyShape = '{{ legendKeyShape|default("circle") }}';
 
-    if ('{{ legendKeyShape|default("circle") }}' === 'contiguous-bar') {
+    if (legendKeyShape === 'contiguous-bar') {
         legend.className = 'legend {{ legendLayout|default("vertical") }} contig';
     }
     else {
@@ -324,132 +301,51 @@ function calcStepColorLegend(myColorStops, title, colorFunctionType, defaultColo
         legend.appendChild(gradient);
     }
     // calculate a legend entries on a Mapbox GL Style Spec property function stops array
-    for (p = 0; p < myColorStops.length+1; p++) {
-        
-        if (p < myColorStops.length) {
+    for (p = 0; p < myColorStops.length; p++) {
 
-            if (!!document.getElementById('legend-color-points-value-' + p)) {
-                // update the legend if it already exists
-                document.getElementById('legend-color-points-value-' + p).textContent = myColorStops[p][0];
-                document.getElementById('legend-color-points-id-' + p).style.backgroundColor = myColorStops[p][1];
-            }
-
-            else {
-                // create the legend if it doesn't yet exist
-                var item = document.createElement('li');
-                item.className = 'legend-item';
-                var key = document.createElement('span');
-                key.className = 'legend-key {{ legendKeyShape|default("circle") }}';
-                key.id = 'legend-color-points-id-' + p;
-                if (p===0) {
-                    key.style.backgroundColor = defaultColor;
-                }
-                else {
-                    key.style.backgroundColor = myColorStops[p-1][1];
-                }
-                var value = document.createElement('span');
-                value.className = 'legend-value';
-                value.id = 'legend-color-points-value-' + p;
-                item.appendChild(key);
-                item.appendChild(value);
-                legendContent.appendChild(item);
-                
-                data = document.getElementById('legend-color-points-value-' + p);
-                
-                // round number values in legend if precision defined
-                if ((typeof(myColorStops[p][0]) == 'number') && (typeof({{ legendNumericPrecision }}) == 'number')) {
-                    data.textContent = myColorStops[p][0].toFixed({{ legendNumericPrecision }});
-                }
-                else {
-                    data.textContent = myColorStops[p][0];
-                }
-
-                // if color function type is 'match'
-                if (colorFunctionType === 'step') {
-                    
-                    if (p === 0) {
-
-                        data.textContent = '< ' + myColorStops[p][0];
-
-                    }
-
-                    else if ((p > 0) && (p < myColorStops.length + 1)) {
-
-                        if ((typeof(myColorStops[p][0]) == 'number') && (typeof({{ legendNumericPrecision }}) == 'number')) {
-                            a = myColorStops[p-1][0].toFixed({{ legendNumericPrecision }});
-                            b = myColorStops[p][0].toFixed({{ legendNumericPrecision }});
-                        }
-                        else {
-                            a = myColorStops[p-1][0];
-                            b = myColorStops[p][0];
-                        }
-
-                        data.textContent = a + ' - ' + b;
-
-                    }
-
-                }
-
-                else if (colorFunctionType === 'match' && p > 0 && p < myColorStops.length) {
-
-                    if ((typeof(myColorStops[p][0]) == 'number') && (typeof({{ legendNumericPrecision }}) == 'number')) {
-                        data.textContent = myColorStops[p-1][0].toFixed({{ legendNumericPrecision }}) + ' - ' + myColorStops[p][0].toFixed({{ legendNumericPrecision }});
-                    }
-                    else {
-                        data.textContent = myColorStops[p-1][0] + ' - ' + myColorStops[p][0];
-                    }   
-
-
-                }
-
-                // add color stop to gradient list
-                if ({{ legendGradient|safe }} === true) {
-                    if (p < myColorStops.length - 1) {
-                        gradientText = gradientText + myColorStops[p][1] + ', ';
-                    }
-                    else {
-                        gradientText = gradientText + myColorStops[p][1] + ')';
-                    }
-                    if ('{{ legendLayout|default("vertical") }}' === 'vertical') {
-                        gradientText = gradientText.replace('to right', 'to bottom');
-                    }
-                }
-            }
-
-
-
+        // update the legend if it already exists
+        if (!!document.getElementById('legend-color-points-value-' + p)) {
+            document.getElementById('legend-color-points-value-' + p).textContent = myColorStops[p][0];
+            document.getElementById('legend-color-points-id-' + p).style.backgroundColor = myColorStops[p][1];
         }
 
+        // create the legend item if it doesn't yet exist
         else {
-
-
-            // create the legend if it doesn't yet exist
-            var item = document.createElement('li');
-            item.className = 'legend-item';
-            var key = document.createElement('span');
-            key.className = 'legend-key {{ legendKeyShape|default("circle") }}';
-            key.id = 'legend-color-points-id-' + p;
-            if (p===0) {
-                key.style.backgroundColor = defaultColor;
+            addLegendItem(legendContent, 
+                          p, 
+                          legendKeyShape, 
+                          {{ legendNumericPrecision }}, 
+                          defaultColor, 
+                          myColorStops, 
+                          colorFunctionType);
+               
+            // add color stop to gradient list
+            if ({{ legendGradient|safe }} === true) {
+                if (p < myColorStops.length - 1) {
+                    gradientText = gradientText + myColorStops[p][1] + ', ';
+                }
+                else {
+                    gradientText = gradientText + myColorStops[p][1] + ')';
+                }
+                if ('{{ legendLayout|default("vertical") }}' === 'vertical') {
+                    gradientText = gradientText.replace('to right', 'to bottom');
+                }
             }
-            else {
-                key.style.backgroundColor = myColorStops[p-1][1];
-            }
-            var value = document.createElement('span');
-            value.className = 'legend-value';
-            value.id = 'legend-color-points-value-' + p;
-            item.appendChild(key);
-            item.appendChild(value);
-            legendContent.appendChild(item);
-            
-            data = document.getElementById('legend-color-points-value-' + p);
-            data.textContent = '> ' + myColorStops[p-1][0];
-
-
         }
-
-
     }
+
+    // add last legend item for step-type expressions
+    if (colorFunctionType === 'step') {
+        addLegendItem(legendContent, 
+                      p, 
+                      legendKeyShape, 
+                      {{ legendNumericPrecision }}, 
+                      defaultColor, 
+                      myColorStops, 
+                      colorFunctionType);        
+    }
+
+    // gradient bar styling
     if ({{ legendGradient|safe }} === true) {
         // convert to gradient scale appearance
         gradient.style.background = gradientText;

@@ -8,7 +8,7 @@ import numpy
 import requests
 
 from mapboxgl.errors import TokenError, LegendError, ExpressionTypeError
-from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_list
+from mapboxgl.utils import color_map, numeric_map, step_map, img_encode, geojson_to_dict_list
 from mapboxgl import templates
 
 
@@ -29,7 +29,17 @@ class VectorMixin(object):
         for row in self.data:
             
             # map color to JSON feature using color_property
-            color = color_map(row[self.color_property], self.color_stops, self.color_default)
+            if self.color_function_type in ['interpolate', 'match']:
+                color = color_map(row[self.color_property], self.color_stops, self.color_default)
+            
+            if self.color_function_type == 'identity':
+                try:
+                    color = row[self.color_property]
+                except KeyError:
+                    color = self.color_default
+
+            elif self.color_function_type == 'step':
+                color = step_map(row[self.color_property], self.color_stops, self.color_default)
 
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], color])
@@ -55,7 +65,17 @@ class VectorMixin(object):
         for row in self.data:
 
             # map value to JSON feature using the numeric property
-            value = numeric_map(row[lookup_property], numeric_stops, default)
+            if function_type in ['interpolate', 'match']:
+                value = numeric_map(row[lookup_property], numeric_stops, default)
+
+            if function_type == 'identity':
+                try:
+                    value = row[lookup_property]
+                except KeyError:
+                    value = default
+
+            elif function_type == 'step':
+                value = step_map(row[lookup_property], numeric_stops, default)
             
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], value])
@@ -73,14 +93,24 @@ class VectorMixin(object):
 
 
 class ExpressionTypeMixin(object):
-    """
-    validate the color_function_type, height_function_type, and radius_function_type arguments
-    """
+
+    allowed_types = ['interpolate', 'match', 'identity', 'step']
+
     def validate_color_function_type(self):
-        allowed_types = ['interpolate', 'match', 'identity', 'step']
-        if self.color_function_type not in allowed_types:
+        """
+        validate the color_function_type, height_function_type, and radius_function_type arguments
+        """        
+        
+        if self.color_function_type not in self.allowed_types:
             raise ExpressionTypeError('`color_function_type` must be one of `{}`.'.format(
-                '`, `'.join(allowed_types)))
+                '`, `'.join(self.allowed_types)))
+
+    # def update_step_legend_labels(self):
+    #     """
+    #     """
+
+
+class MapViz(object):
 
     def __init__(self,
                  data,
