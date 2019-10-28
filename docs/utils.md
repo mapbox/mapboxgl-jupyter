@@ -243,3 +243,24 @@ from mapboxgl.utils import create_numeric_stops, height_map
 height_stops = create_numeric_stops([0, 50, 100, 500, 1500], 0, 150000)
 height = height_map(117, height_stops)
 ```
+
+## step_map
+Return a color or numeric value with a 'step'-type expression from given color_stops or numeric_stops; for use with 'step' expression type (color_function_type, radius_function_type, height_function_type).
+
+### Params
+**step_map**(_lookup, step_stops, default='rgb(122,122,122)'_)
+
+Parameter | Description
+--|--
+lookup | value maybe be numeric for interpolated values or string for categorical stops
+step_stops | height ramp stops generated from `create_numeric_stops`, or custom list of numeric or categorical stops with paired heights
+default | default value (color or numeric) used for values below the minimum color or numeric break
+
+### Usage
+```python
+from mapboxgl.utils import create_color_stops, step_map
+
+# assign color with a step function
+color_stops = create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd')
+color = step_map(73, color_stops, 'white')
+```

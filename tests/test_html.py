@@ -424,3 +424,32 @@ def test_display_RasterTileViz(display, data):
     """
     tiles_url = 'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'
     viz = RasterTilesViz(tiles_url, access_token=TOKEN)
+
+
+@patch('mapboxgl.viz.display')
+def test_display_step_function(display, data):
+    """Assert that show calls the mocked display function with color_function_type=step
+    """
+    viz = CircleViz(data,
+                    color_property='Avg Medicare Payments',
+                    color_function_type='step',
+                    color_stops=create_color_stops([0, 50, 100, 500, 1500], colors='YlOrRd'),
+                    label_property='Avg Medicare Payments',
+                    access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()
+
+
+@patch('mapboxgl.viz.display')
+def test_display_identity_function(display, data):
+    """Assert that show calls the mocked display function with color_function_type=identity
+    """
+    for i in range(len(data['features'])):
+        data['features'][i]['color'] = 'red'
+    viz = CircleViz(data,
+                    color_property='Avg Medicare Payments',
+                    color_function_type='identity',
+                    label_property='Avg Medicare Payments',
+                    access_token=TOKEN)
+    viz.show()
+    display.assert_called_once()

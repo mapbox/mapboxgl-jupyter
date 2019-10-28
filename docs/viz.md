@@ -102,6 +102,19 @@ Generate stops array for use with match expression in mapbox template.
 Determines if features are defined as vector source based on MapViz arguments.
 
 
+## class ExpressionsMixin
+
+The `ExpressionsMixin` class is a parent class of the various `mapboxgl-jupyter` visualizations supporting validations of the combinations of viz settings and selected expression types before rendering the map. `CircleViz`, `GraduatedCircleViz`, `HeatmapViz`, `ChoroplethViz`, and `LinestringViz` inherit from this mixin class.
+
+### Methods
+**validate_function_types**(_self_)
+Raise an error if color_function_type, radius_function_type, or height_function_type do not match the allowed values (one of `interpolate`, `match`, `identity`, or `step`.)
+
+**validate_legend_settings**(_self_)
+Warning if the property function_type for the legend property is `identity` and `self.legend = True`.  Legend will not display with `identity`.
+Also raises an error if `legend_gradient` is True and color_function_type is one of `identity` or `step`.
+
+
 ## class CircleViz
 
 The `CircleViz` class handles the creation of a circle map and is built on top of the `MapViz` class.
@@ -114,8 +127,8 @@ Parameter | Description
 data | name of GeoJson file or object or JSON join-data
 color_property | property to determine circle color
 color_stops | property to determine circle color
-color_default | color of circle to use if no lookup value matches the property value. Only used for the **match** color_function_type.
-color_function_type | property to determine `type` used by Mapbox to assign color. One of 'interpolate' or 'match'. Default is interpolate
+color_default | color of circle to use if no lookup value matches the property value. Only used for the **match** or **step** color_function_type.
+color_function_type | property to determine `type` used by Mapbox to assign color. One of 'interpolate', 'match', 'identity' or 'step'. Default is interpolate
 stroke_color | color of circle outline stroke
 stroke_width | width (in pixels) of circle outline stroke
 
@@ -233,12 +246,12 @@ Parameter | Description
 data | name of GeoJson file or object or JSON join-data
 color_property | property to determine circle color.
 color_stops | property to determine circle color.
-color_default | color of the circle to use if no lookup value matches the property value. Only used for the **match** color_function_type.
-color_function_type | property to determine `type` used by Mapbox to assign color. One of "interpolate" or "match". Default is interpolate.
+color_default | color of the circle to use if no lookup value matches the property value. Only used for the **match** or **step** color_function_type.
+color_function_type | property to determine `type` used by Mapbox to assign color. One of "interpolate", "match", "identity" or "step". Default is interpolate.
 radius_property | property to determine circle radius.
 radius_stops | property to determine circle radius.
-radius_default | radius of the circle to use if no lookup value matches the property value. Only used for the **match** radius_function_type.
-radius_function_type | property to determine `type` used by Mapbox to assign radius size. One of "interpolate" or "match". Default is interpolate.
+radius_default | radius of the circle to use if no lookup value matches the property value. Only used for the **match** or **step** radius_function_type.
+radius_function_type | property to determine `type` used by Mapbox to assign radius size. One of "interpolate", "match", "identity" or "step". Default is interpolate.
 stroke_color | Color of stroke outline on circles
 stroke_width | Width of stroke outline on circles
 
@@ -368,7 +381,7 @@ data | can be either GeoJSON (containing polygon features) or JSON for data-join
 label_property | property to use for marker label | 'density'
 color_property | property to determine fill color | 'density'
 color_stops | property to determine fill color | [[0, 'red'], [0.5, 'blue'], [1, 'green']]
-color_default | property to determine default fill color in match lookups | '#F0F0F0'
+color_default | property to determine default fill color in match lookups and step lookups | '#F0F0F0'
 color_function_type | property to determine type of expression used by Mapbox to assign color | 'interpolate'
 line_color | property to determine choropleth border line color | '#FFFFFF'
 line_stroke | property to determine choropleth border line stroke (one of solid (-), dashed (--), dotted (:), dash dot (-.)) | 'solid' or '-'

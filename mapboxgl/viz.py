@@ -1,6 +1,7 @@
 import codecs
 import json
 import os
+import warnings
 
 from IPython.core.display import HTML, display
 
@@ -92,22 +93,44 @@ class VectorMixin(object):
             self.vector_source = False
 
 
-class ExpressionTypeMixin(object):
+class ExpressionsMixin(object):
 
-    allowed_types = ['interpolate', 'match', 'identity', 'step']
-
-    def validate_color_function_type(self):
+    def validate_function_types(self):
         """
-        validate the color_function_type, height_function_type, and radius_function_type arguments
+        validate the color_function_type, height_function_type, and radius_function_type
         """        
         
-        if self.color_function_type not in self.allowed_types:
-            raise ExpressionTypeError('`color_function_type` must be one of `{}`.'.format(
-                '`, `'.join(self.allowed_types)))
+        allowed_types = ['interpolate', 'match', 'identity', 'step']
 
-    # def update_step_legend_labels(self):
-    #     """
-    #     """
+        for prop in ['color', 'radius', 'height']:
+
+            try:
+                function_type = getattr(self, '{}_function_type'.format(prop))
+                if function_type not in allowed_types:
+                    message = '`{0}_function_type` must be one of `{1}`.'.format(prop, 
+                        '`, `'.join(allowed_types))
+                    raise ExpressionTypeError(message)
+
+            except AttributeError:
+                pass
+
+    def validate_legend_settings(self):
+        """
+        validate that legend display settings are compatible with color_function_type and 
+        radius_function_type
+        """
+
+        if self.legend and self.color_function_type == 'identity':
+            message = ''.join(['`legend` = True is incompatible with selected ',
+                               '`color_function_type` = \'identity\'.'])
+
+            warnings.warn(message)
+
+        if self.legend_gradient and self.color_function_type in ['step', 'identity']:
+            message = ''.join(['`legend_gradient` = True is incompatible with selected ',
+                               '`color_function_type`. `color_function_type` must be one ',
+                               'of `{}`.'.format('`, `'.join(allowed_types[:2]))])
+            raise ExpressionTypeError(message)
 
 
 class MapViz(object):
@@ -420,7 +443,7 @@ class MapViz(object):
                     setattr(self, '{}_stops'.format(attribute), [])
 
 
-class CircleViz(VectorMixin, MapViz):
+class CircleViz(ExpressionsMixin, VectorMixin, MapViz):
     """Create a circle map"""
 
     def __init__(self,
@@ -463,6 +486,8 @@ class CircleViz(VectorMixin, MapViz):
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
 
+        self.validate_function_types()
+
     def add_unique_template_variables(self, options):
         """Update map template variables specific to circle visual"""
         options.update(dict(
@@ -481,7 +506,7 @@ class CircleViz(VectorMixin, MapViz):
             options.update(vectorColorStops=self.generate_vector_color_map())
 
 
-class GraduatedCircleViz(VectorMixin, MapViz):
+class GraduatedCircleViz(ExpressionsMixin, VectorMixin, MapViz):
     """Create a graduated circle map"""
 
     def __init__(self,
@@ -554,7 +579,7 @@ class GraduatedCircleViz(VectorMixin, MapViz):
                 vectorRadiusStops=self.generate_vector_numeric_map('radius')))
 
 
-class HeatmapViz(VectorMixin, MapViz):
+class HeatmapViz(ExpressionsMixin, VectorMixin, MapViz):
     """Create a heatmap viz"""
 
     def __init__(self,
@@ -683,7 +708,7 @@ class ClusteredCircleViz(MapViz):
         ))
 
 
-class ChoroplethViz(VectorMixin, MapViz):
+class ChoroplethViz(ExpressionsMixin, VectorMixin, MapViz):
     """Create a choropleth viz"""
 
     def __init__(self,
@@ -870,7 +895,7 @@ class RasterTilesViz(MapViz):
             tiles_bounds=self.tiles_bounds if self.tiles_bounds else 'undefined'))
 
 
-class LinestringViz(VectorMixin, MapViz):
+class LinestringViz(ExpressionsMixin, VectorMixin, MapViz):
     """Create a linestring viz"""
 
     def __init__(self,
