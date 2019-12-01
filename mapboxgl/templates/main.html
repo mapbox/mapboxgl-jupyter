@@ -474,9 +474,6 @@ function generatePropertyExpression(expressionType, propertyValue, stops, defaul
     else if (expressionType == 'identity') {
         expression = ['get', propertyValue]
     }
-    else if (propertyValue == 'identity') {
-        expression = ['get', propertyValue]
-    }
     else if (expressionType == 'step') {
         expression = generateStepExpression(propertyValue, stops, defaultValue)
     }
