@@ -298,8 +298,8 @@ class MapViz(object):
             scalePosition=self.scale_position,
             scaleFillColor=self.scale_background_color,
             scaleTextColor=self.scale_text_color,
-            mapwidth=self.width,
-            mapheight=self.height
+            mapWidth=self.width,
+            mapHeight=self.height
         )
 
         if self.legend:
