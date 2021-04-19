@@ -1,7 +1,3 @@
-.. image:: https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Mapbox_Logo.svg/1280px-Mapbox_Logo.svg.png
-   :width: 500
-   :target: https://mapbox.com
-
 =========================================================
 Location Data Visualization library for Jupyter Notebooks
 =========================================================
