@@ -2,10 +2,6 @@ class TokenError(ValueError):
     pass
 
 
-class ValueError(ValueError):
-    pass
-
-
 class SourceDataError(ValueError):
     pass
 
@@ -15,4 +11,8 @@ class LegendError(ValueError):
 
 
 class DateConversionError(ValueError):
+    pass
+
+
+class ExpressionTypeError(ValueError):
     pass

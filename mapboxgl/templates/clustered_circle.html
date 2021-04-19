@@ -10,7 +10,7 @@
 {% block legend %}
     
     {% if showLegend %}
-        calcColorLegend({{ colorStops }}, "Point Density");
+        calcColorLegend({{ colorStops }}, "Point Density", "interpolate", "{{ defaultColor }}");
     {% endif %}
 
 {% endblock legend %}
@@ -85,7 +85,7 @@
                 "circle-color": ["case",
                     ["boolean", ["feature-state", "hover"], false], 
                     "{{ highlightColor }}", 
-                    "{{ colorDefault }}"],
+                    "{{ defaultColor }}"],
                 "circle-radius" : generateInterpolateExpression( 'zoom', [[0, {{ radiusDefault }} ], [22,10 * {{ radiusDefault }}]]),
                 "circle-stroke-color": ["case",
                     ["boolean", ["feature-state", "hover"], false], 

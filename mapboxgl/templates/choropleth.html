@@ -13,13 +13,13 @@
         {% if extrudeChoropleth %}
             {% if colorStops and colorProperty and heightProperty %}
                 {% if colorProperty != heightProperty and extrudeChoropleth %}
-                    calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ heightProperty }}");
+                    calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ heightProperty }}", "{{ colorType }}", "{{ defaultColor }}");
                 {% else %}
-                    calcColorLegend({{ colorStops }}, "{{ colorProperty }}");
+                    calcColorLegend({{ colorStops }}, "{{ colorProperty }}", "{{ colorType }}", "{{ defaultColor }}");
                 {% endif %}
             {% endif %}
         {% else %}
-            calcColorLegend({{ colorStops }}, "{{ colorProperty }}");
+            calcColorLegend({{ colorStops }}, "{{ colorProperty }}", "{{ colorType }}", "{{ defaultColor }}");
         {% endif %}
     {% endif %}
 

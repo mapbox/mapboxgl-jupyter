@@ -5,12 +5,12 @@
     {% if showLegend %}
         {% if colorStops and colorProperty and widthProperty %}
             {% if colorProperty != widthProperty %}
-                calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}");
+                calcColorLegend({{ colorStops }}, "{{ colorProperty }} vs. {{ widthProperty }}", "{{ colorType }}", "{{ defaultColor }}");
             {% else %}
-                calcColorLegend({{ colorStops }}, "{{ colorProperty }}");
+            calcColorLegend({{ colorStops }}, "{{ colorProperty }}", "{{ colorType }}", "{{ defaultColor }}");
             {% endif %}
         {% elif colorStops and colorProperty %}
-            calcColorLegend({{ colorStops }}, "{{ colorProperty }}");
+        calcColorLegend({{ colorStops }}, "{{ colorProperty }}", "{{ colorType }}", "{{ defaultColor }}");
         {% endif %}
     {% endif %}
 
