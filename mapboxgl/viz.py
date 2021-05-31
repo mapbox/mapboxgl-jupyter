@@ -1,4 +1,5 @@
 import codecs
+import decimal
 import json
 import os
 
@@ -13,6 +14,13 @@ from mapboxgl import templates
 
 
 GL_JS_VERSION = 'v1.5.0'
+
+
+class FullJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return str(o)
+        return super().default(o)
 
 
 class VectorMixin(object):
@@ -278,7 +286,7 @@ class MapViz(object):
             style=style,
             center=list(self.center),
             zoom=self.zoom,
-            geojson_data=json.dumps(self.data, ensure_ascii=False),
+            geojson_data=json.dumps(self.data, ensure_ascii=False, cls=FullJSONEncoder),
             belowLayer=self.below_layer,
             opacity=self.opacity,
             minzoom=self.min_zoom,
