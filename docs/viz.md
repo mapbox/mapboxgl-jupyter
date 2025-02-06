@@ -472,30 +472,6 @@ legend | no legend for RasterTilesViz | False
 [MapViz options](https://github.com/mapbox/mapboxgl-jupyter/blob/master/docs/viz.md#params)
 
 ### Usage
-```python
-from mapboxgl.viz import RasterTilesViz
-
-tiles_url = 'https://cogeo.remotepixel.ca/tiles/{z}/{x}/{y}.jpg?tile=256&nodata=0&url=http://oin-hotosm.s3.amazonaws.com/594ab0ba1b114600111194a3/0/d66720c4-148c-4e11-9d54-4ae2a6ba6351.tif'
-
-# Define the tile endpoint bounds
-tiles_bounds = [124.97480681619507, 10.876763902260592, 124.99391704636035, 10.888369402219947]
-tiles_center = [124.9843619312777, 10.88256665224027]
-
-viz = RasterTilesViz(tiles_url,
-                     tiles_size=256,
-                     tiles_bounds=tiles_bounds,
-                     height='500px',
-                     center=tiles_center,
-                     tiles_minzoom=13,
-                     tiles_maxzoom=18,
-                     zoom=16)
-viz.show()
-```
-![RasterTilesViz](https://user-images.githubusercontent.com/10407788/37537676-b055a108-2924-11e8-94cb-ad3203b736af.jpg)
-
-
-[Complete example](https://github.com/mapbox/mapboxgl-jupyter/blob/master/examples/notebooks/rastertile-viz-types-example.ipynb)
-
 
 #### Bring your own raster
 Using [`rio-glui`](https://github.com/mapbox/rio-glui) python module, you can create a local tiles server to explore your own file.
