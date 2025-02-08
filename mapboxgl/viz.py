@@ -3,7 +3,7 @@ import json
 import os
 
 from IPython.core.display import HTML, display
-
+from IPython.display import IFrame
 import numpy
 import requests
 
@@ -12,7 +12,7 @@ from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_l
 from mapboxgl import templates
 
 
-GL_JS_VERSION = 'v1.5.0'
+GL_JS_VERSION = 'v1.0.0'
 
 
 class VectorMixin(object):
@@ -252,13 +252,26 @@ class MapViz(object):
                     width=self.width,
                     height=self.height))
 
-    def show(self, **kwargs):
+    def as_iframe2(self, html_data):
+        """Build the HTML representation for the mapviz, using Jupyter Iframe"""
+
+        srcdoc = html_data.replace('"', "'")
+        return ('<iframe id="{div_id}", srcdoc="{srcdoc}>'.format(
+                    div_id=self.div_id,
+                    srcdoc=srcdoc))
+
+    def show(self, iframe = False, **kwargs):
         # Load the HTML iframe
         html = self.create_html(**kwargs)
-        map_html = self.as_iframe(html)
+
 
         # Display the iframe in the current jupyter notebook view
-        display(HTML(map_html))
+        if (iframe):
+          map_html = self.as_iframe2(html)  
+          display(IFrame(map_html,self.width,self.height))
+        else:
+          map_html = self.as_iframe(html)
+          display(HTML(map_html))
 
     def add_unique_template_variables(self, options):
         pass
