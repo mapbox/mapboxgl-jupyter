@@ -11,7 +11,7 @@ from mapboxgl.errors import SourceDataError, DateConversionError
 from mapboxgl.utils import (df_to_geojson, geojson_to_dict_list, scale_between, create_radius_stops,
                             create_weight_stops, create_numeric_stops, create_color_stops, 
                             img_encode, rgb_tuple_from_str, color_map, height_map, numeric_map,
-                            convert_date_columns)
+                            convert_date_columns, step_map)
 
 
 @pytest.fixture()
@@ -171,6 +171,12 @@ def test_color_map_interp_exact():
     assert color_map(0.0, interp_stops, 'rgb(32,32,32)') == 'rgb(255,0,0)'
 
 
+def test_color_map_step():
+    """Get color for numeric lookup value in categorical color stops if number exists in stops"""
+    step_stops = [[0.0, 'rgb(255,0,0)'], [50.0, 'rgb(255,255,0)'], [1000.0, 'rgb(0,0,255)']]
+    assert step_map(17, step_stops, 'orange') == 'rgb(255,0,0)'
+
+
 def test_numeric_map():
     """Map interpolated (or matched) value from numeric stops"""
     stops = [[0.0, 0], [50.0, 5000.0], [1000.0, 100000.0]]
@@ -199,6 +205,12 @@ def test_numeric_map_exact():
     """Compute mapping for lookup value exactly matching numeric stop in stops"""
     stops = [[0.0, 0], [50.0, 5000.0], [1000.0, 100000.0]]
     assert numeric_map(50.0, stops, 42) == 5000.0
+
+
+def test_numeric_map_step():
+    """Match value from numeric stops"""
+    step_stops = [[0.0, 0.1], [50.0, 0.5], [1000.0, 1.0]]
+    assert step_map(17, step_stops, 0.0) == 0.1
 
 
 def test_create_numeric_stops():

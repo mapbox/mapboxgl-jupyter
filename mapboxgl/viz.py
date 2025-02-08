@@ -1,14 +1,15 @@
 import codecs
 import json
 import os
+import warnings
 
 from IPython.core.display import HTML, display
 
 import numpy
 import requests
 
-from mapboxgl.errors import TokenError, LegendError
-from mapboxgl.utils import color_map, numeric_map, img_encode, geojson_to_dict_list
+from mapboxgl.errors import TokenError, LegendError, ExpressionTypeError
+from mapboxgl.utils import color_map, numeric_map, step_map, img_encode, geojson_to_dict_list
 from mapboxgl import templates
 
 
@@ -29,7 +30,17 @@ class VectorMixin(object):
         for row in self.data:
             
             # map color to JSON feature using color_property
-            color = color_map(row[self.color_property], self.color_stops, self.color_default)
+            if self.color_function_type in ['interpolate', 'match']:
+                color = color_map(row[self.color_property], self.color_stops, self.color_default)
+            
+            if self.color_function_type == 'identity':
+                try:
+                    color = row[self.color_property]
+                except KeyError:
+                    color = self.color_default
+
+            elif self.color_function_type == 'step':
+                color = step_map(row[self.color_property], self.color_stops, self.color_default)
 
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], color])
@@ -55,7 +66,17 @@ class VectorMixin(object):
         for row in self.data:
 
             # map value to JSON feature using the numeric property
-            value = numeric_map(row[lookup_property], numeric_stops, default)
+            if function_type in ['interpolate', 'match']:
+                value = numeric_map(row[lookup_property], numeric_stops, default)
+
+            if function_type == 'identity':
+                try:
+                    value = row[lookup_property]
+                except KeyError:
+                    value = default
+
+            elif function_type == 'step':
+                value = step_map(row[lookup_property], numeric_stops, default)
             
             # link to vector feature using data_join_property (from JSON object)
             vector_stops.append([row[self.data_join_property], value])
@@ -70,6 +91,51 @@ class VectorMixin(object):
             self.vector_source = True
         else:
             self.vector_source = False
+
+
+class ExpressionsMixin(object):
+
+    def validate_function_types(self):
+        """
+        validate the color_function_type, height_function_type, and radius_function_type
+        """        
+        
+        allowed_types = ['interpolate', 'match', 'identity', 'step']
+
+        for prop in ['color', 'radius', 'height', 'line_width']:
+
+            try:
+                function_type = getattr(self, '{}_function_type'.format(prop))
+                if function_type not in allowed_types:
+                    message = '`{0}_function_type` must be one of `{1}`.'.format(prop, 
+                        '`, `'.join(allowed_types))
+                    raise ExpressionTypeError(message)
+
+            except AttributeError:
+                pass
+
+    def validate_legend_settings(self):
+        """
+        validate that legend display settings are compatible with color_function_type and 
+        radius_function_type
+        """
+
+        try:
+
+            if self.legend and self.color_function_type == 'identity':
+                message = ''.join(['`legend` = True is incompatible with selected ',
+                                   '`color_function_type` = \'identity\'.'])
+
+                warnings.warn(message)
+
+            if self.legend_gradient and self.color_function_type in ['step', 'identity']:
+                message = ''.join(['`legend_gradient` = True is incompatible with selected ',
+                                   '`color_function_type`. `color_function_type` must be one ',
+                                   'of `{}`.'.format('`, `'.join(allowed_types[:2]))])
+                raise ExpressionTypeError(message)
+        
+        except AttributeError:
+            pass
 
 
 class MapViz(object):
@@ -266,6 +332,9 @@ class MapViz(object):
     def create_html(self, filename=None):
         """Create a circle visual from a geojson data source"""
         
+        # automatic behavior for property function types defined as "identity"
+        self.check_for_identity_property()
+
         if isinstance(self.style, str):
             style = "'{}'".format(self.style)
         else:
@@ -298,6 +367,10 @@ class MapViz(object):
             scalePosition=self.scale_position,
             scaleFillColor=self.scale_background_color,
             scaleTextColor=self.scale_text_color,
+            showLegend=False,
+            legendGradient=json.dumps(False),
+            legendNumericPrecision=json.dumps(0),
+            legendKeyBordersOn=json.dumps(False)
         )
 
         if self.legend:
@@ -356,8 +429,26 @@ class MapViz(object):
         else:
             return templates.format(self.template, **options)
 
+    def check_for_identity_property(self):
+        """
+        automatic behavior for property function types defined as "identity"
+        """
+        for attribute in ['color', 'radius', 'height', 'line_width']:
+            
+            # if self.***_property exists
+            if hasattr(self, '{}_property'.format(attribute)):
 
-class CircleViz(VectorMixin, MapViz):
+                # if self.****_function_type == 'identity'
+                if getattr(self, '{}_function_type'.format(attribute)) == 'identity':
+                    
+                    # self.***_property = ***
+                    setattr(self, '{}_property'.format(attribute), attribute)
+                    
+                    # self.***_stops = []
+                    setattr(self, '{}_stops'.format(attribute), [])
+
+
+class CircleViz(ExpressionsMixin, VectorMixin, MapViz):
     """Create a circle map"""
 
     def __init__(self,
@@ -400,6 +491,10 @@ class CircleViz(VectorMixin, MapViz):
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
 
+        # raise errors if incorrectly configured
+        self.validate_function_types()
+        self.validate_legend_settings()
+
     def add_unique_template_variables(self, options):
         """Update map template variables specific to circle visual"""
         options.update(dict(
@@ -418,7 +513,7 @@ class CircleViz(VectorMixin, MapViz):
             options.update(vectorColorStops=self.generate_vector_color_map())
 
 
-class GraduatedCircleViz(VectorMixin, MapViz):
+class GraduatedCircleViz(ExpressionsMixin, VectorMixin, MapViz):
     """Create a graduated circle map"""
 
     def __init__(self,
@@ -469,6 +564,10 @@ class GraduatedCircleViz(VectorMixin, MapViz):
         self.stroke_width = stroke_width
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
+
+        # raise errors if incorrectly configured
+        self.validate_function_types()
+        self.validate_legend_settings()
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to graduated circle visual"""
@@ -601,7 +700,6 @@ class ClusteredCircleViz(MapViz):
         self.color_default = color_default
         self.stroke_color = stroke_color
         self.stroke_width = stroke_width
-        self.color_default = color_default
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
 
@@ -609,7 +707,7 @@ class ClusteredCircleViz(MapViz):
         """Update map template variables specific to a clustered circle visual"""
         options.update(dict(
             colorStops=self.color_stops,
-            colorDefault=self.color_default,
+            defaultColor=self.color_default,
             radiusStops=self.radius_stops,
             clusterRadius=self.clusterRadius,
             clusterMaxZoom=self.clusterMaxZoom,
@@ -620,7 +718,7 @@ class ClusteredCircleViz(MapViz):
         ))
 
 
-class ChoroplethViz(VectorMixin, MapViz):
+class ChoroplethViz(ExpressionsMixin, VectorMixin, MapViz):
     """Create a choropleth viz"""
 
     def __init__(self,
@@ -682,6 +780,10 @@ class ChoroplethViz(VectorMixin, MapViz):
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
 
+        # raise errors if incorrectly configured
+        self.validate_function_types()
+        self.validate_legend_settings()
+
     def add_unique_template_variables(self, options):
         """Update map template variables specific to heatmap visual"""
 
@@ -699,7 +801,7 @@ class ChoroplethViz(VectorMixin, MapViz):
             self.line_dash_array = [1, 0]
 
         # check if choropleth map should include 3-D extrusion
-        self.extrude = all([bool(self.height_property), bool(self.height_stops)])
+        self.extrude = all([bool(self.height_property), bool(self.height_stops)]) or (self.height_function_type == 'identity')
 
         # common variables for vector and geojson-based choropleths
         options.update(dict(
@@ -809,7 +911,7 @@ class RasterTilesViz(MapViz):
             tiles_bounds=self.tiles_bounds if self.tiles_bounds else 'undefined'))
 
 
-class LinestringViz(VectorMixin, MapViz):
+class LinestringViz(ExpressionsMixin, VectorMixin, MapViz):
     """Create a linestring viz"""
 
     def __init__(self,
@@ -861,6 +963,10 @@ class LinestringViz(VectorMixin, MapViz):
         self.line_width_function_type = line_width_function_type
         self.legend_key_shape = legend_key_shape
         self.highlight_color = highlight_color
+
+        # raise errors if incorrectly configured
+        self.validate_function_types()
+        self.validate_legend_settings()
 
     def add_unique_template_variables(self, options):
         """Update map template variables specific to linestring visual"""
