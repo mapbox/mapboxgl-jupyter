@@ -460,7 +460,7 @@ The `RasterTilesViz` object handles the creation of a simple raster tiles visual
 
 Parameter | Description | Example
 --|--|--
-tiles_url | tiles endpoint | 'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'
+tiles_url | tiles endpoint | 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
 tiles_size | mapbox-gl tiles size | 256
 tiles_bounds | tiles endpoint bounds | [124.97480681619507, 10.876763902260592, 124.99391704636035, 10.888369402219947]
 tiles_minzoom | tiles endpoint min zoom | 0
